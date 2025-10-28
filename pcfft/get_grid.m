@@ -44,6 +44,8 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, tol, fi
     % Get the half_sidelen and center of the points to specify the regular grid
     [half_sidelen, center] = bounding_box(src_info.r);
 
+    % TODO: figure out 
+
     if dim == 2
         eval_pt = get_ring_points(100, 1.1 * targ_info.radius);
     else
