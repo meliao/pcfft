@@ -22,15 +22,15 @@ evaluate FFT of kern_0 on grid
 
 
 ```
-str = A_spread_s * mu;
-str = full(str);
+str = A_spread_s * mu; str = full(str);
 
 str_hat = fft2(reshape(str,grid_info.ngrid,grid_info.ngrid));
-u_hat = kern_hat.*str_hat;
+u_hat = kern_hat .* str_hat;
 ugrid = ifft2(u_hat);
     
 u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
 ```
+
 
 
 
