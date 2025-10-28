@@ -4,7 +4,12 @@ This repository provides routines for quickly computing N-Body calculations in 2
 $$u_i = \sum_{j\neq i} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
 
 Also supports sums of the form
-$$u_i = \sum_{j\neq i} \partial_{\mathbf{n}_j} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
+
+$$v_i = \sum_{j\neq i} \partial_{\mathbf{n}_j} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
+
+$$w_i = \sum_{j\neq i} \partial_{\mathbf{n}_i} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
+
+$$\tilde{w}_i = \sum_{j\neq i} \partial_{\mathbf{n}_i}\partial_{\mathbf{n}_j} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
 
 ### User-callable precomputation routines
 [grid_info, pxyinfo] = get_grid(kern, srcinfo, targinfo, eps, fill)
@@ -33,6 +38,7 @@ ugrid = ifft2(u_hat);
     
 u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
 ```
+
 
 
 
