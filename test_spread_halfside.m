@@ -18,8 +18,12 @@ half_side
 
 pts = half_side * [[-1;-1],[-1;1], [1;1], [1;-1] , [-1;-1]];
 
+thetas = linspace(0,2*pi);
+pxy2 = crad*[cos(thetas);sin(thetas)];
+
 hold on
 plot(pts(1,:), pts(2,:),'linewidth',2)
+plot(pxy2(1,:), pxy2(2,:),'linewidth',2)
 hold off
 
 axis equal
