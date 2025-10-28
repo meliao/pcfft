@@ -13,6 +13,10 @@ This routine returns the matrix that maps charge strengths at srcinfo.r to charg
 A_add_sub = get_addsub(kern_0, kern_s, kern_t, kern_st, srcinfo, targinfo, grid_info, pxyinfo, sortinfo_s, sortinfo_t)
 This routine returns the matrix that fixes the interactions that are done incorrectly by the fast apple
 
+kern_hat = get_kernhat(kern_0, grid_info)
+evaluate FFT of kern_0 on grid
+
+
 
 
 
