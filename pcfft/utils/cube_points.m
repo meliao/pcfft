@@ -1,4 +1,4 @@
-function pts = get_cube_points(n, half_sidelen, center)
+function pts = cube_points(n, half_sidelen, center)
 % Returns a discretization of the cube with n points per
 % dimension on each face.
 if nargin < 3
