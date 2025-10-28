@@ -1,6 +1,6 @@
 % Makes sure get_spread returns without error on a 2D input.
-addpath('../../pcfft/utils');
-addpath('../../pcfft');
+addpath(genpath('../../pcfft'));
+
 
 rad = 10.0;
 tol = 1e-13;
