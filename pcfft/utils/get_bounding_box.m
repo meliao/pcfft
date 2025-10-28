@@ -1,0 +1,1 @@
+function bounds = get_bounding_box()
