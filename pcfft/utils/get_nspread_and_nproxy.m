@@ -1,4 +1,4 @@
-function [grid_info, proxy_info] = get_nspread_and_nproxy(kernel, dim, tol, halfside)
+function [spread_info, proxy_info] = get_nspread_and_nproxy(kernel, dim, tol, halfside)
     
 
     % Initialize a collection of 100 random source points and weights inside a box/cube
@@ -152,12 +152,13 @@ function [grid_info, proxy_info] = get_nspread_and_nproxy(kernel, dim, tol, half
     disp("Final nspread " + int2str(nspread));
 
 
-    grid_info = struct;
-    grid_info.nspread = nspread;
-    grid_info.dim = dim;
-    grid_info.r = reg_pts;
-    grid_info.ngrid = size(reg_pts, 2);
-    grid_info.halfside = halfside;
+    spread_info = struct;
+    spread_info.nspread = nspread;
+    spread_info.dim = dim;
+    spread_info.rloc = reg_pts;
+    spread_info.ngrid = size(reg_pts, 2);
+    spread_info.halfside = halfside;
+    spread_info.dx = halfside / ((nspread-1)/2);
     
 
     proxy_info = struct;
