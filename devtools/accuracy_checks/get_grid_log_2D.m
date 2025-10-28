@@ -31,7 +31,7 @@ n_reg_vals = ones(n_tol_vals, 1);
 for i = 1:n_tol_vals
     tol = tol_vals(i);
     % Get the number of discretization points necessary
-    [n_reg_pts, n_proxy_pts] = find_proxy_size(k, half_side_len, 2, ...
+    [n_reg_pts, n_proxy_pts] = get_grid(k, half_side_len, 2, ...
         rad, tol);
     
     reg_pts = get_regular_grid(n_reg_pts , half_side_len, 2);

@@ -1,4 +1,11 @@
+% Evaluate the accuracy of the computed proxy size for a 3D problem
+% with 1/r kernel.
+% Looks at convergence against requested tolerance for a fixed 
+% patch size.
+
+
 addpath('../utils');
+
 % ring of radius <rad> discretized with <n_proxy_pts>
 rad = 3.0;
 
@@ -23,14 +30,14 @@ target_vals = K_src_to_target * src_weights(:);
 % Define the kernel
 k = @(s,t) one_over_r_kernel(s,t);
 
-tol_vals = [1e-04 1e-05 1e-06 1e-07 1e-08];
+tol_vals = [1e-03 1e-04 1e-05 1e-06 1e-07 1e-08 1e-09];
 n_tol_vals = size(tol_vals, 2);
 error_vals = ones(n_tol_vals, 1);
 n_reg_vals = ones(n_tol_vals, 1);
 for i = 1:n_tol_vals
     tol = tol_vals(i);
     % Get the number of discretization points necessary
-    [n_reg_pts, n_proxy_pts] = find_proxy_size(k, half_side_len, 3, ...
+    [n_reg_pts, n_proxy_pts] = get_grid(k, half_side_len, 3, ...
         rad, tol);
     
     reg_pts = get_regular_grid(n_reg_pts , half_side_len, 3);

@@ -1,4 +1,5 @@
-addpath("../utils")
+addpath('../../pcfft/utils');
+
 n = 3;
 half_sidelen = 0.5;
 

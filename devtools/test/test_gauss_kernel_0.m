@@ -1,5 +1,5 @@
 % Ensure things run without error and return the correct size.
-addpath(['../utils']);
+addpath('../../pcfft/utils');
 n_src = 7;
 src_pts = randn(2,n_src);
 

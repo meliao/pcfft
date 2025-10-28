@@ -1,5 +1,5 @@
 % Tests return shapes are correct in 2D
-addpath("../utils");
+addpath('../../pcfft/utils');
 
 n = 17;
 rad = 2.0;

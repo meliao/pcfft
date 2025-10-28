@@ -1,5 +1,6 @@
 % Tests return shapes are correct in 2D and 3D
-addpath("../utils");
+addpath('../../pcfft/utils');
+
 
 dim = 2;
 n = 13;
