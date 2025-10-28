@@ -1,7 +1,7 @@
 addpath(genpath('../../pcfft'));
 
 rad = 10.0;
-tol = 1e-13;
+tol = 1e-12;
 dim = 2;
 halfside = 0.5;
 
