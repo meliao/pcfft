@@ -1,4 +1,4 @@
-function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, tol, fill)
+function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, tol, n_nbr)
     % Computes the number of regular gridpoints on a box or cube with size
     % <half_sidelen> needed to approximate an evaluation of the kernel at a
     % point at least <radius> away.
@@ -15,8 +15,9 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, tol, fi
     %                   source points to the target points.
     %           tol : float specifying absolute error tolerance. Evaluated at a surface
     %               which is 1.1 * radius of the proxy surface
-    %           fill : (optional) int specifying the max number of source points that are allowed 
-    %               to be within 3 * dx of any source point. Defaults to floor(n_src_pts / 20)
+    %           n_nbr : (optional) int specifying the average number of
+    %               interactions that must be done directly. Defaults to
+    %               1000
     %
     % Returns grid_info: struct with fields
     %               .n_per_dim : integer describing the number of points per dimension
@@ -38,11 +39,13 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, tol, fi
     dim = size(src_info.r, 1);
     nsrc = size(src_info.r, 2);
     if nargin < 5
-        fill = max(1, floor(nsrc / 20));
+        n_nbr = 1000;
     end
+    crad = 2;
 
     % Get the half_sidelen and center of the points to specify the regular grid
-    [half_sidelen, center] = bounding_box(src_info.r);
+    [Lbd, center] = bounding_box([src_info.r,targ_info.r]);
+    half_side = spread_halfside([src_info.r,targ_info.r], n_nbr, crad);
 
     % TODO: figure out 
 
