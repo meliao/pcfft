@@ -40,16 +40,13 @@ targ_info_3d.radius = 4.0;
 targ_info_3d.r = (rand(3, n_targ) - 0.5) * half_sidelen;
 tol = 1e-08;
 
-<<<<<<< HEAD
+
 [grid_info, proxy_info, rgrid, ngrid] = get_grid(@one_over_r_kernel, ...
-=======
-[grid_info, proxy_info, rgrid] = get_grid(@one_over_r_kernel, ...
->>>>>>> 44fa9cf (Have binning in 2D working.)
     src_info_3d, targ_info_3d, tol);
 
 assert(grid_info.dim == dim);
 assert(proxy_info.dim == dim);
-<<<<<<< HEAD
+
 
 
 figure(1);clf
@@ -57,7 +54,6 @@ scatter3(src_info_3d.r(1,:), src_info_3d.r(2,:), src_info_3d.r(3,:))
 hold on
 scatter3(rgrid(1,:), rgrid(2,:), rgrid(3,:),'.')
 hold off
-=======
+
 assert(ngrids(rgrid) == 2);
 assert(size(rgrid, 1) == 3);
->>>>>>> 44fa9cf (Have binning in 2D working.)
