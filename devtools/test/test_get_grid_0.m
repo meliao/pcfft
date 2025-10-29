@@ -20,12 +20,8 @@ targ_info_2d.r = (rand(2, n_targ) - 0.5) * half_sidelen;
 
 
 
-<<<<<<< HEAD
-[grid_info, proxy_info, rgrid, ngrid] = get_grid(@log_kernel, ...
-=======
-[grid_info, proxy_info, rgrid] = get_grid(@log_kernel, ...
->>>>>>> 44fa9cf (Have binning in 2D working.)
-    src_info_2d, targ_info_2d, tol);
+
+[grid_info, proxy_info, rgrid, ngrid] = get_grid(@log_kernel,src_info_2d, targ_info_2d, tol);
 
 assert(grid_info.dim == dim);
 assert(proxy_info.dim == dim);
