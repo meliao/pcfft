@@ -12,4 +12,5 @@ rz = src_pts(3, :) - target_pts(3, :).';
 
 dist = sqrt(rx.^2 + ry.^2 + rz.^2);
 k_evals = 1 ./ dist;
+k_evals(dist < 1e-14) = 0;
 end

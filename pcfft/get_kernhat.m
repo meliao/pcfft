@@ -1,10 +1,12 @@
-function kern_hat = get_kernhat(kern,rgrid, ngrid)
-% evaluate Fourier transform of kernel on grid
+function kern_hat = get_kernhat(kern,rgrid, ngrid, Lbd, dx)
+% evaluate Fourier transform of kernel on rgrid
 
-kernvals = kern(rgrid(:,1), rgrid);
-kernvals = reshape(kernvals, ngrid,ngrid);
+rgrid0 = Lbd(:,1) + dx*ngrid(:);
+kernvals = kern(rgrid0, rgrid);
 
-kernvalshift = fftshift(kernvals);
+kernvals = reshape(kernvals, 2*ngrid(:)'+1);
+
+kernvalshift = ifftshift(kernvals);
 kern_hat = fft2(kernvalshift);
 
 end

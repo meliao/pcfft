@@ -1,4 +1,4 @@
-function [spread_info, proxy_info, rgrid, ngrid] = get_grid(kernel, src_info, targ_info, tol, n_nbr)
+function [spread_info, proxy_info, rgrid, ngrid, Lbd] = get_grid(kernel, src_info, targ_info, tol, n_nbr)
     % Computes the number of regular gridpoints on a box or cube with size
     % <half_sidelen> needed to approximate an evaluation of the kernel at a
     % point at least <radius> away.
