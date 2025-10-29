@@ -1,4 +1,4 @@
-function [spread_info, proxy_info, rgrid] = get_grid(kernel, src_info, targ_info, tol, n_nbr)
+function [spread_info, proxy_info, rgrid, ngrid] = get_grid(kernel, src_info, targ_info, tol, n_nbr)
     % Computes the number of regular gridpoints on a box or cube with size
     % <half_sidelen> needed to approximate an evaluation of the kernel at a
     % point at least <radius> away.
@@ -52,20 +52,20 @@ function [spread_info, proxy_info, rgrid] = get_grid(kernel, src_info, targ_info
     [spread_info, proxy_info] = compute_nspread_nproxy(kernel, dim, tol, halfside);
     
     % get total grid
-    ndim = ceil(diff(Lbd, 1, 2) / spread_info.dx);
+    ngrid = ceil(diff(Lbd, 1, 2) / spread_info.dx);
     rpad = 2;
 
     disp(size(Lbd));
 
     if dim == 2
-        xx = Lbd(1,1) + (0:rpad*ndim(1)) *spread_info.dx;
-        yy = Lbd(1,2) + (0:rpad*ndim(2)) *spread_info.dx;
+        xx = Lbd(1,1) + (0:rpad*ngrid(1)) *spread_info.dx;
+        yy = Lbd(2,1) + (0:rpad*ngrid(2)) *spread_info.dx;
         [X, Y] = meshgrid(xx,yy);
         rgrid = [X(:).'; Y(:).'];
     elseif dim ==3
-        xx = Lbd(1,1) + (0:rpad*ndim(1)) *spread_info.dx;
-        yy = Lbd(1,2) + (0:rpad*ndim(2)) *spread_info.dx;
-        zz = Lbd(1,3) + (0:rpad*ndim(3)) *spread_info.dx;
+        xx = Lbd(1,1) + (0:rpad*ngrid(1)) *spread_info.dx;
+        yy = Lbd(2,1) + (0:rpad*ngrid(2)) *spread_info.dx;
+        zz = Lbd(3,1) + (0:rpad*ngrid(3)) *spread_info.dx;
         [X, Y, Z] = meshgrid(xx,yy,zz);
         rgrid = [X(:).'; Y(:).' ; Z(:).'];
     end

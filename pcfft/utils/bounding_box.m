@@ -8,11 +8,11 @@ function [Lbd, center] = bounding_box(pts)
 
     dim = size(pts, 1);
     
-    mins = min(pts.');
-    maxs = max(pts.');
+    mins = min(pts,[],2);
+    maxs = max(pts,[],2);
 
     center = (mins + maxs) / 2;
-    center = center.';
+    center = center;
 
     Lbd = [mins, maxs];
 
