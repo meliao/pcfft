@@ -46,6 +46,13 @@ u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
  * [FLAM](https://github.com/klho/FLAM)
 
 
+### wishlist:
+vector valued kernels
+kernels with source and target information
+concentric proxy surfaces
+
+
+
 
 
 
