@@ -51,13 +51,18 @@ function [spread_info, proxy_info, rgrid, ngrid] = get_grid(kernel, src_info, ta
     % get prototype grid for spreading
     [spread_info, proxy_info] = compute_nspread_nproxy(kernel, dim, tol, halfside);
     
-    % get total grid
+    % get total grid. 
+    % ngrid is the number of points in the x, y, z direction
+    % for the regular grid.
     ngrid = ceil(diff(Lbd, 1, 2) / spread_info.dx);
     rpad = 2;
 
     disp(size(Lbd));
 
     if dim == 2
+        % Create a regular grid with spacing dx starting at the xmin, ymin point
+        % specified by Lbd. Pad this grid 2x the size necessary. The padding
+        % is necessary for using the FFT in a later step.
         xx = Lbd(1,1) + (0:rpad*ngrid(1)) *spread_info.dx;
         yy = Lbd(2,1) + (0:rpad*ngrid(2)) *spread_info.dx;
         [X, Y] = meshgrid(xx,yy);

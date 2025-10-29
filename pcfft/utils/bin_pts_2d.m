@@ -1,38 +1,45 @@
-function [idstart,isort,r_sorted] = bin_pts_2d(r, dx, grid_info, nbin)
+function[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd,  nbin)
     % Sort points <r> into a number of bins.
-    % nbin = number of gridpoints across that the bins are.
-    if nargin < 4
+    % Imagine a regular grid with bounds [xmin ymin xmax ymax] = Lbd
+    % and grid spacing <dx>. There are [nx ny] = ngrid points 
+    % in each dimension.
+    % 
+    % We want to sort the points into bins which are <nbin> 
+    % regular gridpoints across.
+    % Create indices for these bins by looping over x first and then y.
+    if nargin < 5
         nbin = 1;
     end
 
+    % N_x_bins = ceil(ngrid(1)/nbin);
+    N_y_bins = ceil(ngrid(2)/nbin);
 
-    n_bins_per_dim = L * dx / nbin;
+    % Find the zero-indexed ID of the bin in the X dim that each 
+    % point occupies.
+    id_x = floor((r(1,:) - Lbd(1) + dx/2) / (nbin * dx));
+    % Same for the Y dim.
+    id_y = floor((r(2,:) - Lbd(2) + dx/2) / (nbin * dx)) + 1;
 
-    % Find the ID of the bin in the X dim that each point occupies.
-    id_x = round(r(1,:) / (nbin * dx)) + 1;
-    id_y = round(r(2,:) / (nbin * dx)) + 1;
-
-    bin_ids = id_x * n_bins_per_dim + id_y;
-    [idx_bin_ids, sorted_bin_ids] = sort(bin_ids);
+    bin_ids = id_x * N_y_bins + id_y;
+    % disp(bin_ids)
+    [sorted_bin_ids, sorted_idxes] = sort(bin_ids);
+    % disp(idx_bin_ids)
+    % disp(sorted_bin_ids)
 
     % Sort the points
-    r_sorted = r(:, idx_bin_ids);
+    r_sorted = r(:, sorted_idxes);
 
-    idbin = (id1-1)*nbin + id2;
-
-    [idbinsort,isort] = sort(idbin);
-    rsort = r(:,isort);
-
-    % idstart = zeros(1,nbin*nbin+1);
-    % ibin = 1; ibinold = 1; idstart(1) = 1;
-    % for i = 1:size(r,2)
-    %     if idbinsort(i)>ibin
-    %         ibinold = ibin;
-    %         ibin = idbinsort(i);
-    %         idstart(ibinold+1:ibin) = i;
-    %     end
-    % end
-    % idstart(ibin+1:end) = i+1;
-
+    % Form an array where id_start(i) gives us the index in 
+    % r_sorted for the first point with bin idx i.
+    id_start = zeros(1,sorted_bin_ids(end));
+    % Don't forget to fill the first index with 1
+    id_start(1) = 1;
+    current_idx = 1;
+    for i = 1:size(r,2)
+        if sorted_bin_ids(i) > current_idx
+            id_start(current_idx + 1) = i;
+            current_idx = current_idx + 1;
+        end
+    end
 end
 

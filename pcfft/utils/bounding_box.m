@@ -3,7 +3,11 @@ function [Lbd, center] = bounding_box(pts)
     % the center of the box.
     % Expects pts to have shape (dim, n_pts)
     % Return value: Lbd is an array of 
-    % [xmin ymin xmax ymax] or [xmin ymin zmin xmax ymax zmax]
+    % [xmin xmax
+    %  ymin ymax] with shape (2,2)
+    %  or [xmin xmax
+    %       ymin ymax
+    %       zmin zmax] with shape (3,2)
     % Center is the center of the bounding box.
 
     dim = size(pts, 1);

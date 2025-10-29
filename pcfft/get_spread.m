@@ -1,41 +1,21 @@
-function [A_spread, sort_info] = get_spread(kern_0, kern, src_info, grid_info, proxy_info)
+function [A_spread, sort_info] = get_spread(kern_0, kern, src_info, grid_info, proxy_info, nbin)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
-    %
-    %
-    %
-    % Inputs: kern_0 : 
-    %           kern : 
-    %           src_info : struct with fields
-    %               .n_per_dim : integer describing the number of points per dimension
-    %               .dim : integer specifying the dimension
-    %               .ngrid : integer specifying total number of points
-    %               .r : (dim, ngrid) array containing the points
-    %               .half_sidelen : float specifying the size of the regular grid.
-    %         proxy_info: struct with fields
-    %               .n_points_total : integer describing the total number of proxy points
-    %               .dim : dimension of the problem
-    %               .n_per_dim_3D : integer specifying how many points per dimension for 
-    %                   discretizing the cube.
-    %               .radius : float specifying the distance of proxy
-    %                   surface from the center of the regular grid.
-    %               .r : (dim, n_points_total) array containing the points
-    % Returns: A_spread : A matrix mapping charge strengths at the source points to weights on the equispaced grid. Has shape (n_equispaced_pts, n_src_pts)
-
+    % We want to 
+    if nargin < 6
+        nbin = 1;
+    end
     dim = proxy_info.dim;
 
 
-    % Evaluate kernel src -> proxy.
-    K_src_to_proxy = kern_0(src_info.r, proxy_info.r);
+    % First, sort the points into bins
+    if dim == 2
+        [r_sorted, bin_idxes, id_start] = bin_pts_2d(src_info.r, grid_info.dx, grid_info.ngrid, grid_info.Lbd, nbin)
+    else
+        [r_sorted, bin_idxes, id_start] = bin_pts_3d(src_info.r, grid_info.dx, grid_info.ngrid, grid_info.Lbd, nbin)
+    end
 
-    % Evaluate kernel equispaced -> proxy.
-    K_equi_to_proxy = kern_0(grid_info.r, proxy_info.r);
+    % Now, loop through the bins and 
 
-    % To find the equispaced weights c, we solve a least squares problem.
-    % K_equi_to_proxy c = K_src_to_proxy * src_weights
-    % So c = pinv(K_equi_to_proxy) * K_src_to_proxy * src_weights.
-    A_spread = pinv(K_equi_to_proxy) * K_src_to_proxy;
-
-    sort_info = null(1);
 
 end
