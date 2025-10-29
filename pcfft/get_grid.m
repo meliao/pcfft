@@ -20,10 +20,11 @@ function [spread_info, proxy_info, rgrid] = get_grid(kernel, src_info, targ_info
     %               1000
     %
     % Returns grid_info: struct with fields
+    %               .r : (dim, ngrid) array containing the points
+
     %               .n_per_dim : integer describing the number of points per dimension
     %               .dim : integer specifying the dimension
     %               .ngrid : integer specifying total number of points
-    %               .r : (dim, ngrid) array containing the points
     %               .half_sidelen : float specifying the size of the regular grid.
     %         proxy_info: struct with fields
     %               .n_points_total : integer describing the total number of proxy points
@@ -48,22 +49,24 @@ function [spread_info, proxy_info, rgrid] = get_grid(kernel, src_info, targ_info
     halfside = spread_halfside([src_info.r,targ_info.r], n_nbr, crad);
 
     % get prototype grid for spreading
-    [spread_info, proxy_info] = get_nspread_and_nproxy(kernel, dim, tol, halfside);
+    [spread_info, proxy_info] = compute_nspread_nproxy(kernel, dim, tol, halfside);
     
     % get total grid
     ndim = ceil(diff(Lbd, 1, 2) / spread_info.dx);
     rpad = 2;
 
+    disp(size(Lbd));
+
     if dim == 2
         xx = Lbd(1,1) + (0:rpad*ndim(1)) *spread_info.dx;
-        yy = Lbd(2,1) + (0:rpad*ndim(2)) *spread_info.dx;
+        yy = Lbd(1,2) + (0:rpad*ndim(2)) *spread_info.dx;
         [X, Y] = meshgrid(xx,yy);
         rgrid = [X(:).'; Y(:).'];
     elseif dim ==3
         xx = Lbd(1,1) + (0:rpad*ndim(1)) *spread_info.dx;
-        yy = Lbd(2,1) + (0:rpad*ndim(2)) *spread_info.dx;
-        zz = Lbd(3,1) + (0:rpad*ndim(3)) *spread_info.dx;
-        [X, Y, Z] = meshgrid(xx,yy);
+        yy = Lbd(1,2) + (0:rpad*ndim(2)) *spread_info.dx;
+        zz = Lbd(1,3) + (0:rpad*ndim(3)) *spread_info.dx;
+        [X, Y, Z] = meshgrid(xx,yy,zz);
         rgrid = [X(:).'; Y(:).' ; Z(:).'];
     end
 

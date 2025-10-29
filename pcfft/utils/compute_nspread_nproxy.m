@@ -1,4 +1,4 @@
-function [spread_info, proxy_info] = get_nspread_and_nproxy(kernel, dim, tol, halfside)
+function [spread_info, proxy_info] = compute_nspread_nproxy(kernel, dim, tol, halfside)
     
 
     % Initialize a collection of 100 random source points and weights inside a box/cube

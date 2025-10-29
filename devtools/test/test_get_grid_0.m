@@ -1,6 +1,5 @@
 % Make sure things return with correct shape in 2D
-addpath('../../pcfft/utils');
-addpath('../../pcfft');
+addpath(genpath('../../pcfft'));
 
 rad = 10.0;
 tol = 1e-13;
@@ -16,6 +15,9 @@ src_info_2d.weights = rand(n_src, 1);
 
 targ_info_2d = struct;
 targ_info_2d.radius = 4.0;
+n_targ = 17;
+targ_info_2d.r = (rand(2, n_targ) - 0.5) * half_sidelen;
+
 
 
 [grid_info, proxy_info] = get_grid(@log_kernel, ...
@@ -33,8 +35,10 @@ src_info_3d.weights = rand(n_src, 1);
 
 targ_info_3d = struct;
 targ_info_3d.radius = 4.0;
+targ_info_3d.r = (rand(3, n_targ) - 0.5) * half_sidelen;
+tol = 1e-08;
 
-[grid_info, proxy_info] = get_grid(@log_kernel, ...
+[grid_info, proxy_info] = get_grid(@one_over_r_kernel, ...
     src_info_3d, targ_info_3d, tol);
 
 assert(grid_info.dim == dim);
