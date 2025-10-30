@@ -55,6 +55,7 @@ function [spread_info, proxy_info, rgrid, ngrid, Lbd] = get_grid(kernel, src_inf
     % ngrid is the number of points in the x, y, z direction
     % for the regular grid.
     ngrid = ceil(diff(Lbd, 1, 2) / spread_info.dx);
+    % ngrid = ngrid*0 + max(ngrid)
     rpad = 2;
 
     disp(size(Lbd));

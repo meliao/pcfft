@@ -4,9 +4,9 @@ function kern_hat = get_kernhat(kern,rgrid, ngrid, Lbd, dx)
 rgrid0 = Lbd(:,1) + dx*ngrid(:);
 kernvals = kern(rgrid0, rgrid);
 
-kernvals = reshape(kernvals, 2*ngrid(:)'+1);
+kernvals = reshape(kernvals, flip(2*ngrid(:)'+1));
 
 kernvalshift = ifftshift(kernvals);
-kern_hat = fft2(kernvalshift);
+kern_hat = fftn(kernvalshift);
 
 end
