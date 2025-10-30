@@ -15,7 +15,11 @@ targ_info_2d.radius = 4.0;
 n_targ = 17;
 targ_info_2d.r = (rand(2, n_targ) - 0.5) * boxhalf_sidelen;
 
-[grid_info, proxy_info, rgrid, ngrid, Lbd] = get_grid(@log_kernel,src_info_2d, targ_info_2d, tol);
+[grid_info, proxy_info] = get_grid(@log_kernel,src_info_2d, targ_info_2d, tol);
+
+rgrid = grid_info.r;
+ngrid = grid_info.ngrid;
+Lbd = grid_info.Lbd;
 
 % define strengths and direct u
 
@@ -80,8 +84,12 @@ targ_info_3d.r = (rand(3, n_targ) - 0.5) * half_sidelen;
 tol = 1e-08;
 
 
-[grid_info, proxy_info, rgrid, ngrid, Lbd] = get_grid(@one_over_r_kernel,src_info_3d, targ_info_3d, tol);
+[grid_info, proxy_info] = get_grid(@one_over_r_kernel,src_info_3d, targ_info_3d, tol);
 
+
+rgrid = grid_info.r;
+ngrid = grid_info.ngrid;
+Lbd = grid_info.Lbd;
 % define strengths and direct u
 
 str = zeros(1,size(rgrid,2));

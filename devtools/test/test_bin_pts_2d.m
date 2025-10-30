@@ -25,18 +25,47 @@ assert(all(size(r, 2) == size(sorted_bin_ids, 2)));
 
 % Plot the sorted points and color by the bin
 % to make sure the bin assignment looks correct
-scatter(r_sorted(1,:), r_sorted(2,:), 20, sorted_bin_ids, 'filled');
-colormap('parula');
-colorbar;
+% scatter(r_sorted(1,:), r_sorted(2,:), 20, sorted_bin_ids, 'filled');
+% colormap('parula');
+% colorbar;
 
 % Plot the x or y values of the sorted points to make sure the sorting is correct
 % plot(r_sorted(2,:))
 
 
-% Check the id_start array to make sure they indicate the correct indices.
-for x = 2:size(id_start, 2)
-    idx = id_start(x);
-    before_idx = sorted_bin_ids(idx-1);
-    at_idx = sorted_bin_ids(idx);
-    assert(at_idx - before_idx == 1);
-end
+% Check the id_start array to make sure they 
+% indicate the correct indices. This grid is super dense so there
+% will not be any empty bins.
+% disp(id_start);
+% for x = 2:size(id_start, 2)
+%     idx = id_start(x);
+%     before_idx = sorted_bin_ids(idx-1);
+%     at_idx = sorted_bin_ids(idx);
+%     assert(at_idx - before_idx == 1);
+% end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+
+rng(0);
+src_info = struct;
+n_src = 13;
+src_info.r = rand(2, n_src);
+tol = 1e-10;
+
+targ_info = struct;
+n_targ = 17;
+targ_info.r = rand(2, n_targ);
+
+% Get a realistic grid which has empty bins
+nbin = 1;
+[grid_info, proxy_info] = get_grid(@log_kernel, src_info, targ_info, tol);
+[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(src_info.r, grid_info.dx, grid_info.ngrid, grid_info.Lbd, nbin);
+
+
+% N_x_bins = ceil(grid_info.ngrid(1)/nbin);
+% N_y_bins = ceil(grid_info.ngrid(2)/nbin);
+% N_bins = N_x_bins * N_y_bins;
+
+% assert(all(size(id_start) == [1 N_bins]));

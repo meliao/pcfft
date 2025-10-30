@@ -13,18 +13,19 @@ addpath(genpath("../../pcfft"));
 % scattered points.
 n_pts = 100000;
 L = 2.0;
-% Lbd = [-1 -0.5 1 0.5];
 Lbd = [-1 1
- -1 1];
+    -0.5 0.5];
+% Lbd = [-1 1
+%  -1 1];
 % r points live on [-1, 1]^2
 rng(0);
 r = (rand(2, n_pts) - 0.5) * L;
+r(2,:) = r(2,:)/2;
 
 % dx = 0.25, so the grid points are at
 % grid = [-1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
 dx = 0.25;
-% ngrid = [9 5];
-ngrid = [9 9];
+ngrid = [9 5];
 % When we set nbin = 3, we expect
 % bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
 nbin = 3;
@@ -45,7 +46,8 @@ disp("size of ctr")
 disp(size(grid_ctr))
 
 xgrid = [-1 -0.75 -0.5 -0.25 0 0.25 0.5 0.75 1];
-[X, Y] = meshgrid(xgrid, xgrid);
+ygrid = [-0.5 -0.25 0 0.25 0.5];
+[X, Y] = meshgrid(xgrid, ygrid);
 % Plot the sorted points and color by the bin
 % to make sure the bin assignment looks correct
 scatter(r_sorted(1,:), r_sorted(2,:), 20, sorted_bin_ids, 'filled');

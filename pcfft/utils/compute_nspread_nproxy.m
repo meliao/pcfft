@@ -1,5 +1,9 @@
 function [spread_info, proxy_info] = compute_nspread_nproxy(kernel, dim, tol, halfside)
     
+    % We intend to solve least squares problems with a 
+    % rank-deficient matrix in this script.
+    warning('off', 'MATLAB:rankDeficientMatrix')
+
 
     % Initialize a collection of 100 random source points and weights inside a box/cube
     % specified by size halfside
@@ -71,7 +75,6 @@ function [spread_info, proxy_info] = compute_nspread_nproxy(kernel, dim, tol, ha
         % Solve the least squares problem to find weights
         evals_at_proxy = K_source_to_proxy * src_weights;
 
-        % warning('off', 'MATLAB:rankDeficientMatrix')
         spread_weights = K_reg_to_proxy \ evals_at_proxy;
 
         % Eval the approximation at the eval point
@@ -154,10 +157,10 @@ function [spread_info, proxy_info] = compute_nspread_nproxy(kernel, dim, tol, ha
 
     spread_info = struct;
     spread_info.nspread = nspread;
-    spread_info.dim = dim;
-    spread_info.rloc = reg_pts;
-    spread_info.ngrid = size(reg_pts, 2);
-    spread_info.halfside = halfside;
+    % spread_info.dim = dim;
+    % spread_info.rloc = reg_pts;
+    % spread_info.ngrid = size(reg_pts, 2);
+    % spread_info.halfside = halfside;
     spread_info.dx = halfside / ((nspread-1)/2);
     
 

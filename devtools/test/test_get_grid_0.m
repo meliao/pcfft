@@ -20,13 +20,13 @@ targ_info_2d.r = (rand(2, n_targ) - 0.5) * half_sidelen;
 
 
 
-
-[grid_info, proxy_info, rgrid, ngrid] = get_grid(@log_kernel,src_info_2d, targ_info_2d, tol);
+[grid_info, proxy_info] = get_grid(@log_kernel, ...
+    src_info_2d, targ_info_2d, tol);
 
 assert(grid_info.dim == dim);
 assert(proxy_info.dim == dim);
-assert(ngrids(rgrid) == 2);
-assert(size(rgrid, 1) == 2);
+assert(ndims(grid_info.r) == 2);
+assert(size(grid_info.r, 1) == 2);
 
 
 dim = 3;
@@ -40,20 +40,18 @@ targ_info_3d.radius = 4.0;
 targ_info_3d.r = (rand(3, n_targ) - 0.5) * half_sidelen;
 tol = 1e-08;
 
-
-[grid_info, proxy_info, rgrid, ngrid] = get_grid(@one_over_r_kernel, ...
+[grid_info, proxy_info] = get_grid(@one_over_r_kernel, ...
     src_info_3d, targ_info_3d, tol);
 
 assert(grid_info.dim == dim);
 assert(proxy_info.dim == dim);
 
 
-
 figure(1);clf
 scatter3(src_info_3d.r(1,:), src_info_3d.r(2,:), src_info_3d.r(3,:))
 hold on
-scatter3(rgrid(1,:), rgrid(2,:), rgrid(3,:),'.')
+scatter3(grid_info.r(1,:), grid_info.r(2,:), grid_info.r(3,:),'.')
 hold off
 
-assert(ngrids(rgrid) == 2);
-assert(size(rgrid, 1) == 3);
+assert(ndims(grid_info.r) == 2);
+assert(size(grid_info.r, 1) == 3);

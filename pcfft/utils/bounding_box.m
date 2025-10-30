@@ -10,10 +10,10 @@ function [Lbd, center] = bounding_box(pts)
     %       zmin zmax] with shape (3,2)
     % Center is the center of the bounding box.
 
-    dim = size(pts, 1);
     
     mins = min(pts,[],2);
     maxs = max(pts,[],2);
+
 
     center = (mins + maxs) / 2;
     center = center;
