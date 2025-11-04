@@ -51,6 +51,16 @@ vector valued kernels
 kernels with source and target information
 concentric proxy surfaces
 
+### proposed parameter plan:
+
+Determine spreading box half side length
+Sweep up to determine number of proxy points and shells - do this with smallest bin size4
+Sweep down to determine nspread
+Sweep up to determine bin side that doesn't increase error too much
+Sweep up proxy points to bring this error back down to tolerance
+
+
+
 
 
 
