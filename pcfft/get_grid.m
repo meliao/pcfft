@@ -81,6 +81,9 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
         yy = Lbd(2, 1) + (0:rpad * ngrid(2)) * grid_info.dx;
         zz = Lbd(3, 1) + (0:rpad * ngrid(3)) * grid_info.dx;
         [X, Y, Z] = meshgrid(xx, yy, zz);
+        X = permute(X,[3,1,2]);
+        Y = permute(Y,[3,1,2]);
+        Z = permute(Z,[3,1,2]);
         rgrid = [X(:).'; Y(:).'; Z(:).'];
     end
 

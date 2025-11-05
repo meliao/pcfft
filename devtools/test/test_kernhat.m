@@ -75,12 +75,12 @@ colorbar
 dim = 3;
 src_info_3d = struct;
 n_src = 13;
-src_info_3d.r = (rand(3, n_src) - 0.5) * half_sidelen;
+src_info_3d.r = (rand(3, n_src) - 0.5) * boxhalf_sidelen;
 src_info_3d.weights = rand(n_src, 1);
 
 targ_info_3d = struct;
 targ_info_3d.radius = 4.0;
-targ_info_3d.r = (rand(3, n_targ) - 0.5) * half_sidelen;
+targ_info_3d.r = (rand(3, n_targ) - 0.5) * boxhalf_sidelen;
 tol = 1e-08;
 
 
