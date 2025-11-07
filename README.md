@@ -56,8 +56,9 @@ u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
 * Determine spreading box half side length
 * Sweep up to determine number of proxy points and shells - do this with source points in a box half the size of the spreading box
 * Sweep down to determine nspread
-* Sweep up to determine bin side that is an integer multiple of dx closest to half the box size
-* Sweep up proxy points to bring this error back down to tolerance
+* Determine bin side that is an integer multiple of dx closest to half the box size
+* Sweep up proxy points to bring the error back down to tolerance
+
 
 
 
