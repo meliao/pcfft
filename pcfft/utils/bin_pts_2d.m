@@ -1,4 +1,4 @@
-function [r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd,  nbin)
+function [r_sorted, sorted_bin_ids, id_start, sorted_idxes] = bin_pts_2d(r, dx, ngrid, Lbd,  nbin)
     % Sort points <r> into a number of bins.
     % Imagine a regular grid with bounds [xmin ymin xmax ymax] = Lbd
     % and grid spacing <dx>. There are [nx ny] = ngrid points 
@@ -21,11 +21,21 @@ function [r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd,  n
     if nargin < 5
         nbin = 1;
     end
+    disp("bin_pts_2d: size of r: " + int2str(size(r)))
 
-    N_x_bins = ceil(ngrid(1)/nbin);
-    N_y_bins = ceil(ngrid(2)/nbin);
-    disp("N_x_bins: " + int2str(N_x_bins))
-    disp("N_y_bins: " + int2str(N_y_bins))
+    % if ngrid(1) / nbin is an integer, then we need one extra bin
+    if mod(ngrid(1), nbin) == 0
+        N_x_bins = ngrid(1)/nbin;
+    else
+        N_x_bins = ceil(ngrid(1)/nbin);
+    end
+    if mod(ngrid(2), nbin) == 0
+        N_y_bins = ngrid(2)/nbin + 1;
+    else
+        N_y_bins = ceil(ngrid(2)/nbin);
+    end
+    disp("bin_pts_2d: N_x_bins: " + int2str(N_x_bins))
+    disp("bin_pts_2d: N_y_bins: " + int2str(N_y_bins))
     N_bins = N_x_bins * N_y_bins;
 
 
@@ -35,9 +45,11 @@ function [r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd,  n
     id_x = floor((r(1,:) - Lbd(1) + dx/2) / (nbin * dx));
     % Same for the Y dim.
     id_y = floor((r(2,:) - Lbd(2) + dx/2) / (nbin * dx));
+    disp("bin_pts_2d: id_x: " + int2str(id_x))
+    disp("bin_pts_2d: id_y: " + int2str(id_y))
 
     bin_ids = id_x * N_y_bins + id_y;
-    % disp(bin_ids)
+    disp("bin_pts_2d: bin_ids: " + int2str(bin_ids))
     [sorted_bin_ids, sorted_idxes] = sort(bin_ids);
     % disp(idx_bin_ids)
     % disp(sorted_bin_ids)
@@ -48,20 +60,21 @@ function [r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd,  n
     % Form an array where id_start(i) gives us the index in 
     % r_sorted for the first point with bin idx i.
     % If the bin is empty, id_start(i) = id_start(i-1)
-    id_start = zeros(1,N_bins+1);
-    ibin = 1;
-    id_start(1) = 1;
-    id_start(end) = size(r, 2) + 1;
 
-    % disp("sorted_bin_ids");
-    % disp(sorted_bin_ids);
+    % We want the slice (id_start(i+1) : id_start(i+2)-1) to give the
+    % indices of points in bin i.
+    id_start = ones(1,N_bins+1);
 
-
+    % Loop through sorted_bin_ids and fill in id_start
+    current_bin = 0;
     for i = 1:size(r,2)
-        if sorted_bin_ids(i) > ibin
-            ibinold = ibin;
-            ibin = sorted_bin_ids(i);
-            id_start(ibinold+1:ibin) = i;
+        bin_i = sorted_bin_ids(i);
+        if bin_i > current_bin
+            % Fill in all the bins we skipped
+            id_start(current_bin+2:bin_i+2) = i;
+            current_bin = bin_i;
         end
     end
-end
+    % Fill in the rest of the bins
+    id_start(current_bin+2:N_bins+1) = size(r, 2) + 1;
+

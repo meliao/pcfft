@@ -12,7 +12,11 @@ function [pts, center, row_idxes] = grid_pts_for_bin_2d(bin_idx, grid_info, nbin
     rpad = grid_info.rpad;
     ngrid = grid_info.ngrid;
 
-    N_y_bins = ceil(ngrid(2)/nbin);
+    if mod(ngrid(2), nbin) == 0
+        N_y_bins = ngrid(2)/nbin + 1;
+    else
+        N_y_bins = ceil(ngrid(2)/nbin);
+    end
     id_y = mod(bin_idx, N_y_bins);
     id_x = floor((bin_idx - id_y)/N_y_bins);
 

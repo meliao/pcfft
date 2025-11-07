@@ -1,19 +1,23 @@
-addpath('../utils');
-addpath("..");
-% ring of radius <rad> discretized with <n_proxy_pts>
-rad = 2.0;
+addpath(genpath("../../pcfft"));
 
+rad = 2.0;
 target_pts = sqrt(2.0) * rad * [1.0 1.0].';
 
 % Set up a random source
 rng(3);
-n_src = 100;
+n_src = 1000;
 half_side_len = 1.0;
 
 source_pts = (rand(2,n_src) - 0.5) * half_side_len;
 
 src_weights = rand(n_src,1);
 src_weights = src_weights(:);
+
+src_info = struct;
+src_info.r = source_pts;
+
+targ_info = struct;
+targ_info.r = source_pts;
 % disp(size(source_pts));
 % disp(size(src_weights));
 % assert(false);
@@ -30,12 +34,12 @@ error_vals = ones(n_tol_vals, 1);
 n_reg_vals = ones(n_tol_vals, 1);
 for i = 1:n_tol_vals
     tol = tol_vals(i);
-    % Get the number of discretization points necessary
-    [n_reg_pts, n_proxy_pts] = get_grid(k, half_side_len, 2, ...
-        rad, tol);
+    % Get the number of discretization points necessary. Set n_nbr = n_src
+    % so that there is only one spreading box
+    [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_src);
     
-    reg_pts = get_regular_grid(n_reg_pts , half_side_len, 2);
-    proxy_pts = get_ring_points(n_proxy_pts , rad);
+    reg_pts = get_regular_grid(grid_info.ngrid(1), half_side_len, 2);
+    proxy_pts = get_ring_points(proxy_info.n_points_total , rad);
     K_src_to_proxy = log_kernel(source_pts, proxy_pts);
     proxy_vals = K_src_to_proxy * src_weights(:);
     
@@ -50,7 +54,7 @@ for i = 1:n_tol_vals
     
     errors_at_target = abs(target_vals_approx - target_vals);
     error_vals(i) = errors_at_target;
-    n_reg_vals(i) = n_reg_pts;
+    n_reg_vals(i) = grid_info.ngrid(1);
 
 end
 disp(n_reg_vals)
