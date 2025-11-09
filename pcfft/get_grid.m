@@ -60,7 +60,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     halfside = spread_halfside([src_info.r, targ_info.r], n_nbr, crad);
 
     % get prototype grid for spreading
-    [grid_info, proxy_info] = compute_nspread_nproxy(kernel, dim, tol, halfside);
+    [grid_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad);
 
     % get total grid.
     % ngrid is the number of points in the x, y, z direction
@@ -86,6 +86,12 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
         Z = permute(Z,[3,1,2]);
         rgrid = [X(:).'; Y(:).'; Z(:).'];
     end
+
+    xx_dx = xx(2) - xx(1);
+    disp("get_grid: dx of xx: " + num2str(xx_dx))
+
+    yy_dy = yy(2) - yy(1);
+    disp("get_grid: dy of yy: " + num2str(yy_dy))
 
     % Update grid_info with some more data that we computed.
     grid_info.ngrid = ngrid;

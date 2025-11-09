@@ -40,5 +40,6 @@ disp(bin_idxes(end-10:end))
 
 % Assert that all of the id_start are positive
 assert(all(id_start > 0));
+
 % Assert that the last id_start is equal to n_src + 1
 assert(id_start(end) == n_src + 1);

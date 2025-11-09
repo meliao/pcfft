@@ -7,4 +7,4 @@ halfside = 0.5;
 
 k = @(s,t) one_over_r_kernel(s,t);
 
-[grid_info, proxy_info] = compute_nspread_nproxy(k, dim, tol, halfside);
+[grid_info, proxy_info] = dx_nproxy(k, dim, tol, halfside);

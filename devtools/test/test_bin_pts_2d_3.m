@@ -92,8 +92,8 @@ assert(all(id_start2 == expected_id_start2));
 
 % Put points at (-0.9, -0.4) idx_x 0, idx_y 0, bin 0
 %               (-0.9, -0.3) idx_x 0, idx_y 0, bin 0
-%               (0.8, 0.4)   idx_x 2, idx_y 1, bin 5
-r3 = [-0.9, -0.9, 0.8;
+%               (0.0, 0.4)   idx_x 1, idx_y 1, bin 3
+r3 = [-0.9, -0.9, 0.0;
        -0.4, -0.3, 0.4];
 assert(size(r3,1) == 2);
 assert(size(r3,2) == 3);
@@ -106,18 +106,20 @@ disp(bin_idxes3)
 disp("test case 3: id_start3:")
 disp(id_start3)
 
-expected_bin_idxes3 = [0, 0, 5];
+
+expected_bin_idxes3 = [0, 0, 3];
 assert(all(bin_idxes3 == expected_bin_idxes3));
 
 % For id_start3, we expect:
 % bin 0: points 1, 2 -> id_start3(1) = 1, id_start3(2) = 3
 % bin 1: no points  -> id_start3(2) = 3, id_start3(3) = 3
 % bin 2: no points  -> id_start3(3) = 3, id_start3(4) = 3
-% bin 3: no points  -> id_start3(4) = 3, id_start3(5) = 3
-% bin 4: no points  -> id_start3(5) = 3, id_start3(6) = 3
-% bin 5: point 3   -> id_start3(6) = 3, id_start3(7) = 4
+% bin 3: no points  -> id_start3(4) = 3, id_start3(5) = 4
+% bin 4: no points  -> id_start3(5) = 4, id_start3(6) = 4
+% bin 5: point 3   -> id_start3(6) = 4, id_start3(7) = 4
 % bin 6: no points  -> id_start3(7) = 4, id_start3(8) = 4
-expected_id_start3 = [1, 3, 3, 3, 3, 3, 4];
+expected_id_start3 = [1, 3, 3, 3, 4, 4, 4];
 disp("test case 3: expected_id_start3:")
 disp(expected_id_start3)
 assert(all(id_start3 == expected_id_start3));
+

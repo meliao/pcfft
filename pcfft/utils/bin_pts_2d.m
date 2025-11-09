@@ -21,11 +21,12 @@ function [r_sorted, sorted_bin_ids, id_start, sorted_idxes] = bin_pts_2d(r, dx, 
     if nargin < 5
         nbin = 1;
     end
-    disp("bin_pts_2d: size of r: " + int2str(size(r)))
+    disp("bin_pts_2d: Ngrid: ")
+    disp(ngrid)
 
     % if ngrid(1) / nbin is an integer, then we need one extra bin
     if mod(ngrid(1), nbin) == 0
-        N_x_bins = ngrid(1)/nbin;
+        N_x_bins = ngrid(1)/nbin ;
     else
         N_x_bins = ceil(ngrid(1)/nbin);
     end
@@ -34,6 +35,7 @@ function [r_sorted, sorted_bin_ids, id_start, sorted_idxes] = bin_pts_2d(r, dx, 
     else
         N_y_bins = ceil(ngrid(2)/nbin);
     end
+    disp("bin_pts_2d: nbin: " + int2str(nbin))
     disp("bin_pts_2d: N_x_bins: " + int2str(N_x_bins))
     disp("bin_pts_2d: N_y_bins: " + int2str(N_y_bins))
     N_bins = N_x_bins * N_y_bins;

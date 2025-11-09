@@ -16,6 +16,9 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info, nb
 
     end
 
+    disp("get_spread: id_start:")
+    disp(id_start)
+
     % We only need to compute the K_reg_to_proxy once, so we
     % will do it here.
     if dim == 2
@@ -59,7 +62,8 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info, nb
         % disp(center_i)
         % disp("get_spread: grid pts in bin:")
         % disp(pts_i)
-        src_pts_in_i = r_sorted(idx_start:idx_end);
+        src_pts_in_i = r_sorted(:, idx_start:idx_end);
+        % disp("get_spread: src_pts_in_i")
         src_pts_in_i_centered = src_pts_in_i - center_i;
 
         r_local(:, idx_start:idx_end) = src_pts_in_i_centered;
@@ -81,16 +85,21 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info, nb
             [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_3d();
         end
 
-        % If any of row_idxes_i exceed n_grid_pts, print out the info
-        % if any(row_idxes_i > n_grid_pts)
-        %     disp("get_spread: Warning: row_idxes_i exceed n_grid_pts")
-        % disp("get_spread: bin i: " + int2str(i))
-        % disp("get_spread: row_idxes_i:")
-        % disp(row_idxes_i)
-        % disp("get_spread: n_grid_pts: " + int2str(n_grid_pts))
-        % end
         idx_start = id_start(i+1);
         idx_end = id_start(i+2) - 1;
+
+        % Do the logging if there is a nonempty set of src point indices
+        % if idx_end >= idx_start
+        %     disp("get_spread: bin i: " + int2str(i))
+        %     disp("get_spread: row_idxes_i:")
+        %     disp(row_idxes_i)
+        %     disp("get_spread: n_grid_pts: " + int2str(n_grid_pts))
+        % else
+        %     disp("get_spread: bin i : " + int2str(i) + " empty")
+        %     disp("get_spread: idx_start: " +  num2str(idx_start))
+        %     disp("get_spread: idx_end: " +  num2str(idx_end))
+        % end
+
 
         K_src_to_proxy_i = K_src_to_proxy(:, idx_start:idx_end);
 
