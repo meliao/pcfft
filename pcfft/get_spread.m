@@ -27,7 +27,7 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info)
     end
     pts_0_centered = pts_0 - center_0;
     K_reg_to_proxy = kern_0(pts_0_centered, proxy_info.r);
-    K_reg_to_proxy_pinv = pinv(K_reg_to_proxy);
+    % K_reg_to_proxy_pinv = pinv(K_reg_to_proxy);
 
     % A is a sparse matrix with shape (ngrid^2, nsrc)
     n_grid_pts = size(grid_info.r, 2);
@@ -101,7 +101,8 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info)
 
         K_src_to_proxy_i = K_src_to_proxy(:, idx_start:idx_end);
 
-        block_content = K_reg_to_proxy_pinv * K_src_to_proxy_i;
+        % block_content = K_reg_to_proxy_pinv * K_src_to_proxy_i;
+        block_content = K_reg_to_proxy \ K_src_to_proxy_i;
 
         A_spread(row_idxes_i, idx_start:idx_end) = block_content;
 
