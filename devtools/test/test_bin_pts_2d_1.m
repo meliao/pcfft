@@ -12,10 +12,11 @@ r(2,:) = r(2,:);
 % x grid and y grid = [-1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
 dx = 0.25;
 ngrid = [9 9];
-% When we set nbin = 3, we expect
+% When we set nspread = 3, we expect
 % x bins and y bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
-nbin = 3;
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd, nbin);
+nspread = 3;
+nbin = [3 3];
+[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd, nbin, nspread);
 c = 1:n_pts;
 assert(all(size(r_sorted) == size(r)));
 assert(all(size(r, 2) == size(sorted_bin_ids, 2)));

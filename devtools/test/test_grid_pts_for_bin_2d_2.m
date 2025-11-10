@@ -25,28 +25,31 @@ r(2,:) = r(2,:)/2;
 % dx = 0.25, so the grid points are at
 % grid = [-1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
 dx = 0.25;
-ngrid = [9 5];
+ngrid = [9 6];
 % When we set nbin = 3, we expect
 % bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
-nbin = 3;
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd, nbin);
+nbin = [3 2];
+nspread = 3;
+[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd, nbin, nspread);
 
 grid_info = struct;
 grid_info.dx = dx;
 grid_info.ngrid = ngrid;
 grid_info.rpad = 2;
 grid_info.Lbd = Lbd;
+grid_info.nbin = nbin;
+grid_info.nspread = nspread;
 
 
 % Get pts for a certain bin idx
 bin_idx = 4;
-[grid_pts, grid_ctr] = grid_pts_for_bin_2d(bin_idx, grid_info, nbin);
+[grid_pts, grid_ctr] = grid_pts_for_bin_2d(bin_idx, grid_info);
 
 disp("size of ctr")
 disp(size(grid_ctr))
 
 xgrid = [-1 -0.75 -0.5 -0.25 0 0.25 0.5 0.75 1];
-ygrid = [-0.5 -0.25 0 0.25 0.5];
+ygrid = [-0.5 -0.25 0 0.25 0.5 0.75];
 [X, Y] = meshgrid(xgrid, ygrid);
 % Plot the sorted points and color by the bin
 % to make sure the bin assignment looks correct

@@ -65,7 +65,8 @@ tol = 1e-05;
 [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
 
 [r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(src_info.r, ...
-                grid_info.dx, grid_info.ngrid, grid_info.Lbd);
+                grid_info.dx, grid_info.ngrid, grid_info.Lbd, ...
+                grid_info.nbin, grid_info.nspread);
 disp("test: sorted_bin_ids")
 disp(sorted_bin_ids)
 
@@ -73,7 +74,7 @@ disp("test: id_start")
 disp(id_start)
 
 for bin_id = sorted_bin_ids
-    [pts_i, center, row_idxes] = grid_pts_for_bin_2d(bin_id, grid_info, 1);
+    [pts_i, center, row_idxes] = grid_pts_for_bin_2d(bin_id, grid_info);
     % pts_sliced should exactly match pts
     pts_sliced = grid_info.r(:, row_idxes);
     disp("test: pts_sliced");

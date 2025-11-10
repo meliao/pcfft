@@ -115,10 +115,9 @@ for i = 1:n_tol_vals
     targ_info = struct;
     targ_info.r = source_pts;
     [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
-    nbin = grid_info.nspread -1;
 
 
-    A_spread = get_spread(k, k, src_info, grid_info, proxy_info, nbin);
+    A_spread = get_spread(k, k, src_info, grid_info, proxy_info);
     reg_weights = A_spread * src_weights;
     reg_weights = full(reg_weights);
 

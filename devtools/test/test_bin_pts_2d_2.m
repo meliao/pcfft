@@ -25,10 +25,10 @@ n_nbr = 500; % 10000 points / 500 is approximately 20 boxes
 tol = 1e-04;
 k = @(s,t) log_kernel(s,t);
 [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
-nbin = grid_info.nspread;
+nbin = grid_info.nbin;
 
 [r_sorted, bin_idxes, id_start] = bin_pts_2d(src_info.r, ...
-    grid_info.dx, grid_info.ngrid, grid_info.Lbd, nbin);
+    grid_info.dx, grid_info.ngrid, grid_info.Lbd, grid_info.nbin, grid_info.nspread);
 
 % Display the last 10 entries of id_start
 disp("id_start:")
@@ -43,3 +43,9 @@ assert(all(id_start > 0));
 
 % Assert that the last id_start is equal to n_src + 1
 assert(id_start(end) == n_src + 1);
+
+% Assert that the bin_idxes are all within the correct
+% range.
+
+max_bin_idx = grid_info.nbin(2) * grid_info.nbin(1) - 1;
+assert(all(bin_idxes <= max_bin_idx));

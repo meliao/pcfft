@@ -1,18 +1,16 @@
-function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info, nbin)
+function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
-    % We want to 
-    if nargin < 6
-        nbin = 1;
-    end
     dim = proxy_info.dim;
 
 
     % First, sort the points into bins
     if dim == 2
-        [r_sorted, bin_idxes, id_start, sorted_idxes] = bin_pts_2d(src_info.r, grid_info.dx, grid_info.ngrid, grid_info.Lbd, nbin);
+        [r_sorted, bin_idxes, id_start, sorted_idxes] = bin_pts_2d(src_info.r, ...
+         grid_info.dx, grid_info.ngrid, grid_info.Lbd, grid_info.nbin, ...
+        grid_info.nspread);
     else
-        [r_sorted, bin_idxes, id_start] = bin_pts_3d(src_info.r, grid_info.dx, grid_info.ngrid, grid_info.Lbd, nbin);
+        [r_sorted, bin_idxes, id_start] = bin_pts_3d();
 
     end
 
@@ -23,9 +21,9 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info, nb
     % will do it here.
     if dim == 2
 
-        [pts_0, center_0, row_idxes_0] = grid_pts_for_bin_2d(0, grid_info, nbin);
+        [pts_0, center_0, row_idxes_0] = grid_pts_for_bin_2d(0, grid_info);
     else
-        [pts_0, center_0] = grid_pts_for_bin_3d(0, grid_info.dx, grid_info.ngrid, grid_info.Lbd, nbin);
+        [pts_0, center_0] = grid_pts_for_bin_3d();
     end
     pts_0_centered = pts_0 - center_0;
     K_reg_to_proxy = kern_0(pts_0_centered, proxy_info.r);
@@ -51,7 +49,7 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info, nb
 
         % Get the regular grid points and centers of bin i
         if dim == 2
-            [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_2d(i-1, grid_info, nbin);
+            [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_2d(i-1, grid_info);
         else
             [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_3d();
         end
@@ -80,7 +78,7 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info, nb
     % Remember, we 0-indexed the bin IDs
     for i = 0:size(id_start,2) - 2
         if dim == 2
-            [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_2d(i, grid_info, nbin);
+            [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_2d(i, grid_info);
         else
             [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_3d();
         end

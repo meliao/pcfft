@@ -12,8 +12,31 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
     % specified by size halfside
     nsrc = 100;
     rng(0);
+    nsrc_deterministic = 2^dim ;
+    % Put the source points at the corner of the spreading grid.
+    if dim == 2
+        src_pts_d = [-halfside/2 -halfside/2
+                    -halfside/2 halfside/2
+                    halfside/2 -halfside/2
+                    halfside/2 halfside/2].';
+    else
+        src_pts_d = [-halfside/2 -halfside/2 -halfside/2
+                    -halfside/2 halfside/2 -halfside/2
+                    halfside/2 -halfside/2 -halfside/2
+                    halfside/2 halfside/2  -halfside/2
+                    -halfside/2 -halfside/2 halfside/2
+                    -halfside/2 halfside/2 halfside/2
+                    halfside/2 -halfside/2 halfside/2
+                    halfside/2 halfside/2  halfside/2].';
+    end
+
+    % src_pts = [-halfside/2 halfside/2] * ones(2, dim);
+    % assert(all(size(src_pts) == [2 dim]));
     src_pts = (rand(dim, nsrc) - 0.5) * halfside;
+    src_pts(:, 1:nsrc_deterministic) = src_pts_d;
     src_weights = rand(nsrc, 1) - 0.5;
+    disp("src_pts shape: ")
+    disp(size(src_pts))
 
     % disp("dx_nproxy: src_pts max:")
     % disp(max(src_pts))
@@ -44,6 +67,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         nspread = 10;
     end
  
+    disp("dx_nproxy: halfside: " + num2str(halfside))
 
     bool_unconverged = true;
 
@@ -52,26 +76,37 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         if dim == 2
             nspread = nspread + 2;
             nproxy = nspread;
+            proxy_pts = get_ring_points(nproxy, radius);
+
         else
             nspread = nspread + 1;
             nproxy = 2 * nspread^2;
+            proxy_pts = get_sphere_points(nproxy, radius);
+
         end
 
-        % disp("Evaluating with nspread  = " + int2str(nspread))
-        % disp("Evaluating with nproxy = " + int2str(nproxy))
 
-        % The "proxy" points are the ones at which we try to match the
-        % outputs.
+        dx =  halfside / nspread;
+        % disp("dx_nproxy: dx: " + num2str(dx))
+
+        % The discretization points start at -halfisde/2 + dx/2
+        xx = -halfside/2 + dx / 2 + (0:nspread - 1) * dx;
+        % disp("dx_nproxy: xx")
+        % disp(xx)
+        yy = xx;
 
         if dim == 2
-            proxy_pts = get_ring_points(nproxy, radius);
+            [X, Y] = meshgrid(xx, yy);
+            reg_pts = [X(:).'; Y(:).'];
         else
-            proxy_pts = get_sphere_points(nproxy, radius);
+            zz = xx;
+            [X, Y, Z] = meshgrid(xx, yy, zz);
+            X = permute(X,[3,1,2]);
+            Y = permute(Y,[3,1,2]);
+            Z = permute(Z,[3,1,2]);
+            reg_pts = [X(:).'; Y(:).'; Z(:).'];
         end
 
-        % Discretize the box [-halfside / 2, halfside / 2]^dim
-        % using nspread points per dimension.
-        reg_pts = get_regular_grid(nspread, halfside / 2, dim);
 
         % Compute the kernel evals from source to proxy pts
         K_source_to_proxy = kernel(src_pts, proxy_pts);
@@ -93,13 +128,13 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         % Check error between approx and exact
         errors = abs(approx_at_target(:) - target_evals(:));
         err = max(errors);
-        disp("Error: ");
-        disp(err);
+        % disp("Error: ");
+        % disp(err);
 
         bool_unconverged = err >= tol;
 
-        if nspread > 500
-            error("Computing proxy size didn't converge after nspread > 500")
+        if nspread > 100
+            error("Computing proxy size didn't converge after nspread > 100")
         end
 
     end
@@ -112,11 +147,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
     while bool_converged
 
         nspread = nspread - 1;
-        % disp("Evaluating with nspread  = " + int2str(nspread))
-        % disp("Evaluating with nproxy = " + int2str(nproxy))
 
-        % The "proxy" points are the ones at which we try to match the
-        % outputs.
 
         if dim == 2
             proxy_pts = get_ring_points(nproxy, radius);
@@ -124,15 +155,38 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
             proxy_pts = get_sphere_points(nproxy, radius);
         end
 
-        % Discretize the regular grid using nspread points
-        reg_pts_old = reg_pts;
-        reg_pts = get_regular_grid(nspread, halfside / 2, dim);
 
-        % Compute the kernel evals from source to proxy pts
-        K_source_to_proxy = kernel(src_pts, proxy_pts);
+        dx_old = dx;
+        dx =  halfside / nspread;
+        % disp("dx_nproxy: dx: " + num2str(dx))
+
+        % The discretization points start at -halfisde/2 + dx/2
+        xx = -halfside/2 + dx / 2 + (0:nspread - 1) * dx;
+        % disp("dx_nproxy: xx")
+        % disp(xx)
+        yy = xx;
+
+        if dim == 2
+            [X, Y] = meshgrid(xx, yy);
+            reg_pts = [X(:).'; Y(:).'];
+        else
+            zz = xx;
+            [X, Y, Z] = meshgrid(xx, yy, zz);
+            X = permute(X,[3,1,2]);
+            Y = permute(Y,[3,1,2]);
+            Z = permute(Z,[3,1,2]);
+            reg_pts = [X(:).'; Y(:).'; Z(:).'];
+        end
+
+        % Discretize the regular grid using nspread points
+
+
         % Kernel regular -> proxy pts
         K_reg_to_proxy = kernel(reg_pts, proxy_pts);
 
+
+        % In this while loop, proxy points are fixed so we don't need to 
+        % recompute K_source_to_proxy
         % Solve the least squares problem to find weights
         evals_at_proxy = K_source_to_proxy * src_weights;
 
@@ -149,96 +203,92 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         % Check error between approx and exact
         errors = abs(approx_at_target(:) - target_evals(:));
         err = max(errors);
-        % disp("Error: ");
-        % disp(err);
+        disp("Error: ");
+        disp(err);
 
         bool_converged = err < tol;
 
     end
 
+    % Undo the last iteration which went over error tol
+    dx = dx_old;
+    nspread = nspread + 1;
 
-    % First, compute dx
-    dx = reg_pts_old(2, 2) - reg_pts_old(2, 1);
     disp("dx_nproxy: dx: "  + num2str(dx))
 
-    % Now, nspread = number of grid points with spacing dx needed to cover 
-    % the interval [- halfside/2, halfside/2]
-    nspread = ceil(halfside / dx);
 
     % The regular points now span a box with size 
     % dx * (nspread + 1).
     % This can be slightly larger than the original halfside
-    new_halfside = dx * (nspread + 1);
-    src_pts_2 = (rand(dim, nsrc) - 0.5) * new_halfside;
+    % new_halfside = dx * (nspread + 1);
+    % src_pts_2 = (rand(dim, nsrc) - 0.5) * new_halfside;
     % disp("dx_nproxy: src_pts_2 max: ")
     % disp(max(src_pts_2))
-    K_src_to_target = kernel(src_pts_2, target_pts);
-    target_evals = K_src_to_target * src_weights(:);
+    % K_src_to_target = kernel(src_pts_2, target_pts);
+    % target_evals = K_src_to_target * src_weights(:);
 
     % We want to compute a new set of (dx, nproxy, nspread)
     % params for this spreading box width.
 
-    bool_unconverged = true;
+    % bool_unconverged = true;
 
-    while bool_unconverged
+    % while bool_unconverged
 
-        if dim == 2
-            nspread = nspread + 2;
-            nproxy = nproxy  + 2;
-            proxy_pts = get_ring_points(nproxy, radius);
+    %     if dim == 2
+    %         nspread = nspread + 2;
+    %         nproxy = nproxy  + 2;
+    %         proxy_pts = get_ring_points(nproxy, radius);
 
-        else
-            nspread = nspread + 1;
-            nproxy = 2 * nspread^2;
-            proxy_pts = get_sphere_points(nproxy, radius);
+    %     else
+    %         nspread = nspread + 1;
+    %         nproxy = 2 * nspread^2;
+    %         proxy_pts = get_sphere_points(nproxy, radius);
 
-        end
+    %     end
 
 
-        % Discretize the box [-new_halfside / 2, new_halfside / 2]^dim
-        % using nspread points per dimension.
-        reg_pts_old = reg_pts;
-        reg_pts = get_regular_grid(nspread, new_halfside /2, dim);
+    %     % Discretize the box [-new_halfside / 2, new_halfside / 2]^dim
+    %     % using nspread points per dimension.
+    %     reg_pts_old = reg_pts;
+    %     reg_pts = get_regular_grid(nspread, new_halfside /2, dim);
 
-        % Compute the kernel evals from source to proxy pts
-        K_source_to_proxy = kernel(src_pts_2, proxy_pts);
-        % Kernel regular -> proxy pts
-        K_reg_to_proxy = kernel(reg_pts, proxy_pts);
+    %     % Compute the kernel evals from source to proxy pts
+    %     K_source_to_proxy = kernel(src_pts_2, proxy_pts);
+    %     % Kernel regular -> proxy pts
+    %     K_reg_to_proxy = kernel(reg_pts, proxy_pts);
 
-        % Solve the least squares problem to find weights
-        evals_at_proxy = K_source_to_proxy * src_weights;
+    %     % Solve the least squares problem to find weights
+    %     evals_at_proxy = K_source_to_proxy * src_weights;
 
-        spread_weights = K_reg_to_proxy \ evals_at_proxy;
+    %     spread_weights = K_reg_to_proxy \ evals_at_proxy;
 
-        % Eval the approximation at the eval point
-        approx_at_target = kernel(reg_pts, target_pts) * spread_weights;
-        % disp("approx_at_target shape")
-        % disp(size(approx_at_target));
-        % disp("target_evals");
-        % disp(size(target_evals));
+    %     % Eval the approximation at the eval point
+    %     approx_at_target = kernel(reg_pts, target_pts) * spread_weights;
+    %     % disp("approx_at_target shape")
+    %     % disp(size(approx_at_target));
+    %     % disp("target_evals");
+    %     % disp(size(target_evals));
 
-        % Check error between approx and exact
-        errors = abs(approx_at_target(:) - target_evals(:));
-        err = max(errors);
-        disp("Error: ");
-        disp(err);
+    %     % Check error between approx and exact
+    %     errors = abs(approx_at_target(:) - target_evals(:));
+    %     err = max(errors);
+    %     disp("Error: ");
+    %     disp(err);
 
-        bool_unconverged = err >= tol;
+    %     bool_unconverged = err >= tol;
 
-        if nspread > 50
-            error("Computing proxy size didn't converge after nspread > 500")
-        end
+    %     if nspread > 500
+    %         error("Computing proxy size didn't converge after nspread > 500")
+    %     end
 
-    end
+    % end
 
 
     disp("dx_nproxy: Final nproxy " + int2str(nproxy));
     disp("dx_nproxy: Final nspread " + int2str(nspread));
 
     % First, compute dx
-    dx = reg_pts_old(2, 2) - reg_pts_old(2, 1);
     disp("dx_nproxy: dx: "  + num2str(dx))
-    nspread = ceil(new_halfside / dx);
 
 
     spread_info = struct;

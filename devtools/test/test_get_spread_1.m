@@ -41,7 +41,6 @@ tol = 1e-05;
 n_nbr = 500; % 10000 points / 500 is approximately 20 boxes
 [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
 
-nbin = grid_info.nspread;
 
 disp("grid_info.ngrid: ")
 disp(grid_info.ngrid)
@@ -56,7 +55,7 @@ disp(grid_info.Lbd)
 % hold on;
 % scatter(src_info.r(1,:), src_info.r(2,:), 'ro');
 
-A_spread = get_spread(k, k, src_info, grid_info, proxy_info, nbin);
+A_spread = get_spread(k, k, src_info, grid_info, proxy_info);
 
 disp("A_spread shape:")
 disp(size(A_spread))
