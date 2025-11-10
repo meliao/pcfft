@@ -72,7 +72,7 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info)
     % Compute one whole big K_src_to_proxy, and later we'll 
     % index its rows. K_src_to_proxy has shape (n_proxy, n_src)
     K_src_to_proxy = kern_0(r_local, proxy_info.r);
-
+    K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
 
     % Now, loop through the bins and start to fill in A
     % Remember, we 0-indexed the bin IDs
@@ -99,10 +99,11 @@ function A_spread = get_spread(kern_0, kern, src_info, grid_info, proxy_info)
         % end
 
 
-        K_src_to_proxy_i = K_src_to_proxy(:, idx_start:idx_end);
+        % K_src_to_proxy_i = K_src_to_proxy(:, idx_start:idx_end);
 
         % block_content = K_reg_to_proxy_pinv * K_src_to_proxy_i;
-        block_content = K_reg_to_proxy \ K_src_to_proxy_i;
+        % block_content = K_reg_to_proxy \ K_src_to_proxy_i;
+        block_content = K_src_to_reg(:,idx_start:idx_end);
 
         A_spread(row_idxes_i, idx_start:idx_end) = block_content;
 

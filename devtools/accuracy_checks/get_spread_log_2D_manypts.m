@@ -148,7 +148,7 @@ for i = 1:n_tol_vals
     nspread_vals(i) = grid_info.nspread;
 end
 
-
+%%
 figure(1);
 plot(tol_vals, error_vals, 'o-');
 hold on;
