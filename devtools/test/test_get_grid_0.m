@@ -31,8 +31,8 @@ assert(size(grid_info.r, 1) == 2);
 disp("test: ngrid: ")
 disp(size(grid_info.ngrid))
 disp("test: mods: ") 
-disp(mod(grid_info.ngrid, grid_info.nspread))
-assert(all(mod(grid_info.ngrid, grid_info.nspread) == 0))
+disp(mod(grid_info.ngrid, grid_info.nbinpts))
+assert(all(mod(grid_info.ngrid, grid_info.nbinpts) == 0))
 
 
 %% 3D_0

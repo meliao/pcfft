@@ -65,34 +65,46 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     % get prototype grid for spreading
     [grid_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad);
 
+
+    disp("get_grid: grid_info.nspread: " + num2str(grid_info.nspread))
+    disp("get_grid: grid_info.nbinpts: " + num2str(grid_info.nbinpts))
     % ngrid is the number of points in the x, y, z direction
     % for the regular grid.
     ngrid = ceil(diff(Lbd, 1, 2) / grid_info.dx);
+    disp("get_grid: Initial ngrid:")
+    disp(ngrid)
 
-    % We want grid_info.nspread to divide ngrid evenly, so we will pad 
+    % We want grid_info.nspread to divide grid_info.nbinpts evenly, so we will pad 
     % by a few points in each dimension.
-    mods = mod(ngrid, grid_info.nspread);
+    mods = mod(ngrid, grid_info.nbinpts);
 
-    ngrid = ngrid + grid_info.nspread - mods;
+    ngrid = ngrid + grid_info.nbinpts - mods;
 
+    disp("get_grid: Adjusted ngrid:")
+    disp(ngrid)
 
     % n_bin is the number of spreading bins in the x, y, z direction
-    n_bin = ceil(ngrid / grid_info.nspread);
+    n_bin = ceil(ngrid / grid_info.nbinpts);
+    disp("get_grid: n_bin:")
+    disp(n_bin)
 
+
+    % Start the grid pad * dx below the lower bounds.
+    pad = floor((grid_info.nspread -  grid_info.nbinpts) / 2);
+    offset = pad * grid_info.dx;
 
 
     if dim == 2
         % Create a regular grid with spacing dx starting at the xmin, ymin point
-        % specified by Lbd. Pad this grid 2x the size necessary. The padding
-        % is necessary for using the FFT in a later step.
-        xx = Lbd(1, 1) + (0: ngrid(1) - 1) * grid_info.dx;
-        yy = Lbd(2, 1) + (0: ngrid(2) - 1) * grid_info.dx;
+        % specified by Lbd. 
+        xx = Lbd(1, 1) - offset + (0: ngrid(1) - 1) * grid_info.dx;
+        yy = Lbd(2, 1) - offset + (0: ngrid(2) - 1) * grid_info.dx;
         [X, Y] = meshgrid(xx, yy);
         rgrid = [X(:).'; Y(:).'];
     elseif dim == 3
-        xx = Lbd(1, 1) + (0: ngrid(1) - 1) * grid_info.dx;
-        yy = Lbd(2, 1) + (0: ngrid(2) - 1) * grid_info.dx;
-        zz = Lbd(3, 1) + (0: ngrid(3) - 1) * grid_info.dx;
+        xx = Lbd(1, 1) - offset + (0: ngrid(1) - 1) * grid_info.dx;
+        yy = Lbd(2, 1) - offset + (0: ngrid(2) - 1) * grid_info.dx;
+        zz = Lbd(3, 1) - offset + (0: ngrid(3) - 1) * grid_info.dx;
         [X, Y, Z] = meshgrid(xx, yy, zz);
         X = permute(X,[3,1,2]);
         Y = permute(Y,[3,1,2]);
