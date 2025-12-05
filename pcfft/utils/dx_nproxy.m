@@ -10,7 +10,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
     % Initialize a collection of 100 random source points and weights inside a
     % box/cube specified by size halfside
-    nsrc = 100;
+    nsrc = 117;
     rng(0);
 
     % source points belong to a bin which has size bwidth = c_bwidth * halfside
@@ -110,7 +110,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
         % Check error between approx and exact
         errors = abs(approx_at_target(:) - target_evals(:));
-        err = max(errors);
+        err = max(errors) / max(abs(target_evals));
 
         bool_unconverged = err >= tol;
 
@@ -121,6 +121,11 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
     end
     % disp("dx_nproxy: Intermediate nproxy " + int2str(nproxy));
     % disp("dx_nproxy: Intermediate nspread " + int2str(nspread));
+    if dim == 2
+        proxy_pts = get_ring_points(nproxy, radius);
+    else
+        proxy_pts = get_sphere_points(nproxy, radius);
+    end
 
     % Compute the kernel evals from source to proxy pts
     % We don't really need this inside this loop since proxy_pts are fixed.
@@ -134,11 +139,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         nspread = nspread - 1;
 
 
-        if dim == 2
-            proxy_pts = get_ring_points(nproxy, radius);
-        else
-            proxy_pts = get_sphere_points(nproxy, radius);
-        end
+
 
         dx_old = dx;
         reg_pts_old = reg_pts;
@@ -164,17 +165,21 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         % Kernel regular -> proxy pts
         K_reg_to_proxy = kernel(reg_pts, proxy_pts);
 
-        spread_weights = K_reg_to_proxy \ evals_at_proxy;
+        % spread_weights = K_reg_to_proxy \ evals_at_proxy;
+        spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
+        % TODO: why is there a zero singular value in K_reg_to_proxy?
 
         % Eval the approximation at the eval point
         approx_at_target = kernel(reg_pts, target_pts) * spread_weights;
 
         % Check error between approx and exact
         errors = abs(approx_at_target(:) - target_evals(:));
-        err = max(errors);
+        err = max(errors) / max(abs(target_evals));
         bool_converged = err < tol;
 
         % disp("dx_nproxy: Down pass: Trying nspread " + int2str(nspread) + " with error " + num2str(err))
+
+        
 
         % min nspread = 4.
         if nspread == 3
@@ -189,12 +194,12 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
     nspread = nspread + 1;
 
     % disp("dx_nproxy: After down pass, nspread " + int2str(nspread));
-    nbinpts = ceil(nspread / 2);
+    nbinpts = floor(nspread / 2);
     % disp("dx_nproxy: Intermediate nbinpts " + int2str(nbinpts));
 
     % If nspread // 2 == 0, we can exit early because the bin size is 
     % the same as half the spreading box size.
-    if mod(nspread, 2) == 0
+    if true
         % disp("dx_nproxy: Final bin width: " + num2str(nbinpts * dx))
         spread_info = struct;
         proxy_info = struct;
@@ -217,69 +222,69 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
     
     % Otherwise, the bin may be slightly wider than half the spreading box,
     % so we will re-draw random source points in the new bin size
-    bwidth = nbinpts * dx;
-    % disp("dx_nproxy: Final bin width: " + num2str(bwidth))
-
-
-    src_pts_newbin = (rand(dim, nsrc) - 0.5) * bwidth;
-    % src_pts_newbin(:, 1:nsrc_deterministic) = src_pts_d;
-    K_src_to_target_new = kernel(src_pts_newbin, target_pts);
-    target_evals_new = K_src_to_target_new * src_weights(:);
-
-    % Loop to find a final nproxy with the new bin size
-    bool_unconverged = true;
-    nproxy = nproxy - 1;
-    while bool_unconverged
-        nproxy = nproxy + 1;
-        if dim == 2
-            proxy_pts = get_ring_points(nproxy, radius);
-        else
-            proxy_pts = get_sphere_points(nproxy, radius);
-        end
-
-        % Compute the kernel evals from source to proxy pts
-        K_source_to_proxy = kernel(src_pts_newbin, proxy_pts);
-        % Kernel regular -> proxy pts
-        K_reg_to_proxy = kernel(reg_pts, proxy_pts);
-        % Solve the least squares problem to find weights
-        evals_at_proxy = K_source_to_proxy * src_weights;
-        spread_weights = K_reg_to_proxy \ evals_at_proxy;
-        % Eval the approximation at the eval point
-        approx_at_target = kernel(reg_pts, target_pts) * spread_weights;
-        % Check error between approx and exact
-        errors = abs(approx_at_target(:) - target_evals_new(:));
-        err = max(errors);
-        bool_unconverged = err >= tol;
-
-        % disp("dx_nproxy: Trying nproxy " + int2str(nproxy) + " with error " + num2str(err))
-
-        if nproxy > 200
-            error("dx_nproxy: Computing final proxy size didn't converge after nproxy > 200")
-        end
-
-    end
-
-    % disp("dx_nproxy: dx: "  + num2str(dx))
-    % disp("dx_nproxy: Final nproxy " + int2str(nproxy));
-    % disp("dx_nproxy: Final nspread " + int2str(nspread));
-
-
-    spread_info = struct;
-    proxy_info = struct;
-
-    spread_info.dx = dx;
-    spread_info.nspread = nspread;
-    spread_info.nbinpts = nbinpts;
-    
-
-    proxy_info.dim = dim;
-    if dim == 3
-        proxy_info.n_points_total = 6 * (nproxy ^ 2);
-        proxy_info.n_per_dim_3D = nproxy;
-    else
-        proxy_info.n_points_total = nproxy;
-    end
-    proxy_info.r = proxy_pts;
-    proxy_info.radius = radius;
+    % bwidth = nbinpts * dx;
+    % % disp("dx_nproxy: Final bin width: " + num2str(bwidth))
+    % 
+    % 
+    % src_pts_newbin = (rand(dim, nsrc) - 0.5) * bwidth;
+    % % src_pts_newbin(:, 1:nsrc_deterministic) = src_pts_d;
+    % K_src_to_target_new = kernel(src_pts_newbin, target_pts);
+    % target_evals_new = K_src_to_target_new * src_weights(:);
+    % 
+    % % Loop to find a final nproxy with the new bin size
+    % bool_unconverged = true;
+    % nproxy = nproxy - 1;
+    % while bool_unconverged
+    %     nproxy = nproxy + 1;
+    %     if dim == 2
+    %         proxy_pts = get_ring_points(nproxy, radius);
+    %     else
+    %         proxy_pts = get_sphere_points(nproxy, radius);
+    %     end
+    % 
+    %     % Compute the kernel evals from source to proxy pts
+    %     K_source_to_proxy = kernel(src_pts_newbin, proxy_pts);
+    %     % Kernel regular -> proxy pts
+    %     K_reg_to_proxy = kernel(reg_pts, proxy_pts);
+    %     % Solve the least squares problem to find weights
+    %     evals_at_proxy = K_source_to_proxy * src_weights;
+    %     spread_weights = K_reg_to_proxy \ evals_at_proxy;
+    %     % Eval the approximation at the eval point
+    %     approx_at_target = kernel(reg_pts, target_pts) * spread_weights;
+    %     % Check error between approx and exact
+    %     errors = abs(approx_at_target(:) - target_evals_new(:));
+    %     err = max(errors);
+    %     bool_unconverged = err >= tol;
+    % 
+    %     % disp("dx_nproxy: Trying nproxy " + int2str(nproxy) + " with error " + num2str(err))
+    % 
+    %     if nproxy > 200
+    %         error("dx_nproxy: Computing final proxy size didn't converge after nproxy > 200")
+    %     end
+    % 
+    % end
+    % 
+    % % disp("dx_nproxy: dx: "  + num2str(dx))
+    % % disp("dx_nproxy: Final nproxy " + int2str(nproxy));
+    % % disp("dx_nproxy: Final nspread " + int2str(nspread));
+    % 
+    % 
+    % spread_info = struct;
+    % proxy_info = struct;
+    % 
+    % spread_info.dx = dx;
+    % spread_info.nspread = nspread;
+    % spread_info.nbinpts = nbinpts;
+    % 
+    % 
+    % proxy_info.dim = dim;
+    % if dim == 3
+    %     proxy_info.n_points_total = 6 * (nproxy ^ 2);
+    %     proxy_info.n_per_dim_3D = nproxy;
+    % else
+    %     proxy_info.n_points_total = nproxy;
+    % end
+    % proxy_info.r = proxy_pts;
+    % proxy_info.radius = radius;
 
 end

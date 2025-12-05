@@ -185,8 +185,9 @@ Notes on the algorithm used to compute \texttt{dx} and \texttt{nproxy}:
 \begin{itemize}
   \item Generate random sources in the spreading bin with side length $\halfside$. Generate target points on a ring/sphere of radius $1.1 \times$ the proxy radius.
   \item Increase \texttt{nspread} and \texttt{nproxy} until the error tolerance is met.
-  \item Decrease \texttt{nproxy} until the error tolerance is no longer met.
-  \item Re-generate random source points inside a spreading bin of size $\texttt{dx} \times \lceil \texttt{nspread}/2 \rceil$, which may be slightly larger than the original spreading bin. Increase \texttt{nspread} until the error tolerance is met.
+  \item Decrease \texttt{nspread} until the error tolerance is no longer met.
+  \item Spreading bin is $\texttt{dx} \times \lfloor \texttt{nspread}/2 \rfloor$
+  % \item Re-generate random source points inside a spreading bin of size $\texttt{dx} \times \lfloor \texttt{nspread}/2 \rfloor$, which may be slightly larger than the original spreading bin. Increase \texttt{nproxy} until the error tolerance is met.
 \end{itemize}
 
 \end{document}

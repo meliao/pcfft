@@ -24,8 +24,8 @@ rad = crad * R;
 target_pts = get_ring_points(100, sqrt(2.0) * crad * halfside);
 
 
-% tol_vals = [1e-03, 1e-04, 1e-05 1e-06 1e-07 1e-08];
-tol_vals = logspace(-3, -6, 40);
+% tol_vals = [7.4e-08];
+tol_vals = logspace(-3, -14, 40);
 n_tol_vals = size(tol_vals, 2);
 error_vals = ones(n_tol_vals, 1);
 n_reg_vals = ones(n_tol_vals, 1);
@@ -90,7 +90,7 @@ for i = 1:n_tol_vals
     K_reg_to_target = log_kernel(box_pts, target_pts);
     target_vals_approx = K_reg_to_target * weights_reg(:);
     
-    errors_at_target = max(abs(target_vals_approx(:) - target_vals(:)));
+    errors_at_target = max(abs(target_vals_approx(:) - target_vals(:))) / max(abs(target_vals));
     disp("Main: For tol " + num2str(tol) + ", observed error: " + num2str(errors_at_target));
     error_vals(i) = errors_at_target;
     n_proxy_vals(i) = proxy_info.n_points_total;
@@ -99,6 +99,8 @@ for i = 1:n_tol_vals
 
 end
 figure(1);
+clf;
+subplot(2,1,1);
 plot(tol_vals(:), error_vals(:), '.-')
 hold on
 plot(tol_vals(:), tol_vals(:), '--')
@@ -106,7 +108,7 @@ xscale('log')
 ylabel("Observed error")
 yscale('log')
 xlabel("Tolerance")
-figure(2);
+subplot(2,1,2);
 plot(tol_vals(:), n_proxy_vals(:), '.-');
 hold on;
 plot(tol_vals(:), nbinpts_vals(:), '.-');
@@ -115,11 +117,11 @@ legend("nproxy", "nbinpts", "nspread");
 grid on;
 xscale('log');
 
-figure(3);
-plot(target_vals_approx(:) - target_vals(:), '.-');
-% hold on;
-% plot(target_vals(:));
-% legend("Approx", "Exact");
-grid on;
-xlabel("Target point index");
-ylabel("Error in target eval");
+% figure(2);
+% plot(target_vals_approx(:) - target_vals(:), '.-');
+% % hold on;
+% % plot(target_vals(:));
+% % legend("Approx", "Exact");
+% grid on;
+% xlabel("Target point index");
+% ylabel("Error in target eval");
