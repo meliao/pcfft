@@ -13,19 +13,19 @@ side_len = 1.0;
 
 
 % Define the kernel
-k = @(s,t) log_kernel(s,t);
+k = @(s,t) one_over_r_kernel(s,t);
 
 halfside = 0.5 * side_len;
 crad = 2.5;
 
-R = sqrt(2.0) * halfside;
+R = sqrt(3.0) * halfside;
 rad = crad * R;
 
-target_pts = get_ring_points(100, sqrt(2.0) * crad * halfside);
+target_pts = get_sphere_points(100, sqrt(3.0) * crad * halfside);
 
 
-tol_vals = [1.194e-09];
-% tol_vals = logspace(-3, -14, 40);
+% tol_vals = [7.4e-08];
+tol_vals = logspace(-3, -8, 40);
 n_tol_vals = size(tol_vals, 2);
 error_vals = ones(n_tol_vals, 1);
 n_reg_vals = ones(n_tol_vals, 1);
@@ -36,15 +36,19 @@ for i = 1:n_tol_vals
     tol = tol_vals(i);
     disp("Main: Working on tol " + num2str(tol));
 
-    [grid_info, proxy_info] = dx_nproxy(k, 2, tol, halfside);
+    [grid_info, proxy_info] = dx_nproxy(k, 3, tol, halfside);
     
     nspread = grid_info.nspread;
     dx = grid_info.dx;
 
     xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
     yy = xx;
-    [X, Y] = meshgrid(xx, yy);
-    box_pts = [X(:).'; Y(:).']; 
+    zz = xx;
+    [X, Y, Z] = meshgrid(xx, yy, zz);
+    X = permute(X,[3,1,2]);
+    Y = permute(Y,[3,1,2]);
+    Z = permute(Z,[3,1,2]);
+    box_pts = [X(:).'; Y(:).'; Z(:).'];
 
     disp("Main: xx: " + num2str(xx(:)'))
     
@@ -56,7 +60,7 @@ for i = 1:n_tol_vals
     bin_sidelen = nbinpts * dx;
     disp("Main: Final bin size: " + num2str(bin_sidelen));
 
-    source_pts = (rand(2,n_src) - 0.5) * bin_sidelen;
+    source_pts = (rand(3,n_src) - 0.5) * bin_sidelen;
 
     % Print out max and min x value of source_pts
     disp("Main: source_pts x min: " + num2str(min(source_pts(1, :))));

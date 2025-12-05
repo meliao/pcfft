@@ -1,7 +1,6 @@
 function k_evals = log_kernel(src_pts, target_pts)
 % src_pts has shape (2, M)
 % target_pts has shape (2, N)
-% sigma is a float
 % Computes log{|| src - target||}
 % Output shape is (N, M)
 

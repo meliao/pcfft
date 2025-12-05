@@ -138,11 +138,8 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
         nspread = nspread - 1;
 
-
-
-
         dx_old = dx;
-        reg_pts_old = reg_pts;
+        % reg_pts_old = reg_pts;
         dx =  2 * halfside / nspread;
         % The discretization points start at -halfside/2 + dx/2
         xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
@@ -167,7 +164,6 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
         % spread_weights = K_reg_to_proxy \ evals_at_proxy;
         spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
-        % TODO: why is there a zero singular value in K_reg_to_proxy?
 
         % Eval the approximation at the eval point
         approx_at_target = kernel(reg_pts, target_pts) * spread_weights;
@@ -180,7 +176,6 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         % disp("dx_nproxy: Down pass: Trying nspread " + int2str(nspread) + " with error " + num2str(err))
 
         
-
         % min nspread = 4.
         if nspread == 3
             break;
@@ -188,10 +183,23 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
     end
 
+
     % Undo the last iteration which went over error tol
     dx = dx_old;
-    reg_pts = reg_pts_old;
+    % reg_pts = reg_pts_old;
     nspread = nspread + 1;
+
+
+
+    % Avoid a square matrix
+    if nproxy == nspread^2
+        nproxy = nproxy + 1;
+        if dim == 2
+            proxy_pts = get_ring_points(nproxy, radius);
+        else
+            proxy_pts = get_sphere_points(nproxy, radius);
+        end
+    end
 
     % disp("dx_nproxy: After down pass, nspread " + int2str(nspread));
     nbinpts = floor(nspread / 2);
@@ -200,7 +208,6 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
     % If nspread // 2 == 0, we can exit early because the bin size is 
     % the same as half the spreading box size.
     if true
-        % disp("dx_nproxy: Final bin width: " + num2str(nbinpts * dx))
         spread_info = struct;
         proxy_info = struct;
 
