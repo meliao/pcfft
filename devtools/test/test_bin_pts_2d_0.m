@@ -13,16 +13,19 @@ r(2,:) = r(2,:) / 2;
 % y grid = [-0.5, -0.25, 0.0, 0.25 0.5]
 dx = 0.25;
 ngrid = [9 5];
-% When we set nspread = 3, we expect
+% When we set nbinpts = 3, we expect
 % x bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
 % y bins [-0.625, 0.125], [0.125, 0.875]
 % so we get nbin = [3 2]
 nbin = [3 2];
-nspread = 3;
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd, nbin, nspread);
+N_bins = nbin(1) * nbin(2) + 1; % Total number of bins in this case.
+nbinpts = 3;
+[r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(r, dx, Lbd, nbin, nbinpts);
 c = 1:n_pts;
-assert(all(size(r_sorted) == size(r)));
-assert(all(size(r, 2) == size(sorted_bin_ids, 2)));
+assert(all(size(r_srt) == size(r)));
+assert(all(size(r, 2) == size(binid_srt, 2)));
+disp(size(id_start))
+assert(all(size(id_start, 2) == N_bins));
 
 
 % Plot the sorted points and color by the bin
@@ -62,8 +65,8 @@ targ_info.r = rand(2, n_targ);
 
 % Get a realistic grid which has empty bins
 [grid_info, proxy_info] = get_grid(@log_kernel, src_info, targ_info, tol);
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(src_info.r, grid_info.dx, ...
- grid_info.ngrid, grid_info.Lbd, grid_info.nbin, grid_info.nspread);
+[r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(src_info.r, grid_info.dx, ...
+ grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
 
 
 % N_x_bins = ceil(grid_info.ngrid(1)/nbin);

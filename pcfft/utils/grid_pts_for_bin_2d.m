@@ -1,9 +1,14 @@
 function [pts, center, row_idxes] = grid_pts_for_bin_2d(bin_idx, grid_info)
     % Imagine a regular grid with bounds [xmin ymin xmax ymax] = Lbd
     % and grid spacing <dx>. There are [nx ny] = ngrid points 
-    % in each dimension.
+    % in each dimension. There are nspread regular discretization points
+    % across the spreading box, and nbin regular discretization points for
+    % the spreading bin.
+    % 
     %
-    % Also returns the row indices where <pts> should appear in A_spread.
+    % This function returns <pts>, the spreading points in the spreading 
+    % box. It also returns <center>, the center of the spreading box.
+    % It also returns the row indices where <pts> should appear in A_spread.
     %
     % bin_idx = id_x * N_y_bins + id_y
 

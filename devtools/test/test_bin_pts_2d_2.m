@@ -27,8 +27,8 @@ k = @(s,t) log_kernel(s,t);
 [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
 nbin = grid_info.nbin;
 
-[r_sorted, bin_idxes, id_start] = bin_pts_2d(src_info.r, ...
-    grid_info.dx, grid_info.ngrid, grid_info.Lbd, grid_info.nbin, grid_info.nspread);
+[r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(src_info.r, ...
+    grid_info.dx, grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
 
 % Display the last 10 entries of id_start
 disp("id_start:")
@@ -36,7 +36,7 @@ disp(id_start(end-10:end))
 
 % Display the last 10 entries of bin_idxes
 disp("bin_idxes:")
-disp(bin_idxes(end-10:end))
+disp(binid_srt(end-10:end))
 
 % Assert that all of the id_start are positive
 assert(all(id_start > 0));
@@ -48,4 +48,4 @@ assert(id_start(end) == n_src + 1);
 % range.
 
 max_bin_idx = grid_info.nbin(2) * grid_info.nbin(1) - 1;
-assert(all(bin_idxes <= max_bin_idx));
+assert(all(binid_srt <= max_bin_idx));

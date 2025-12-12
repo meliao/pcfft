@@ -24,7 +24,7 @@ rad = crad * R;
 target_pts = get_sphere_points(100, sqrt(3.0) * crad * halfside);
 
 
-% tol_vals = [7.4e-08];
+% tol_vals = [1e-03];
 tol_vals = logspace(-3, -8, 40);
 n_tol_vals = size(tol_vals, 2);
 error_vals = ones(n_tol_vals, 1);
@@ -78,20 +78,20 @@ for i = 1:n_tol_vals
     % disp(size(src_weights));
     % assert(false);
 
-    K_src_to_target = log_kernel(source_pts, target_pts);
+    K_src_to_target = one_over_r_kernel(source_pts, target_pts);
     target_vals = K_src_to_target * src_weights(:);
 
     proxy_pts = proxy_info.r;
-    K_src_to_proxy = log_kernel(source_pts, proxy_pts);
+    K_src_to_proxy = one_over_r_kernel(source_pts, proxy_pts);
     proxy_vals = K_src_to_proxy * src_weights(:);
     
     % Solve the least squares problem
     rhs = proxy_vals;
-    lhs = log_kernel(box_pts, proxy_pts);
-    weights_reg = lhs \ rhs;
+    lhs = one_over_r_kernel(box_pts, proxy_pts);
+    weights_reg = lsqminnorm(lhs, rhs, tol / 10);
     
     % Evaluate the approximation
-    K_reg_to_target = log_kernel(box_pts, target_pts);
+    K_reg_to_target = one_over_r_kernel(box_pts, target_pts);
     target_vals_approx = K_reg_to_target * weights_reg(:);
     
     errors_at_target = max(abs(target_vals_approx(:) - target_vals(:))) / max(abs(target_vals));
@@ -112,6 +112,7 @@ xscale('log')
 ylabel("Observed error")
 yscale('log')
 xlabel("Tolerance")
+grid on;
 subplot(2,1,2);
 plot(tol_vals(:), n_proxy_vals(:), '.-');
 hold on;
@@ -120,6 +121,7 @@ plot(tol_vals(:), nspread_vals(:), '.-');
 legend("nproxy", "nbinpts", "nspread");
 grid on;
 xscale('log');
+yscale('log');
 
 % figure(2);
 % plot(target_vals_approx(:) - target_vals(:), '.-');

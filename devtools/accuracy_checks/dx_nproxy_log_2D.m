@@ -24,8 +24,8 @@ rad = crad * R;
 target_pts = get_ring_points(100, sqrt(2.0) * crad * halfside);
 
 
-tol_vals = [1.194e-09];
-% tol_vals = logspace(-3, -14, 40);
+% tol_vals = [1.194e-09];
+tol_vals = logspace(-3, -14, 40);
 n_tol_vals = size(tol_vals, 2);
 error_vals = ones(n_tol_vals, 1);
 n_reg_vals = ones(n_tol_vals, 1);

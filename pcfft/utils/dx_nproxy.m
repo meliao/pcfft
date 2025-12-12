@@ -48,7 +48,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
     if dim == 2
         nspread = 10;
     else
-        nspread = 5;
+        nspread = 3;
     end
  
     % disp("dx_nproxy: halfside: " + num2str(halfside))
@@ -65,7 +65,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
         else
             nspread = nspread + 1;
-            nproxy = 2 * nspread^2;
+            nproxy = nspread^2;
             proxy_pts = get_sphere_points(nproxy, radius);
 
         end
@@ -216,12 +216,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         spread_info.nbinpts = nbinpts;
 
         proxy_info.dim = dim;
-        if dim == 3
-            proxy_info.n_points_total = 6 * (nproxy ^ 2);
-            proxy_info.n_per_dim_3D = nproxy;
-        else
-            proxy_info.n_points_total = nproxy;
-        end
+        proxy_info.n_points_total = nproxy;
         proxy_info.r = proxy_pts;
         proxy_info.radius = radius;
         return;

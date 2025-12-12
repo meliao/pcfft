@@ -28,11 +28,13 @@ assert(grid_info.dim == dim);
 assert(proxy_info.dim == dim);
 assert(ndims(grid_info.r) == 2);
 assert(size(grid_info.r, 1) == 2);
-disp("test: ngrid: ")
-disp(size(grid_info.ngrid))
-disp("test: mods: ") 
-disp(mod(grid_info.ngrid, grid_info.nbinpts))
-assert(all(mod(grid_info.ngrid, grid_info.nbinpts) == 0))
+
+figure(1);
+scatter(src_info_2d.r(1,:), src_info_2d.r(2,:));
+hold on
+scatter(grid_info.r(1,:), grid_info.r(2,:),'.');
+hold off
+
 
 
 %% 3D_0
@@ -54,8 +56,10 @@ tol = 1e-08;
 assert(grid_info.dim == dim);
 assert(proxy_info.dim == dim);
 
+disp("test: nspread = " + num2str(grid_info.nspread))
+disp("test: nbinpts = " + num2str(grid_info.nbinpts))
 
-figure(1);clf
+figure(2);
 scatter3(src_info_3d.r(1,:), src_info_3d.r(2,:), src_info_3d.r(3,:))
 hold on
 scatter3(grid_info.r(1,:), grid_info.r(2,:), grid_info.r(3,:),'.')

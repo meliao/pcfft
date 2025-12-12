@@ -45,10 +45,8 @@
 % \newcommand\mycommfont[1]{\ttfamily{#1}}
 % \SetCommentSty{mycommfont}
 
-\newcommand{\becca}[1]{{\textcolor{blue}{[becca: #1]}}}
+\newcommand{\tristan}[1]{{\textcolor{blue}{[tristan: #1]}}}
 \newcommand{\owen}[1]{{\textcolor{forest}{[owen: #1]}}}
-\newcommand{\olivia}[1]{{\textcolor{violet}{[olivia: #1]}}}
-\newcommand{\vasilis}[1]{{\textcolor{blue}{[vasilis: #1]}}}
 \newcommand{\todo}[1]{{\textcolor{red}{[TODO: #1]}}}
 
 \DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
@@ -80,7 +78,7 @@
 \usepackage{tikz}
 \usepackage{pgfplots}
 % \pgfplotsset{compat=1.18}
-\usetikzlibrary{patterns}
+\usetikzlibrary{patterns,calc}
 \definecolor{bblue}{HTML}{4F81BD}
 \definecolor{rred}{HTML}{C0504D}
 \definecolor{ggreen}{HTML}{9BBB59}
@@ -186,8 +184,67 @@ Notes on the algorithm used to compute \texttt{dx} and \texttt{nproxy}:
   \item Generate random sources in the spreading bin with side length $\halfside$. Generate target points on a ring/sphere of radius $1.1 \times$ the proxy radius.
   \item Increase \texttt{nspread} and \texttt{nproxy} until the error tolerance is met.
   \item Decrease \texttt{nspread} until the error tolerance is no longer met.
-  \item Spreading bin is $\texttt{dx} \times \lfloor \texttt{nspread}/2 \rfloor$
+  \item Spreading bin is $\texttt{dx} \times \texttt{nbinpts} = \texttt{dx} \times \lfloor \texttt{nspread}/2 \rfloor$.
   % \item Re-generate random source points inside a spreading bin of size $\texttt{dx} \times \lfloor \texttt{nspread}/2 \rfloor$, which may be slightly larger than the original spreading bin. Increase \texttt{nproxy} until the error tolerance is met.
 \end{itemize}
+
+
+\subsection{Constructing the regular grid}
+This is performed in \texttt{get\_grid()}, which calls \texttt{spread\_halfside()} and \texttt{dx\_nproxy()}. Here are the basic steps:
+\begin{itemize}
+    \item Compute \texttt{halfside} using \texttt{spread\_halfside()}.
+    \item Compute \texttt{dx}, \texttt{nspread}, and \texttt{nproxy} using \texttt{dx\_nproxy()}.
+    \item Construct a bounding rectangle around the source points, which, along with the side length of the spreading bin, determines \texttt{ngrid}, the number of regular grid points in each dimension.
+    \item Add a padding of grid points on each side so that the spreading bins fit properly into the corners of the bounding rectangle. $\texttt{pad} = \lceil (\texttt{nspread} - \texttt{nbinpts}) / 2 \rceil$.
+    \item Start the regular grid points a bit below the bottom corner of the bounding rectangle. See \cref{fig:padding} for an illustration of this padding.
+\end{itemize}
+
+\begin{figure}
+\centering
+\begin{subfigure}{0.48\textwidth}
+  \centering
+  \begin{tikzpicture}[scale=2]
+  % bounding rectangle
+  % vertical line from (-1,-1) to (-1,1)
+  \draw[black!50, thick] (-1,-1) -- (-1,0.5);
+  \draw[black!50, thick] (-1,-1) -- (0.5,-1);
+  % inner box corresponding to halfside (from -0.5 to 0.5)
+  \draw[blue!60, dashed, thick] (-0.99,-0.99) rectangle (-0.25,-0.25);
+  \draw[orange!60, dashed, thick] (-1.5, -1.5) rectangle (0.25,0.25);
+
+  \foreach \x in {-1.375, -1.125, -0.875, -0.625, -0.375, -0.125, 0.125, 0.375} {
+    \foreach \y in {-1.375, -1.125, -0.875, -0.625, -0.375, -0.125, 0.125, 0.375} {
+      \fill[black] (\x,\y) circle (0.02);
+    }
+  }
+\end{tikzpicture}
+\caption{$\texttt{nbinpts}=3$, $\texttt{nspread}=7$}
+\end{subfigure}
+\begin{subfigure}{0.48\textwidth}
+  \centering
+  \begin{tikzpicture}[scale=2]
+  % bounding rectangle
+  % vertical line from (-1,-1) to (-1,1)
+  \draw[black!50, thick] (-1,-1) -- (-1,0.65);
+  \draw[black!50, thick] (-1,-1) -- (0.65,-1);
+  % inner box corresponding to halfside (from -0.5 to 0.5)
+  \draw[blue!60, dashed, thick] (-0.99,-0.99) rectangle (0,0);
+  \draw[orange!60, dashed, thick] (-1.5, -1.5) rectangle (0.5,0.5);
+
+  \foreach \x in {-1.375, -1.125, -0.875, -0.625, -0.375, -0.125, 0.125, 0.375} {
+    \foreach \y in {-1.375, -1.125, -0.875, -0.625, -0.375, -0.125, 0.125, 0.375} {
+      \fill[black] (\x,\y) circle (0.02);
+    }
+  }
+\end{tikzpicture}
+\caption{$\texttt{nbinpts}=4$, $\texttt{nspread}=8$}
+\end{subfigure}
+\caption{Schematic of the padding of the regular grid around the source points. 
+The black lines form the bottom left corner of the bounding rectangle, the blue dashed line is the first spreading bin, and the orange dashed line is its associated spreading box. 
+The regular grid points (black dots) start slightly below the bounding rectangle. 
+There are $ \texttt{pad} = \lceil (\texttt{nspread} - \texttt{nbinpts}) / 2 \rceil$ extra grid points hanging below and to the left of the bounding rectangle to ensure proper padding for spreading.}
+\label{fig:padding}
+\end{figure}
+
 
 \end{document}

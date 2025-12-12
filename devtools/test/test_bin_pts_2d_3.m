@@ -8,7 +8,7 @@ addpath(genpath("../../pcfft"));
 % x grid = [-1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
 % y grid = [-0.5, -0.25, 0.0, 0.25 0.5]
 % Then ngrid = [9 5]
-% and if we set nspread = 3, we expect 
+% and if we set nbinpts = 3, we expect 
 % x bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
 % y bins [-0.625, 0.125], [0.125, 0.875]
 
@@ -16,7 +16,7 @@ dx = 0.25;
 ngrid = [9 5];
 Lbd = [-1 1
        -0.5 0.5];
-nspread = 3;
+nbinpts = 3;
 nbin = [3 2];
 
 % Put points at (-0.9, 0.4) idx_x 0, idx_y 1, bin 1
@@ -27,7 +27,7 @@ r = [-0.9, 0.0, 0.8;
 assert(size(r,1) == 2);
 assert(size(r,2) == 3);
 
-[r_sorted, bin_idxes, id_start] = bin_pts_2d(r, dx, ngrid, Lbd, nbin, nspread);
+[r_sorted, bin_idxes, ~, id_start] = bin_pts_2d(r, dx, Lbd, nbin, nbinpts);
 
 disp("test: r_sorted:")
 disp(r_sorted)
@@ -64,7 +64,7 @@ r2 = [-0.9, 0.8;
 assert(size(r2,1) == 2);
 assert(size(r2,2) == 2);
 
-[r_sorted2, bin_idxes2, id_start2] = bin_pts_2d(r2, dx, ngrid, Lbd, nbin, nspread);
+[r_sorted2, bin_idxes2, ~, id_start2] = bin_pts_2d(r2, dx, Lbd, nbin, nbinpts);
 
 disp("test case 2: r_sorted2:")
 disp(r_sorted2)
@@ -99,7 +99,7 @@ r3 = [-0.9, -0.9, 0.0;
 assert(size(r3,1) == 2);
 assert(size(r3,2) == 3);
 
-[r_sorted3, bin_idxes3, id_start3] = bin_pts_2d(r3, dx, ngrid, Lbd, nbin, nspread);
+[r_sorted3, bin_idxes3, ~, id_start3] = bin_pts_2d(r3, dx, Lbd, nbin, nbinpts);
 disp("test case 3: r_sorted3:")
 disp(r_sorted3)
 disp("test case 3: bin_idxes3:")
