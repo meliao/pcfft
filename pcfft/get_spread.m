@@ -6,9 +6,9 @@ function [A_spread,K_src_to_reg] = get_spread(kern_0, kern, src_info, grid_info,
 
     % First, sort the points into bins
     if dim == 2
-        [r_sorted, bin_idxes, id_start, sorted_idxes] = bin_pts_2d(src_info.r, ...
-         grid_info.dx, grid_info.ngrid, grid_info.Lbd, grid_info.nbin, ...
-        grid_info.nspread);
+        [r_sorted, bin_idxes, sorted_idxes, id_start] = bin_pts_2d(src_info.r, ...
+         grid_info.dx, grid_info.Lbd, grid_info.nbin, ...
+        grid_info.nbinpts);
     else
         [r_sorted, bin_idxes, id_start] = bin_pts_3d();
 
@@ -105,7 +105,7 @@ function [A_spread,K_src_to_reg] = get_spread(kern_0, kern, src_info, grid_info,
         % block_content = K_reg_to_proxy \ K_src_to_proxy_i;
         block_content = K_src_to_reg(:,idx_start:idx_end);
 
-        A_spread(row_idxes_i, idx_start:idx_end) = block_content;
+        A_spread(row_idxes_i, idx_start:idx_end) = A_spread(row_idxes_i, idx_start:idx_end) + block_content;
 
     end
 

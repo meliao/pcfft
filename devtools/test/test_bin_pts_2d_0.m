@@ -9,13 +9,11 @@ r = (rand(2, n_pts) - 0.5) * L;
 r(2,:) = r(2,:) / 2;
 
 % dx = 0.25, so the grid points are at
-% x grid = [-1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
-% y grid = [-0.5, -0.25, 0.0, 0.25 0.5]
 dx = 0.25;
 ngrid = [9 5];
 % When we set nbinpts = 3, we expect
-% x bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
-% y bins [-0.625, 0.125], [0.125, 0.875]
+% x bins [-1, -0.25], [-0.25, 0.5], [0.5, 1.0]
+% y bins [-0.5, 0.25], [0.25, 0.5]
 % so we get nbin = [3 2]
 nbin = [3 2];
 N_bins = nbin(1) * nbin(2) + 1; % Total number of bins in this case.
@@ -30,7 +28,7 @@ assert(all(size(id_start, 2) == N_bins));
 
 % Plot the sorted points and color by the bin
 % to make sure the bin assignment looks correct
-% scatter(r_sorted(1,:), r_sorted(2,:), 20, sorted_bin_ids, 'filled');
+% scatter(r_srt(1,:), r_srt(2,:), 20, binid_srt, 'filled');
 % colormap('parula');
 % colorbar;
 

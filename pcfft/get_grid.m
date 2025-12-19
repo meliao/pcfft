@@ -104,11 +104,11 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
         rgrid = [X(:).'; Y(:).'; Z(:).'];
     end
 
-    xx_dx = xx(2) - xx(1);
-    disp("get_grid: dx of xx: " + num2str(xx_dx))
+    % xx_dx = xx(2) - xx(1);
+    % disp("get_grid: dx of xx: " + num2str(xx_dx))
 
-    yy_dy = yy(2) - yy(1);
-    disp("get_grid: dy of yy: " + num2str(yy_dy))
+    % yy_dy = yy(2) - yy(1);
+    % disp("get_grid: dy of yy: " + num2str(yy_dy))
 
     % Update grid_info with some more data that we computed.
     grid_info.ngrid = ngrid;
@@ -118,4 +118,5 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     grid_info.dim = dim;
     grid_info.nbin = n_bin;
     grid_info.pad = pad;
+    grid_info.offset = offset;
 end

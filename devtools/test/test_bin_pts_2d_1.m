@@ -9,11 +9,10 @@ r = (rand(2, n_pts) - 0.5) * L;
 r(2,:) = r(2,:);
 
 % dx = 0.25, so the grid points are at
-% x grid and y grid = [-1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
 dx = 0.25;
 ngrid = [9 9];
 % When we set nbinpts = 3, we expect
-% x bins and y bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
+% x bins and y bins [-1, -0.25], [-0.25, 0.5], [0.5, 1.]
 nbinpts = 3;
 nbin = [3 3];
 [r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(r, dx, Lbd, nbin, nbinpts);

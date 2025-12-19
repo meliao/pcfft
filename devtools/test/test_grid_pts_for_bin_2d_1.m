@@ -23,8 +23,8 @@ targ_info_2d.r = (rand(2, ntarg) - 0.5).^3;
 disp("test: finished get_grid")
 disp(grid_info.ngrid)
 
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(src_info_2d.r, ...
- grid_info.dx, grid_info.ngrid, grid_info.Lbd, grid_info.nbin, grid_info.nspread);
+[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(src_info_2d.r, grid_info.dx, ...
+    grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
 
 disp("test: grid_info.Lbd");
 disp(grid_info.Lbd);
@@ -55,13 +55,19 @@ for bin_id = 0:N_bins-1
 
     % pts_sliced should exactly match pts
     pts_sliced = grid_info.r(:, row_idxes);
-    % disp("test: pts_sliced");
-    % disp(pts_sliced);
-    % disp("test: pts");
-    % disp(pts);
+    disp("test: pts_sliced size: " + int2str(size(pts_sliced)));
+    disp(pts_sliced);
+    disp("test: pts size: " + int2str(size(pts)));
+    disp(pts);
     diffs = pts_sliced - pts;
-    % disp("diffs")
-    % disp(diffs)
+    disp("diffs")
+    disp(diffs)
+    
+    % Scatter pts and pts_sliced
+    scatter(pts(1,:), pts(2,:), 100, 'ko');
+    hold on;
+    scatter(pts_sliced(1,:), pts_sliced(2,:), 200, 'rx');
+
     assert(all(size(pts_sliced) == size(pts)));
     assert(all(diffs(:) < 1e-15));
 end

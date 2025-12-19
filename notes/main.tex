@@ -196,7 +196,7 @@ This is performed in \texttt{get\_grid()}, which calls \texttt{spread\_halfside(
     \item Compute \texttt{dx}, \texttt{nspread}, and \texttt{nproxy} using \texttt{dx\_nproxy()}.
     \item Construct a bounding rectangle around the source points, which, along with the side length of the spreading bin, determines \texttt{ngrid}, the number of regular grid points in each dimension.
     \item Add a padding of grid points on each side so that the spreading bins fit properly into the corners of the bounding rectangle. $\texttt{pad} = \lceil (\texttt{nspread} - \texttt{nbinpts}) / 2 \rceil$.
-    \item Start the regular grid points a bit below the bottom corner of the bounding rectangle. See \cref{fig:padding} for an illustration of this padding.
+    \item Start the regular grid points a bit below the bottom corner of the bounding rectangle. This offset is $\texttt{offset} = \texttt{pad} * \texttt{dx} - \texttt{dx} / 2$ See \cref{fig:padding} for an illustration of this padding.
 \end{itemize}
 
 \begin{figure}
@@ -246,5 +246,6 @@ There are $ \texttt{pad} = \lceil (\texttt{nspread} - \texttt{nbinpts}) / 2 \rce
 \label{fig:padding}
 \end{figure}
 
-
+\subsection{Computing the spreading matrix}
+The spreading matrix $A$ maps from weights on the source points to equivalent weights on the regular grid. This matrix is constructed in \texttt{get\_spread()}.
 \end{document}

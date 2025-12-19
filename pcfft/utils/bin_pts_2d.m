@@ -22,14 +22,11 @@ function [r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(r, dx, ...
     %
     % Example of bin construction:
     % Suppose the points in r live on [-1, 1] x [-0.5, 0.5]
-    % dx = 0.25, so the grid points are at
-    % x grid = [-1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
-    % y grid = [-0.5, -0.25, 0.0, 0.25 0.5]
-    % Then ngrid = [9 5]
-    % and if we set nbinpts = 3 and nbin = [3 2] we expect 
-    % x bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
-    % y bins [-0.625, 0.125], [0.125, 0.875]
-
+    % dx = 0.25
+    % and if we set nbinpts = 3, we expect 
+    % x bins [-1., -0.25], [-0.25, 0.5], [0.5, 1.]
+    % y bins [-0.5, 0.25], [0.25, 0.5]
+    
     nbin = nbin(:);
     N_x_bins = nbin(1);
     N_y_bins = nbin(2);
@@ -39,9 +36,9 @@ function [r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(r, dx, ...
     % Find the ID of the bin in the X dim that each 
     % point occupies.
     % NOTE THAT id_x and id_y are zero-indexed!!
-    id_x = floor((r(1,:) - Lbd(1) + dx/2) / (nbinpts * dx));
+    id_x = floor((r(1,:) - Lbd(1)) / (nbinpts * dx));
     % Same for the Y dim.
-    id_y = floor((r(2,:) - Lbd(2) + dx/2) / (nbinpts * dx));
+    id_y = floor((r(2,:) - Lbd(2)) / (nbinpts * dx));
 
     bin_ids = id_x * N_y_bins + id_y;
     [binid_srt, ptid_srt] = sort(bin_ids);
