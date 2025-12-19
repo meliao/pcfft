@@ -217,6 +217,9 @@ This is performed in \texttt{get\_grid()}, which calls \texttt{spread\_halfside(
       \fill[black] (\x,\y) circle (0.02);
     }
   }
+
+  % Arrow between point at -1.375, -1.375 and -1, -1.375 labeled offset
+  \draw[<->, thick] (-1.375,-0.8) -- (-1,-0.8) node[midway, below] {\texttt{offset}};
 \end{tikzpicture}
 \caption{$\texttt{nbinpts}=3$, $\texttt{nspread}=7$}
 \end{subfigure}
@@ -247,5 +250,25 @@ There are $ \texttt{pad} = \lceil (\texttt{nspread} - \texttt{nbinpts}) / 2 \rce
 \end{figure}
 
 \subsection{Computing the spreading matrix}
-The spreading matrix $A$ maps from weights on the source points to equivalent weights on the regular grid. This matrix is constructed in \texttt{get\_spread()}.
+The spreading matrix $\boldsymbol{A}$ maps from weights on the source points to equivalent weights on the regular grid. This matrix is constructed in \texttt{get\_spread()}.
+\subsection{Computing the addsub matrix}
+Let's look at an N-body sum that we are trying to approximate:
+\begin{align}
+  u_i &= \sum_{j=1}^N K(x_i - y_j) \mu_j \\
+  &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j + \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j.
+\end{align}
+Ideally, we'd want to use the spreading matrix computed in the previous step to approximate the far interactions as 
+\begin{align*}
+  \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j \approx \boldsymbol{A}_{i, :} \boldsymbol{\mu}.
+\end{align*}
+However, $\boldsymbol{A}$ contains all of the interactions, not just far interactions. So we need to compute a matrix $\boldsymbol{B}$ which approximates:
+\begin{align*}
+  \boldsymbol{B}_{i,:} \boldsymbol{\mu} = \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j - \boldsymbol{A}_{i, \text{Near}(i)} \boldsymbol{\mu}
+\end{align*}
+Steps for computing this matrix:
+\begin{itemize}
+  \item For each bin $i$, return a list of each bin $j$ where the proxy circle $i$ intersects with the spreading box of $j$.
+  \item Compute the exact near-field interactions $\sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j$.
+  \item Compute the contribution of the near-field interacions to $\boldsymbol{A}_i \boldsymbol{\mu}$.
+\end{itemize}
 \end{document}
