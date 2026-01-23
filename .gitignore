@@ -2,3 +2,10 @@
 *.mat
 *.png
 *.pdf
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+
+FLAM/

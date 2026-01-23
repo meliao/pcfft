@@ -1,6 +1,6 @@
 addpath(genpath("../../pcfft"));
 
-target_rad = 4.0;
+target_rad = 3.01;
 ntarg = 200;
 target_pts = get_ring_points(ntarg, target_rad);
 
@@ -104,7 +104,8 @@ tol_vals = [1e-02 1e-03 1e-04 1e-05 1e-06 1e-07 1e-08];
 n_tol_vals = size(tol_vals, 2);
 error_vals = zeros(n_tol_vals, 1);
 dx_vals = zeros(n_tol_vals, 1);
-nspread_vals = zeros(n_tol_vals, 1);
+nbinpts_vals = zeros(n_tol_vals, 1);
+nproxy_vals = zeros(n_tol_vals, 1);
 
 for i = 1:n_tol_vals
     tol = tol_vals(i);
@@ -140,37 +141,32 @@ for i = 1:n_tol_vals
 
     approx_targ_vals = K_reg_to_target * reg_weights;
 
-    errors_at_target = max(abs(approx_targ_vals - target_vals));
+    errors_at_target = max(abs(approx_targ_vals - target_vals)) / max(abs(target_vals));
 
     % Save the error and dx vals
     error_vals(i) = errors_at_target;
     dx_vals(i) = grid_info.dx;
-    nspread_vals(i) = grid_info.nspread;
+    nbinpts_vals(i) = grid_info.nbinpts;
+    nproxy_vals(i) = proxy_info.n_points_total;
 end
 
 %%
 figure(1);
-plot(tol_vals, error_vals, 'o-');
+clf;
+subplot(2,1,1);
+plot(tol_vals(:), error_vals(:), '.-')
+hold on
+plot(tol_vals(:), tol_vals(:), '--')
+xscale('log')
+ylabel("Observed error")
+yscale('log')
+xlabel("Tolerance")
+grid on;
+subplot(2,1,2);
+plot(tol_vals(:), nproxy_vals(:), '.-');
 hold on;
-plot(tol_vals, tol_vals, 'k--');
+plot(tol_vals(:), nbinpts_vals(:), '.-');
+% plot(tol_vals(:), nspread_vals(:), '.-');
+legend("nproxy", "nbinpts");
+grid on;
 xscale('log');
-yscale('log');
-xlabel("Error tolerance");
-ylabel("Observed error");
-
-figure(2);
-plot(tol_vals, dx_vals, "o-");
-hold on;
-xscale('log');
-xlabel("Error tolerance");
-ylabel("dx");
-
-figure(3);
-plot(tol_vals, nspread_vals, "o-");
-hold on;
-xscale('log');
-xlabel("Error tolerance");
-ylabel("nspread");
-
-figure(4);
-scatter(source_pts(1,:), source_pts(2,:));
