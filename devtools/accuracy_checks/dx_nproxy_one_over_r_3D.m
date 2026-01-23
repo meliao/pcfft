@@ -78,20 +78,20 @@ for i = 1:n_tol_vals
     % disp(size(src_weights));
     % assert(false);
 
-    K_src_to_target = one_over_r_kernel(source_pts, target_pts);
+    K_src_to_target = one_over_r_kernel(struct('r',source_pts), struct('r',target_pts));
     target_vals = K_src_to_target * src_weights(:);
 
     proxy_pts = proxy_info.r;
-    K_src_to_proxy = one_over_r_kernel(source_pts, proxy_pts);
+    K_src_to_proxy = one_over_r_kernel(struct('r',source_pts), struct('r',proxy_pts));
     proxy_vals = K_src_to_proxy * src_weights(:);
     
     % Solve the least squares problem
     rhs = proxy_vals;
-    lhs = one_over_r_kernel(box_pts, proxy_pts);
+    lhs = one_over_r_kernel(struct('r',box_pts), struct('r',proxy_pts));
     weights_reg = lsqminnorm(lhs, rhs, tol / 10);
     
     % Evaluate the approximation
-    K_reg_to_target = one_over_r_kernel(box_pts, target_pts);
+    K_reg_to_target = one_over_r_kernel(struct('r',box_pts), struct('r',target_pts));
     target_vals_approx = K_reg_to_target * weights_reg(:);
     
     errors_at_target = max(abs(target_vals_approx(:) - target_vals(:))) / max(abs(target_vals));

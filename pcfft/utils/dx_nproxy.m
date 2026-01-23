@@ -40,7 +40,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         % ntarget_eff = floor((ntarget / 6)^(1/3));
         target_pts = get_sphere_points(ntarget, 1.1 * radius);
     end
-    K_src_to_target = kernel(src_pts, target_pts);
+    K_src_to_target = kernel(struct('r',src_pts), struct('r',target_pts));
     target_evals = K_src_to_target * src_weights(:);
 
 
@@ -95,9 +95,9 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
 
         % Compute the kernel evals from source to proxy pts
-        K_source_to_proxy = kernel(src_pts, proxy_pts);
+        K_source_to_proxy = kernel(struct('r',src_pts), struct('r',proxy_pts));
         % Kernel regular -> proxy pts
-        K_reg_to_proxy = kernel(reg_pts, proxy_pts);
+        K_reg_to_proxy = kernel(struct('r',reg_pts), struct('r',proxy_pts));
 
         % Solve the least squares problem to find weights
         evals_at_proxy = K_source_to_proxy * src_weights;
@@ -105,7 +105,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
         spread_weights = K_reg_to_proxy \ evals_at_proxy;
 
         % Eval the approximation at the eval point
-        approx_at_target = kernel(reg_pts, target_pts) * spread_weights;
+        approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;
 
 
         % Check error between approx and exact
@@ -129,7 +129,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
     % Compute the kernel evals from source to proxy pts
     % We don't really need this inside this loop since proxy_pts are fixed.
-    K_source_to_proxy = kernel(src_pts, proxy_pts);
+    K_source_to_proxy = kernel(struct('r',src_pts), struct('r',proxy_pts));
     % Solve the least squares problem to find weights
     evals_at_proxy = K_source_to_proxy * src_weights;
     % Keep nproxy fixed and reduced nspread while keeping accuracy
@@ -160,13 +160,13 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
 
         % Kernel regular -> proxy pts
-        K_reg_to_proxy = kernel(reg_pts, proxy_pts);
+        K_reg_to_proxy = kernel(struct('r',reg_pts), struct('r',proxy_pts));
 
         % spread_weights = K_reg_to_proxy \ evals_at_proxy;
         spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
 
         % Eval the approximation at the eval point
-        approx_at_target = kernel(reg_pts, target_pts) * spread_weights;
+        approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;
 
         % Check error between approx and exact
         errors = abs(approx_at_target(:) - target_evals(:));

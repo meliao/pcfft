@@ -31,7 +31,7 @@ function [A_spread,K_src_to_reg] = get_spread(kern_0, kern, src_info, grid_info,
         [pts_0, center_0] = grid_pts_for_bin_3d();
     end
     pts_0_centered = pts_0 - center_0;
-    K_reg_to_proxy = kern_0(pts_0_centered, proxy_info.r);
+    K_reg_to_proxy = kern_0(struct('r',pts_0_centered), proxy_info);
     % K_reg_to_proxy_pinv = pinv(K_reg_to_proxy);
 
     % A is a sparse matrix with shape (ngrid^2, nsrc)
@@ -76,7 +76,7 @@ function [A_spread,K_src_to_reg] = get_spread(kern_0, kern, src_info, grid_info,
 
     % Compute one whole big K_src_to_proxy, and later we'll 
     % index its rows. K_src_to_proxy has shape (n_proxy, n_src)
-    K_src_to_proxy = kern_0(r_local, proxy_info.r);
+    K_src_to_proxy = kern_0(struct('r',r_local), proxy_info);
     K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
 
     % Now, loop through the bins and start to fill in A

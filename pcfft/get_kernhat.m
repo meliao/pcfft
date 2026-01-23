@@ -22,7 +22,7 @@ elseif length(ngrid) == 3
     rgrid = [X(:).'; Y(:).'; Z(:).'];
 end
 % evaluate kernel
-kernvals = kern(rgrid0, rgrid);
+kernvals = kern(struct('r',rgrid0), struct('r',rgrid));
 
 % Fourier transform
 kernvals = reshape(kernvals, 2*flip(ngrid(:)'));

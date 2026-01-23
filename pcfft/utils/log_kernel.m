@@ -5,8 +5,8 @@ function k_evals = log_kernel(src_pts, target_pts)
 % Output shape is (N, M)
 
 % Shape (N, M)
-rx = src_pts(1, :) - target_pts(1, :).';
-ry = src_pts(2, :) - target_pts(2, :).';
+rx = src_pts.r(1, :) - target_pts.r(1, :).';
+ry = src_pts.r(2, :) - target_pts.r(2, :).';
 
 dist = sqrt(rx.^2 + ry.^2);
 

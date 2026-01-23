@@ -26,7 +26,7 @@ src_info.r = source_pts;
 targ_info = struct;
 targ_info.r = source_pts;
 
-K_src_to_target = log_kernel(source_pts, target_pts);
+K_src_to_target = log_kernel(struct('r',source_pts), struct('r',target_pts));
 disp("K_src_to_target shape: ")
 disp(size(K_src_to_target))
 disp("src_weights shape:")

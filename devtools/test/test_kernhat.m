@@ -29,7 +29,7 @@ str = zeros(1,size(rgrid,2));
 ipt = ngrid(2) + (ngrid(2))*(ngrid(1)-1);
 % ipt = 1;
 str(ipt) = 1;
-kerns = log_kernel(rgrid(:,ipt), rgrid);
+kerns = log_kernel(struct('r',rgrid(:,ipt)), struct('r',rgrid));
 
 u = kerns*str(ipt);
 
@@ -96,7 +96,7 @@ i = ngrid(3); j = ngrid(2); k = ngrid(1);
 ipt =i +  ngrid(3) *(j-1 + ngrid(2)*(k-1));
 % ipt = 1;
 str(ipt) = 1;
-kerns = one_over_r_kernel(rgrid(:,ipt), rgrid);
+kerns = one_over_r_kernel(struct('r',rgrid(:,ipt)), struct('r',rgrid));
 
 u = kerns*str(ipt);
 % %%

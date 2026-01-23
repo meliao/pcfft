@@ -19,7 +19,7 @@ src_weights = src_weights(:);
 % Define the kernel
 k = @(s,t) log_kernel(s,t);
 
-K_src_to_target = log_kernel(source_pts, target_pts);
+K_src_to_target = log_kernel(struct('r',source_pts), struct('r',target_pts));
 
 target_vals = K_src_to_target * src_weights;
 n_nbr = 500; % 10000 points / 500 is approximately 20 boxes
@@ -133,7 +133,7 @@ for i = 1:n_tol_vals
     reg_weights = A_spread * src_weights;
     reg_weights = full(reg_weights);
 
-    K_reg_to_target = log_kernel(grid_info.r, target_pts);
+    K_reg_to_target = log_kernel(grid_info, struct('r',target_pts));
     % disp("K_reg_to_target shape: ")
     % disp(size(K_reg_to_target))
     % disp("reg_weights shape:")
