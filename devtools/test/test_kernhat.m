@@ -26,27 +26,25 @@ Lbd = grid_info.Lbd;
 str = zeros(1,size(rgrid,2));
 
 % ipt = ngrid(2)+1 + (2*ngrid(2)+1)*(ngrid(1)+1);
-ipt = 1;
+ipt = ngrid(2) + (ngrid(2))*(ngrid(1)-1);
+% ipt = 1;
 str(ipt) = 1;
 kerns = log_kernel(rgrid(:,ipt), rgrid);
 
 u = kerns*str(ipt);
 
 % compute u using fft
-kern_hat = get_kernhat(@log_kernel,rgrid,ngrid, Lbd, grid_info.dx);
+kern_hat = get_kernhat(@log_kernel,ngrid, Lbd, grid_info.dx, grid_info.offset);
 
-str_hat = fftn(reshape(str,size(kern_hat)));
+str_hat = fftn(reshape(str,flip(ngrid(:)')),flip(2*ngrid(:)'));
 u_hat = kern_hat .* str_hat;
 ugrid = ifftn(u_hat);
+ugrid = ugrid(1:ngrid(2),1:ngrid(1));
 
 %compare
 ugrid = ugrid(:);
 
-% get all 'real' grid points
-[idx, idy] = meshgrid(1:ngrid(1), 1:ngrid(2));
-idreal = idy(:) + (2*ngrid(2)+1)*idx(:);
-
-assert(norm(u(idreal) - ugrid(idreal))<1e-10)
+assert(norm(u - ugrid)<1e-10)
 
 %%
 
@@ -75,7 +73,7 @@ colorbar
 dim = 3;
 src_info_3d = struct;
 n_src = 13;
-src_info_3d.r = (rand(3, n_src) - 0.5) * boxhalf_sidelen;
+src_info_3d.r = [3;2;1].*(rand(3, n_src) - 0.5) * boxhalf_sidelen;
 src_info_3d.weights = rand(n_src, 1);
 
 targ_info_3d = struct;
@@ -94,43 +92,26 @@ Lbd = grid_info.Lbd;
 
 str = zeros(1,size(rgrid,2));
 
-% ipt = ngrid(2)+1 + (2*ngrid(2)+1)*(ngrid(1)+1);
-ipt = 1;
+i = ngrid(3); j = ngrid(2); k = ngrid(1);
+ipt =i +  ngrid(3) *(j-1 + ngrid(2)*(k-1));
+% ipt = 1;
 str(ipt) = 1;
 kerns = one_over_r_kernel(rgrid(:,ipt), rgrid);
 
 u = kerns*str(ipt);
 % %%
 % compute u using fft
-kern_hat = get_kernhat(@one_over_r_kernel,rgrid,ngrid, Lbd, grid_info.dx);
+kern_hat = get_kernhat(@one_over_r_kernel,ngrid, Lbd, grid_info.dx, grid_info.offset);
 
-str_hat = fftn(reshape(str,size(kern_hat)));
+str_hat = fftn(reshape(str,flip(ngrid(:)')),flip(2*ngrid(:)'));
 u_hat = kern_hat .* str_hat;
 ugrid = ifftn(u_hat);
+ugrid = ugrid(1:ngrid(3),1:ngrid(2),1:ngrid(1));
+
 
 %compare
 ugrid = ugrid(:);
 
-% get all 'real' grid points
-[idx, idy, idz] = meshgrid(1:ngrid(1), 1:ngrid(2), 1:ngrid(3));
-idreal = idz(:) + (2*ngrid(3)+1)*(idy(:) + (2*ngrid(2)+1)*idx(:));
-% idreal = 1:21;
-norm(u(idreal) - ugrid(idreal))
-
-% %%
-% 
-% ngrid = 4e2 * [1;1;1]';
-% % ngrid = 512 * [1;1;1]';
-% 
-% u = randn(ngrid);
-% tic;
-% uhat = fftn(u, 2*ngrid);
-% toc;
-% 
-% u2 = randn(2*ngrid);
-% tic;
-% uhat2 = fftn(u2);
-% toc;
-
+assert(norm(u - ugrid) < 1e-10)
 %%
 
