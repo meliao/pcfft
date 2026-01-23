@@ -14,6 +14,11 @@ function [A_spread,K_src_to_reg] = get_spread(kern_0, kern, src_info, grid_info,
 
     end
 
+    src_info.r_sorted = r_sorted;
+    src_info.bin_idxes = bin_idxes;
+    src_info.sorted_idxes = sorted_idxes;
+    src_info.id_start = id_start;
+
     disp("get_spread: id_start:")
     disp(id_start)
 

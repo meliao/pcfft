@@ -3,3 +3,10 @@
 *.png
 *.pdf
 .DS_Store
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+
+FLAM/
