@@ -40,7 +40,9 @@ function [pts, center, row_idxes] = grid_pts_for_bin_2d(bin_idx, grid_info)
     pts = [X(:) Y(:)].';
 
     center = [(xpts(1) + xpts(end)) / 2; (ypts(1) + ypts(end)) / 2];
+    % disp("grid_pts_for_bin_2d: center: ");
 
+    % disp(center);
 
     % Compute the row indices
     % First, we know that the xpts are in position 
