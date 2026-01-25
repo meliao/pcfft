@@ -1,4 +1,7 @@
-function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
+function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
+    % DX_NPROXY Determines the grid spacing dx, number of spreading points 
+    % across the spreading box nspread, number of grid points across the 
+    % spreading bin nbinpts, and proxy surface information proxy_info.
     
     if nargin < 5
         crad = 2;
@@ -311,20 +314,7 @@ function [spread_info, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
 
     % If nspread // 2 == 0, we can exit early because the bin size is 
     % the same as half the spreading box size.
-    if true
-        spread_info = struct;
-        proxy_info = struct;
-
-        spread_info.dx = dx;
-        spread_info.nspread = nspread;
-        spread_info.nbinpts = nbinpts;
-
-        proxy_info.dim = dim;
-        proxy_info.n_points_total = nproxy*nshell;
-        proxy_info.r = proxy_pts;
-        proxy_info.radius = radius;
-        return;
-    end
+    proxy_info = ProxyInfo(dim, nproxy*nshell, nproxy, nshell, halfside, crad, tol, radius, proxy_pts);
     
     % Otherwise, the bin may be slightly wider than half the spreading box,
     % so we will re-draw random source points in the new bin size

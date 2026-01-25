@@ -24,8 +24,8 @@ rad = crad * R;
 target_pts = get_ring_points(100, sqrt(2.0) * crad * halfside);
 
 
-% tol_vals = [1.194e-09];
 tol_vals = logspace(-3, -14, 40);
+% tol_vals = logspace(-3, -7, 10);
 n_tol_vals = size(tol_vals, 2);
 error_vals = ones(n_tol_vals, 1);
 n_reg_vals = ones(n_tol_vals, 1);
@@ -36,10 +36,8 @@ for i = 1:n_tol_vals
     tol = tol_vals(i);
     disp("Main: Working on tol " + num2str(tol));
 
-    [grid_info, proxy_info] = dx_nproxy(k, 2, tol, halfside);
+    [dx, nspread, nbinpts, proxy_info] = dx_nproxy(k, 2, tol, halfside);
     
-    nspread = grid_info.nspread;
-    dx = grid_info.dx;
 
     xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
     yy = xx;
@@ -51,8 +49,6 @@ for i = 1:n_tol_vals
     
     % Get source points sampled from the bin, which is 
     % [-nbinpts*dx/2, nbinpts*dx/2]^2
-    nbinpts = grid_info.nbinpts;
-    dx = grid_info.dx;
     bin_sidelen = nbinpts * dx;
     disp("Main: Final bin size: " + num2str(bin_sidelen));
 
@@ -94,8 +90,8 @@ for i = 1:n_tol_vals
     disp("Main: For tol " + num2str(tol) + ", observed error: " + num2str(errors_at_target));
     error_vals(i) = errors_at_target;
     n_proxy_vals(i) = proxy_info.n_points_total;
-    nbinpts_vals(i) = grid_info.nbinpts;
-    nspread_vals(i) = grid_info.nspread;
+    nbinpts_vals(i) = nbinpts;
+    nspread_vals(i) = nspread;
 
 end
 figure(1);

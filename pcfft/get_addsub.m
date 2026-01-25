@@ -1,15 +1,23 @@
-function A_add_sub = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, K_src_to_reg_s, K_src_to_reg_t)
+function A_add_sub = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
+    targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
+    K_src_to_reg_s, K_src_to_reg_t)
 
+    N_src = size(src_info.r, 2);
+    N_targ = size(targ_info.r, 2);
 
     N_bins = grid_info.nbin(1) * grid_info.nbin(2);
 
     id_start = src_info.id_start;
     r_sorted = src_info.r_sorted;
+
+    A_add = sparse(N_targ, N_src);
+    A_sub = sparse(N_targ, N_src);
+
     % Loop through all of the bins
     for i = 1:size(id_start, 2) -1
-        bin_idx = i-1; % Because bins are 0-indexed
+        bin_idx = i - 1; % Because bins are 0-indexed
         idx_start = id_start(i);
-        idx_end = id_start(i+1) - 1;
+        idx_end = id_start(i + 1) - 1;
 
         src_pts_in_i = r_sorted(:, idx_start:idx_end);
 
@@ -24,7 +32,6 @@ function A_add_sub = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, targ_
         intersecting_bin_idxes = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
 
         % Compute the exact near-field interactions
-
 
     end
 

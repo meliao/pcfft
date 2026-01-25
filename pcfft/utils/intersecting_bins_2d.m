@@ -1,4 +1,4 @@
-function bin_idxes = intersecting_bins_2d(bin_idx, grid_info, proxy_info)
+qufunction bin_idxes = intersecting_bins_2d(bin_idx, grid_info, proxy_info)
     % Given a set of bins which are described by grid_info, and a set of proxy
     % surfaces which are described by proxy_info, return a list of bins which
     % intersect with the bin which has idx = bin_idx.
