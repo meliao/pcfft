@@ -41,9 +41,11 @@ L = 4.0;
 rng(0);
 r = (rand(2, n_pts) - 0.5) * L;
 
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, grid_info.dx, ...
-    grid_info.Lbd, n_bin, grid_info.nbinpts);
-
+sort_info = SortInfo(r, grid_info.dx, grid_info.Lbd, ...
+    grid_info.nbin, grid_info.nbinpts);
+r_sorted = sort_info.r_srt;
+sorted_bin_ids = sort_info.binid_srt;
+id_start = sort_info.id_start;
 
 
 % Get pts for a certain bin idx

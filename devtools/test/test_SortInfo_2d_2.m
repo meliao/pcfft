@@ -27,8 +27,12 @@ k = @(s,t) log_kernel(s,t);
 [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
 nbin = grid_info.nbin;
 
-[r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(src_info.r, ...
-    grid_info.dx, grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
+[sort_info] = SortInfo(src_info.r, grid_info.dx, grid_info.Lbd, ...
+    grid_info.nbin, grid_info.nbinpts);
+r_srt = sort_info.r_srt;
+binid_srt = sort_info.binid_srt;
+ptid_srt = sort_info.ptid_srt;
+id_start = sort_info.id_start;
 
 % Display the last 10 entries of id_start
 disp("id_start:")

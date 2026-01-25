@@ -15,7 +15,11 @@ ngrid = [9 9];
 % x bins and y bins [-1, -0.25], [-0.25, 0.5], [0.5, 1.]
 nbinpts = 3;
 nbin = [3 3];
-[r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(r, dx, Lbd, nbin, nbinpts);
+[sort_info] = SortInfo(r, dx, Lbd, nbin, nbinpts);
+r_srt = sort_info.r_srt;
+binid_srt = sort_info.binid_srt;
+ptid_srt = sort_info.ptid_srt;
+id_start = sort_info.id_start;
 c = 1:n_pts;
 assert(all(size(r_srt) == size(r)));
 assert(all(size(r, 2) == size(binid_srt, 2)));

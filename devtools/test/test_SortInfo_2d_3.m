@@ -24,7 +24,10 @@ r = [-0.9, 0.0, 0.8;
 assert(size(r,1) == 2);
 assert(size(r,2) == 3);
 
-[r_sorted, bin_idxes, ~, id_start] = bin_pts_2d(r, dx, Lbd, nbin, nbinpts);
+sort_info = SortInfo(r, dx, Lbd, nbin, nbinpts);
+r_sorted = sort_info.r_srt;
+bin_idxes = sort_info.binid_srt;
+id_start = sort_info.id_start;
 
 disp("test: r_sorted:")
 disp(r_sorted)
@@ -61,7 +64,10 @@ r2 = [-0.9, 0.8;
 assert(size(r2,1) == 2);
 assert(size(r2,2) == 2);
 
-[r_sorted2, bin_idxes2, ~, id_start2] = bin_pts_2d(r2, dx, Lbd, nbin, nbinpts);
+sort_info2 = SortInfo(r2, dx, Lbd, nbin, nbinpts);
+r_sorted2 = sort_info2.r_srt;
+bin_idxes2 = sort_info2.binid_srt;
+id_start2 = sort_info2.id_start;
 
 disp("test case 2: r_sorted2:")
 disp(r_sorted2)
@@ -96,7 +102,10 @@ r3 = [-0.9, -0.9, 0.0;
 assert(size(r3,1) == 2);
 assert(size(r3,2) == 3);
 
-[r_sorted3, bin_idxes3, ~, id_start3] = bin_pts_2d(r3, dx, Lbd, nbin, nbinpts);
+sort_info3 = SortInfo(r3, dx, Lbd, nbin, nbinpts);
+r_sorted3 = sort_info3.r_srt;
+bin_idxes3 = sort_info3.binid_srt;
+id_start3 = sort_info3.id_start;
 disp("test case 3: r_sorted3:")
 disp(r_sorted3)
 disp("test case 3: bin_idxes3:")

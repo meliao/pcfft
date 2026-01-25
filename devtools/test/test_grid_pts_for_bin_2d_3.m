@@ -22,8 +22,11 @@ addpath(genpath('../../pcfft'));
 % [grid_info, proxy_info] = get_grid(@log_kernel, ...
 %     src_info_2d, targ_info_2d, tol);
 
-% [r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(src_info_2d.r, ...
-%                 grid_info.dx, grid_info.ngrid, grid_info.Lbd);
+% sort_info = SortInfo(src_info_2d.r, grid_info.dx, ...
+%     grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
+% r_sorted = sort_info.r_srt;
+% sorted_bin_ids = sort_info.binid_srt;
+% id_start = sort_info.id_start;
 
 % disp("sorted_bin_ids")
 % disp(sorted_bin_ids)
@@ -64,9 +67,11 @@ tol = 1e-05;
 
 [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
 
-[r_sorted, sorted_bin_ids, ~, id_start] = bin_pts_2d(src_info.r, ...
-                grid_info.dx, grid_info.Lbd, ...
-                grid_info.nbin, grid_info.nbinpts);
+sort_info = SortInfo(src_info.r, grid_info.dx, ...
+    grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
+r_sorted = sort_info.r_srt;
+sorted_bin_ids = sort_info.binid_srt;
+id_start = sort_info.id_start;
 disp("test: sorted_bin_ids")
 disp(sorted_bin_ids)
 

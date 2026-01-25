@@ -6,18 +6,17 @@ function [A_spread,K_src_to_reg] = get_spread(kern_0, kern, src_info, grid_info,
 
     % First, sort the points into bins
     if dim == 2
-        [r_sorted, bin_idxes, sorted_idxes, id_start] = bin_pts_2d(src_info.r, ...
-         grid_info.dx, grid_info.Lbd, grid_info.nbin, ...
-        grid_info.nbinpts);
+
+        sort_info = SortInfo(src_info.r, grid_info.dx, grid_info.Lbd, ...
+                            grid_info.nbin, grid_info.nbinpts);
+        r_sorted = sort_info.r_srt;
+        sorted_idxes = sort_info.ptid_srt;
+        id_start = sort_info.id_start;
     else
         [r_sorted, bin_idxes, id_start] = bin_pts_3d();
 
     end
 
-    src_info.r_sorted = r_sorted;
-    src_info.bin_idxes = bin_idxes;
-    src_info.sorted_idxes = sorted_idxes;
-    src_info.id_start = id_start;
 
     disp("get_spread: id_start:")
     disp(id_start)

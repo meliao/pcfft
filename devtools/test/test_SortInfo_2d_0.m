@@ -18,7 +18,11 @@ ngrid = [9 5];
 nbin = [3 2];
 N_bins = nbin(1) * nbin(2) + 1; % Total number of bins in this case.
 nbinpts = 3;
-[r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(r, dx, Lbd, nbin, nbinpts);
+sort_info = SortInfo(r, dx, Lbd, nbin, nbinpts);
+r_srt = sort_info.r_srt;
+binid_srt = sort_info.binid_srt;
+id_start = sort_info.id_start;
+
 c = 1:n_pts;
 assert(all(size(r_srt) == size(r)));
 assert(all(size(r, 2) == size(binid_srt, 2)));
@@ -63,10 +67,13 @@ targ_info.r = rand(2, n_targ);
 
 % Get a realistic grid which has empty bins
 [grid_info, proxy_info] = get_grid(@log_kernel, src_info, targ_info, tol);
-[r_srt, binid_srt, ptid_srt, id_start] = bin_pts_2d(src_info.r, grid_info.dx, ...
+sort_info = SortInfo(src_info.r, grid_info.dx, ...
  grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
 
-
+r_srt = sort_info.r_srt;
+binid_srt = sort_info.binid_srt;
+ptid_srt = sort_info.ptid_srt;
+id_start = sort_info.id_start;
 % N_x_bins = ceil(grid_info.ngrid(1)/nbin);
 % N_y_bins = ceil(grid_info.ngrid(2)/nbin);
 % N_bins = N_x_bins * N_y_bins;

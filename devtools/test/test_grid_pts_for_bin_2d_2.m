@@ -45,8 +45,10 @@ pad = ceil((grid_info.nspread - grid_info.nbinpts) / 2);
 offset = pad * grid_info.dx - grid_info.dx / 2;
 grid_info.offset = offset;
 
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, grid_info.dx, ...
-    grid_info.Lbd, nbin, nbinpts);
+sort_info = SortInfo(r, grid_info.dx, grid_info.Lbd, nbin, nbinpts);
+r_sorted = sort_info.r_srt;
+sorted_bin_ids = sort_info.binid_srt;
+id_start = sort_info.id_start;
 
 
 

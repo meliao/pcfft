@@ -23,8 +23,11 @@ targ_info_2d.r = (rand(2, ntarg) - 0.5).^3;
 disp("test: finished get_grid")
 disp(grid_info.ngrid)
 
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(src_info_2d.r, grid_info.dx, ...
+sort_info = SortInfo(src_info_2d.r, grid_info.dx, ...
     grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
+r_sorted = sort_info.r_srt;
+sorted_bin_ids = sort_info.binid_srt;
+id_start = sort_info.id_start;
 
 disp("test: grid_info.Lbd");
 disp(grid_info.Lbd);
@@ -33,7 +36,7 @@ disp(grid_info.Lbd);
 % scatter(r_sorted(1,:), r_sorted(2,:), 20, sorted_bin_ids, 'filled');
 % colorbar;
 
-disp("test: finished bin_pts_2d")
+
 
 N_x_bins = grid_info.nbin(1);
 N_y_bins = grid_info.nbin(2);
