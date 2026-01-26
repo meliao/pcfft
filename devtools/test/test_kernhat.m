@@ -23,11 +23,13 @@ Lbd = grid_info.Lbd;
 
 % define strengths and direct u
 
-str = zeros(1,size(rgrid,2));
+str = zeros(size(rgrid,2),1);
 
 % ipt = ngrid(2)+1 + (2*ngrid(2)+1)*(ngrid(1)+1);
 ipt = ngrid(2) + (ngrid(2))*(ngrid(1)-1);
 % ipt = 1;
+ipt = (1:prod(ngrid)).';
+
 str(ipt) = 1;
 kerns = log_kernel(struct('r',rgrid(:,ipt)), struct('r',rgrid));
 
