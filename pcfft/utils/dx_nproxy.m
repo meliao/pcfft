@@ -66,6 +66,85 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
 
         if dim == 2
             nspread = nspread + 2;
+            nproxy = nspread;
+            proxy_pts0 = get_ring_points(nproxy, 1);
+
+        else
+            nspread = nspread + 1;
+            nproxy = nspread^2;
+            proxy_pts0 = get_sphere_points(nproxy, 1);
+
+        end
+        if nshell > 1
+            shell_rad = cos((1:nshell-1)/(nshell)*pi);
+            shell_rad = (shell_rad(:) + 1)/2 *(1/radius);
+            shell_rad = [radius,1./shell_rad(:).'];
+        else
+            shell_rad = radius;
+        end
+        proxy_pts = reshape(shell_rad(:).'.* reshape(proxy_pts0,dim,1,[]) ,dim,[]);
+
+        % The regular grid points span [-halfside, halfside] in each dimension
+        % They are sampled so the first point is at -halfside + dx/2 and the last
+        % point is at halfside - dx/2
+        dx =  2 * halfside / nspread;
+        % The discretization points start at -halfside + dx/2
+        xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
+        % disp("dx_nproxy: xx")
+        % disp(xx)
+        yy = xx;
+
+        if dim == 2
+            [X, Y] = meshgrid(xx, yy);
+            reg_pts = [X(:).'; Y(:).'];
+        else
+            zz = xx;
+            [X, Y, Z] = meshgrid(xx, yy, zz);
+            X = permute(X,[3,1,2]);
+            Y = permute(Y,[3,1,2]);
+            Z = permute(Z,[3,1,2]);
+            reg_pts = [X(:).'; Y(:).'; Z(:).'];
+        end
+
+
+        % Compute the kernel evals from source to proxy pts
+        K_source_to_proxy = kernel(struct('r',src_pts), struct('r',proxy_pts));
+        % Kernel regular -> proxy pts
+        K_reg_to_proxy = kernel(struct('r',reg_pts), struct('r',proxy_pts));
+
+        % Solve the least squares problem to find weights
+        evals_at_proxy = K_source_to_proxy * src_weights;
+
+        spread_weights = K_reg_to_proxy \ evals_at_proxy;
+
+        % Eval the approximation at the eval point
+        approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;
+
+
+        % Check error between approx and exact
+        errors = abs(approx_at_target(:) - target_evals(:));
+        err = max(errors) / max(abs(target_evals));
+
+        bool_unconverged = err >= tol;
+
+        if nspread > 100
+            warning("Computing proxy size didn't converge after nspread > 100, trying multiple shells")
+            break
+        end
+
+    end
+
+    if bool_unconverged
+        if dim == 2
+            nspread = 10;
+        else
+            nspread = 3;
+        end
+    end
+    while bool_unconverged
+
+        if dim == 2
+            nspread = nspread + 2;
             if mod(nspread,4) == 0
             nshell = nshell + 1;
             end
