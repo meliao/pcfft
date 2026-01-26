@@ -11,7 +11,8 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
 
 
     % Rows of A_add and A_sub are ordered according to sorted target points.
-    % Cols of A_add and A_sub are ordered according to sorted source points.
+    % Cols of A_add are ordered according to sorted source points.
+    % Cols of A_sub are ordered according to regular grid points.
     A_add = sparse(N_targ, N_src);
     A_sub = sparse(N_targ, N_reg);
 
@@ -38,7 +39,7 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         % Find the intersecting bins
         intersecting_bin_idxes = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
 
-        % disp("get_addsub:   Intersecting bins: ");
+        disp("get_addsub:   Intersecting bins: ");
         disp(intersecting_bin_idxes);
         % Compute the exact near-field interactions (This is for A_add)
         for j = 1:size(intersecting_bin_idxes, 2)
@@ -64,19 +65,26 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
             % regular grid points (This is for A_sub)
 
             if grid_info.dim == 2
-                [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_2d(bin_idx, grid_info);
+                [pts_j, center_j, row_idxes_j] = grid_pts_for_bin_2d(source_bin_idx, grid_info);
             else
-                [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_3d();
+                [pts_j, center_j, row_idxes_j] = grid_pts_for_bin_3d();
             end
 
-            K_reg_to_targ = kern_t(struct('r', pts_i), ...
+            K_reg_to_targ = kern_t(struct('r', pts_j), ...
                                 struct('r', targ_pts_in_i));
 
-            A_sub(idx_start_t:idx_end_t, row_idxes_i) = ...
-                A_sub(idx_start_t:idx_end_t, row_idxes_i) + ...
+            A_sub(idx_start_t:idx_end_t, row_idxes_j) = ...
+                A_sub(idx_start_t:idx_end_t, row_idxes_j) + ...
                 K_reg_to_targ;
         end
 
     end
+
+    % Reorder the rows of A_add and A_sub to match the original target point ordering
+    A_add = A_add(sort_info_t.ptid_srt, :);
+    A_sub = A_sub(sort_info_t.ptid_srt, :);
+
+    % Reorder the columns of A_add to match the original source point ordering
+    A_add = A_add(:, sort_info_s.ptid_srt);
 
 end

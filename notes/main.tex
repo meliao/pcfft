@@ -254,7 +254,7 @@ The spreading matrix $\boldsymbol{A}$ maps from weights on the source points to 
 \subsection{Computing the addsub matrix}
 Let's look at an N-body sum that we are trying to approximate. Suppose there are target points $\{x_i\}_{i=1,...}$ and source points $\{y_i\}_{j=1,...}$.
 \begin{align}
-  u_i &= \sum_{j=1}^N K(x_i - y_j) \mu_j \\
+  u_i &= \sum_{j=1}^N K(x_i - y_j) \mu_j \label{eq:full_sum} \\
   &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j + \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j.
 \end{align}
 Ideally, we'd want to use the spreading matrix computed in the previous step to approximate the far interactions as 
@@ -264,8 +264,17 @@ Ideally, we'd want to use the spreading matrix computed in the previous step to 
 where $z_k$ are the grid points.
 However, the right hand sum contains all of the interactions, not just far interactions. So we need to compute a matrix $\boldsymbol{B}$ which approximates:
 \begin{align*}
-  \boldsymbol{B}_{i,:} \boldsymbol{\mu} = \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j -  \sum_{k}  K(x_i - z_k)\boldsymbol{A}_{k, \text{Near}(i)} \boldsymbol{\mu}_{\text{Near}(i)}
+  \boldsymbol{B}_{i,:} \boldsymbol{\mu} &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \boldsymbol{\mu}_j -  \sum_{k}  K(x_i - z_k)\boldsymbol{A}_{k, \text{Near}(i)} \boldsymbol{\mu}_{\text{Near}(i)} \\
+  &= \boldsymbol{A}^{(\text{add})}_{i,:} \boldsymbol{\mu} - \boldsymbol{A}^{(\text{sub})}_{i,:} \boldsymbol{A} \boldsymbol{\mu}  
 \end{align*}
+where $\boldsymbol{A}^{(\text{add})}$ maps from source points to target points, and 
+$\boldsymbol{A}^{(\text{sub})}$ maps from regular gridpoints to target points. 
+Then we can evaluate \eqref{eq:full_sum} as:
+\begin{align*}
+  u_i &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j + \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j \\
+  &= \boldsymbol{A}^{(\text{add})}_{i,:} \boldsymbol{\mu} - \boldsymbol{A}^{(\text{sub})}_{i,:} \boldsymbol{A} \boldsymbol{\mu}  + \boldsymbol{K} \boldsymbol{A} \boldsymbol{\mu}
+\end{align*}
+where $\boldsymbol{K}$ is the kernel matrix from regular grid points to target points.
 Steps for computing this matrix:
 \begin{itemize}
   \item For each bin $i$, return a list of each bin $j$ where the proxy circle of $i$ intersects with the proxy circle of $j$.
