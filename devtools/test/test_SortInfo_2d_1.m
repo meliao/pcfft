@@ -9,21 +9,25 @@ r = (rand(2, n_pts) - 0.5) * L;
 r(2,:) = r(2,:);
 
 % dx = 0.25, so the grid points are at
-% x grid and y grid = [-1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
 dx = 0.25;
 ngrid = [9 9];
-% When we set nbin = 3, we expect
-% x bins and y bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
-nbin = 3;
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd, nbin);
+% When we set nbinpts = 3, we expect
+% x bins and y bins [-1, -0.25], [-0.25, 0.5], [0.5, 1.]
+nbinpts = 3;
+nbin = [3 3];
+[sort_info] = SortInfo(r, dx, Lbd, nbin, nbinpts);
+r_srt = sort_info.r_srt;
+binid_srt = sort_info.binid_srt;
+ptid_srt = sort_info.ptid_srt;
+id_start = sort_info.id_start;
 c = 1:n_pts;
-assert(all(size(r_sorted) == size(r)));
-assert(all(size(r, 2) == size(sorted_bin_ids, 2)));
+assert(all(size(r_srt) == size(r)));
+assert(all(size(r, 2) == size(binid_srt, 2)));
 
 
 % Plot the sorted points and color by the bin
 % to make sure the bin assignment looks correct
-scatter(r_sorted(1,:), r_sorted(2,:), 20, sorted_bin_ids, 'filled');
+scatter(r_srt(1,:), r_srt(2,:), 20, binid_srt, 'filled');
 colormap('parula');
 colorbar;
 

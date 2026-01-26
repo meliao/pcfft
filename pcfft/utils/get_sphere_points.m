@@ -14,7 +14,6 @@ function pts = get_sphere_points(n, radius, center)
 
     idxes = 0:n-1;
 
-
     yvals = linspace(1 / n- 1, 1 - 1 / n, n);
     r = sqrt(1 - yvals .* yvals);
     thetas = phi * idxes;

@@ -1,12 +1,32 @@
-function kern_hat = get_kernhat(kern,rgrid, ngrid, Lbd, dx)
+function kern_hat = get_kernhat(kern, ngrid, Lbd, dx, offset)
 % evaluate Fourier transform of kernel on rgrid
 
-rgrid0 = Lbd(:,1) + dx*ngrid(:);
-kernvals = kern(rgrid0, rgrid);
+rgrid0 = Lbd(:,1) + dx*ngrid(:) - offset;
 
-kernvals = reshape(kernvals, flip(2*ngrid(:)'+1));
+% get padded grid
+if length(ngrid) == 2
+    % Create a regular grid with spacing dx starting at the xmin, ymin point
+    % specified by Lbd. 
+    xx = Lbd(1, 1) - offset + (0: 2*ngrid(1) - 1) * dx;
+    yy = Lbd(2, 1) - offset + (0: 2*ngrid(2) - 1) * dx;
+    [X, Y] = meshgrid(xx, yy);
+    rgrid = [X(:).'; Y(:).'];
+elseif length(ngrid) == 3
+    xx = Lbd(1, 1) - offset + (0: 2*ngrid(1) - 1) * dx;
+    yy = Lbd(2, 1) - offset + (0: 2*ngrid(2) - 1) * dx;
+    zz = Lbd(3, 1) - offset + (0: 2*ngrid(3) - 1) * dx;
+    [X, Y, Z] = meshgrid(xx, yy, zz);
+    X = permute(X,[3,1,2]);
+    Y = permute(Y,[3,1,2]);
+    Z = permute(Z,[3,1,2]);
+    rgrid = [X(:).'; Y(:).'; Z(:).'];
+end
+% evaluate kernel
+kernvals = kern(struct('r',rgrid0), struct('r',rgrid));
 
-kernvalshift = ifftshift(kernvals);
-kern_hat = fftn(kernvalshift);
+% Fourier transform
+kernvals = reshape(kernvals, 2*flip(ngrid(:)'));
+kernvals = ifftshift(kernvals);
+kern_hat = fftn(kernvals);
 
 end

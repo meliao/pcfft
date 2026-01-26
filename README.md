@@ -69,5 +69,3 @@ u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
 
 
 
-
-

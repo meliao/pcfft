@@ -1,13 +1,5 @@
 addpath(genpath("../../pcfft"));
 
-% First check that the size is correct.
-% bin_idx = 2;
-% dx = 0.5;
-% ngrid = [24 24];
-% Lbd = [0 0 1 1];
-% nbin = 7;
-% pts = grid_pts_for_bin_2d(bin_idx, dx, ngrid, Lbd, nbin);
-% assert(all(size(pts) == [2 nbin^2]));
 
 % Do a lot of points, then plot the gridpts on top of the 
 % scattered points.
@@ -15,38 +7,61 @@ n_pts = 100000;
 L = 2.0;
 Lbd = [-1 1
     -0.5 0.5];
-% Lbd = [-1 1
-%  -1 1];
-% r points live on [-1, 1]^2
 rng(0);
 r = (rand(2, n_pts) - 0.5) * L;
 r(2,:) = r(2,:)/2;
 
-% dx = 0.25, so the grid points are at
-% grid = [-1, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
+% dx = 0.25, so the spreading bins are
+% x bins [-1, -0.25], [-0.25, 0.5], [0.5, 1]
+% y bins [-0.5, 0.25], [0.25, 0.5]
 dx = 0.25;
-ngrid = [9 5];
-% When we set nbin = 3, we expect
-% bins [-1.125, -0.375], [-0.375, 0.375], [0.375, 1.125]
-nbin = 3;
-[r_sorted, sorted_bin_ids, id_start] = bin_pts_2d(r, dx, ngrid, Lbd, nbin);
+nbin = [3 2];
+nspread = 6;
+nbinpts = 3;
 
 grid_info = struct;
 grid_info.dx = dx;
+grid_info.nbinpts = nbinpts;
+grid_info.nspread = nspread;
+bin_sidelen = dx * grid_info.nbinpts;
+
+% Number of spreading bins in each dimension.
+n_bin = ceil(diff(Lbd, 1, 2) / bin_sidelen);
+% Number of points padding each side
+pad = ceil((grid_info.nspread - grid_info.nbinpts) / 2);
+% Width below the bottom corner of Lbd to start the regular grid points
+offset = pad * dx - dx / 2;
+
+ngrid = n_bin * grid_info.nbinpts + pad * 2;
+
 grid_info.ngrid = ngrid;
 grid_info.rpad = 2;
 grid_info.Lbd = Lbd;
+grid_info.nbin = nbin;
+grid_info.nspread = nspread;
+grid_info.nbinpts = nbinpts;
+pad = ceil((grid_info.nspread - grid_info.nbinpts) / 2);
+% Width below the bottom corner of Lbd to start the regular grid points
+offset = pad * grid_info.dx - grid_info.dx / 2;
+grid_info.offset = offset;
+
+sort_info = SortInfo(r, grid_info.dx, grid_info.Lbd, nbin, nbinpts);
+r_sorted = sort_info.r_srt;
+sorted_bin_ids = sort_info.binid_srt;
+id_start = sort_info.id_start;
+
+
 
 
 % Get pts for a certain bin idx
 bin_idx = 4;
-[grid_pts, grid_ctr] = grid_pts_for_bin_2d(bin_idx, grid_info, nbin);
+[grid_pts, grid_ctr] = grid_pts_for_bin_2d(bin_idx, grid_info);
 
 disp("size of ctr")
 disp(size(grid_ctr))
 
-xgrid = [-1 -0.75 -0.5 -0.25 0 0.25 0.5 0.75 1];
-ygrid = [-0.5 -0.25 0 0.25 0.5];
+xgrid = Lbd(1, 1) - offset + (0: ngrid(1) - 1) * dx;
+ygrid = Lbd(2, 1) - offset + (0: ngrid(2) - 1) * dx;
 [X, Y] = meshgrid(xgrid, ygrid);
 % Plot the sorted points and color by the bin
 % to make sure the bin assignment looks correct

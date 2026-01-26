@@ -6,9 +6,9 @@ function k_evals = one_over_r_kernel(src_pts, target_pts)
 % Output shape is (N, M)
 
 % Shape (N, M)
-rx = src_pts(1, :) - target_pts(1, :).';
-ry = src_pts(2, :) - target_pts(2, :).';
-rz = src_pts(3, :) - target_pts(3, :).';
+rx = src_pts.r(1, :) - target_pts.r(1, :).';
+ry = src_pts.r(2, :) - target_pts.r(2, :).';
+rz = src_pts.r(3, :) - target_pts.r(3, :).';
 
 dist = sqrt(rx.^2 + ry.^2 + rz.^2);
 k_evals = 1 ./ dist;

@@ -24,22 +24,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %               interactions that must be done directly. Defaults to
     %               1000.
     %
-    % Returns grid_info: struct describing the spreading info with fields
-    %               .ngrid : (dim, 1) array containing the number of regular 
-    %                       grid points in each dimension.
-    %               .Lbd : (dim, 2) array containing the points 
-    %                       (xmin, ymin, zmin) and (xmax, ymax, zmax). Describes
-    %                       the bounding box of the union of source and target
-    %                       points. 
-    %               .nspread : integer. Number of spreading points in each 
-    %                       dimension necessasry for the requested accuracy.
-    %               .rpad : mutliplicative padding factor which extends the 
-    %                       size of the bounding box to get rid of artifacts
-    %                       when using FFT.
-    %               .r : (dim, npts) array containing the points of the padded
-    %                       regular grid. In dimension i, there are 
-    %                       (rpad * ngrid(i)) + 1 points in the grid.
-    %               .dim : integer specifying the dimension of the problem.
+    % Returns grid_info: GridInfo object
     %         proxy_info: struct the proxy points with fields
     %               .n_points_total : integer, the total number of proxy points
     %               .dim : dimension of the problem
@@ -60,26 +45,36 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     halfside = spread_halfside([src_info.r, targ_info.r], n_nbr, crad);
 
     % get prototype grid for spreading
-    [grid_info, proxy_info] = compute_nspread_nproxy(kernel, dim, tol, halfside);
+    [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad);
 
-    % get total grid.
-    % ngrid is the number of points in the x, y, z direction
-    % for the regular grid.
-    ngrid = ceil(diff(Lbd, 1, 2) / grid_info.dx);
-    rpad = 2;
+
+    
+    bin_sidelen = dx * nbinpts;
+
+    % Number of spreading bins in each dimension.
+    n_bin = ceil(diff(Lbd, 1, 2) / bin_sidelen);
+
+    % Number of points padding each side
+    pad = ceil((nspread - nbinpts) / 2);
+    % Width below the bottom corner of Lbd to start the regular grid points
+    offset = pad * dx - dx / 2;
+
+    ngrid = n_bin * nbinpts + pad * 2;
+
+    disp("get_grid: ngrid:")
+    disp(ngrid)
 
     if dim == 2
         % Create a regular grid with spacing dx starting at the xmin, ymin point
-        % specified by Lbd. Pad this grid 2x the size necessary. The padding
-        % is necessary for using the FFT in a later step.
-        xx = Lbd(1, 1) + (0:rpad * ngrid(1)) * grid_info.dx;
-        yy = Lbd(2, 1) + (0:rpad * ngrid(2)) * grid_info.dx;
+        % specified by Lbd. 
+        xx = Lbd(1, 1) - offset + (0: ngrid(1) - 1) * dx;
+        yy = Lbd(2, 1) - offset + (0: ngrid(2) - 1) * dx;
         [X, Y] = meshgrid(xx, yy);
         rgrid = [X(:).'; Y(:).'];
     elseif dim == 3
-        xx = Lbd(1, 1) + (0:rpad * ngrid(1)) * grid_info.dx;
-        yy = Lbd(2, 1) + (0:rpad * ngrid(2)) * grid_info.dx;
-        zz = Lbd(3, 1) + (0:rpad * ngrid(3)) * grid_info.dx;
+        xx = Lbd(1, 1) - offset + (0: ngrid(1) - 1) * dx;
+        yy = Lbd(2, 1) - offset + (0: ngrid(2) - 1) * dx;
+        zz = Lbd(3, 1) - offset + (0: ngrid(3) - 1) * dx;
         [X, Y, Z] = meshgrid(xx, yy, zz);
         X = permute(X,[3,1,2]);
         Y = permute(Y,[3,1,2]);
@@ -87,11 +82,13 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
         rgrid = [X(:).'; Y(:).'; Z(:).'];
     end
 
-    % Update grid_info with some more data that we computed.
-    grid_info.ngrid = ngrid;
-    grid_info.r = rgrid;
-    grid_info.Lbd = Lbd;
-    grid_info.rpad = rpad;
-    grid_info.dim = dim;
+    % xx_dx = xx(2) - xx(1);
+    % disp("get_grid: dx of xx: " + num2str(xx_dx))
+
+    % yy_dy = yy(2) - yy(1);
+    % disp("get_grid: dy of yy: " + num2str(yy_dy))
+
+    % Init a GridInfo object
+    grid_info = GridInfo(ngrid, Lbd, dx, nspread, nbinpts, pad, rgrid, dim, n_bin, offset);
 
 end
