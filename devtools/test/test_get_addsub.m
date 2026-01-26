@@ -36,16 +36,19 @@ kern_0 = @(s,t) log_kernel(s,t);
 kern = @(s,t) log_kernel(s,t);
 
 
-[A_spread, K_src_to_reg_s, sort_info_s ]= get_spread(kern_0, kern, src_info_2d, grid_info, proxy_info);
+[A_spread_s, K_src_to_reg_s, sort_info_s ]= get_spread(kern_0, kern, src_info_2d, ...
+grid_info, proxy_info);
 
-sort_info_t = SortInfo(targ_info_2d.r, grid_info.dx, grid_info.Lbd, ...
-    grid_info.nbin, grid_info.nbinpts);
 
-% Check the size of A_spread.
-assert(all(size(A_spread) == [size(grid_info.r, 2) n_src]));
-assert(all(~isnan(A_spread(:))));
-assert(all(~isinf(A_spread(:))));
+[A_spread_t, K_src_to_reg_t, sort_info_t ]= get_spread(kern_0, kern, targ_info_2d, ...
+grid_info, proxy_info);
 
-[A_add, A_sub] = get_addsub(kern_0, kern, kern, kern, src_info_2d, targ_info_2d, ...
-    grid_info, proxy_info, sort_info_s, sort_info_t, K_src_to_reg_s);
 
+
+[A_addsub] = get_addsub(kern_0, kern, kern, kern, src_info_2d, targ_info_2d, ...
+    grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+
+% Check that A_adsub has the correct size.
+assert(all(size(A_addsub) == [ntarg n_src]));
+assert(all(~isnan(A_addsub(:))));
+assert(all(~isinf(A_addsub(:))));

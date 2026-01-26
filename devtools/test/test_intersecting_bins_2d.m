@@ -65,7 +65,7 @@ grid_info.dx = dx;
 grid_info.Lbd = Lbd;
 grid_info.nspread = 2*nbinpts + 1;
 grid_info.nbinpts = nbinpts;
-pad = ceil((nspread - nbinpts)/2);
+pad = ceil((grid_info.nspread - nbinpts)/2);
 grid_info.offset = pad * dx - dx/2;
 grid_info.dx = dx;
 
