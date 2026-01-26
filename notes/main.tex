@@ -290,4 +290,20 @@ Steps for computing this matrix:
   \item Compute the exact near-field interactions $\sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j$.
   \item Compute the contribution of the near-field interactions to $\sum_{k}  K(x_i - z_k)\boldsymbol{A}_{k, \text{Near}(i)} \boldsymbol{\mu}$.
 \end{itemize}
+
+\subsection{Derivatives}
+
+If we want to dipoles instead of point charges, we change the spreading matrix
+\begin{align*}
+  \sum_{j \not \in \text{Near}(x_i)} n_j\cdot\nabla_y K(x_i - y_j) \mu_j \approx \sum_{k}  K(x_i - z_k)\boldsymbol{A}^d_{k, :} \boldsymbol{\mu},
+\end{align*}
+We would then evaluate the  bulk of the potential as
+\begin{align}
+u =   \boldsymbol{A}^T\tilde{\boldsymbol{K}} \boldsymbol{A}^d \boldsymbol{\mu},
+\end{align}
+
+If we want the derivate of the potential due to point charges, we would instead evaluate
+\begin{align}
+\partial_n u =   (\boldsymbol{A}^d)^T\tilde{\boldsymbol{K}} \boldsymbol{A} \boldsymbol{\mu},
+\end{align}
 \end{document}
