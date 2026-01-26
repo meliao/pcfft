@@ -1,4 +1,5 @@
-function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, src_info, grid_info, proxy_info)
+function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
+                                            src_info, grid_info, proxy_info)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
     % Inputs:
@@ -31,8 +32,8 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, src_info
     end
 
 
-    disp("get_spread: id_start:")
-    disp(id_start)
+    % disp("get_spread: id_start:")
+    % disp(id_start)
 
     % We only need to compute the K_reg_to_proxy once, so we
     % will do it here.
