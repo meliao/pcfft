@@ -7,7 +7,6 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
 
     % Rows of A_addsub are ordered according to sorted target points.
     % Cols of A_addsub are ordered according to sorted source points.
-    A_addsub = sparse(N_targ, N_src);
 
     K_grid2grid = kern_0(grid_info, grid_info);
 
@@ -17,6 +16,17 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
     A_spread_t = A_spread_t(:, sort_info_t.ptid_srt);
 
     AKA = A_spread_t.' * K_grid2grid * A_spread_s;
+
+    % TODO: correct formula for number of corrections
+    ncor = 1000*mean([N_targ,N_src]);
+
+    % Rows of A_addsub are ordered according to sorted target points.
+    % Cols of A_addsub are ordered according to sorted source points.
+    iid = zeros(1,ncor);
+    jid = zeros(1,ncor);
+    vals = zeros(1,ncor);
+    id_start = 0;
+
 
     % Loop through all of the bins
     for i = 1:size(sort_info_s.id_start, 2) -1
@@ -47,19 +57,27 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
             K_src_to_targ = kern_0(struct('r', src_pts_in_j), ...
                                 struct('r', targ_pts_in_i));
 
-            A_addsub(idx_ti_start:idx_ti_end, idx_sj_start:idx_sj_end) = ...
-                A_addsub(idx_ti_start:idx_ti_end, idx_sj_start:idx_sj_end) + K_src_to_targ;
-
             % Compute the approx near-field interactions that should be 
             % subtracted
             AKA_chunk = AKA(idx_ti_start:idx_ti_end, idx_sj_start:idx_sj_end);
 
-            A_addsub(idx_ti_start:idx_ti_end, idx_sj_start:idx_sj_end) = ...
-                A_addsub(idx_ti_start:idx_ti_end, idx_sj_start:idx_sj_end) - ...
-                AKA_chunk;
+            Aloc = K_src_to_targ - AKA_chunk;
+
+            % Arrange local corrections intro a sparse matrix
+            is = (idx_ti_start:idx_ti_end);
+            js = idx_sj_start:idx_sj_end;
+            is = repmat(is(:), 1, size(js,2));
+            js = repmat(js(:).', size(is,1), 1);
+            n_sparse = numel(Aloc);
+
+            iid(id_start + (1:n_sparse)) = is(:).';
+            jid(id_start + (1:n_sparse)) = js(:).';
+            vals(id_start + (1:n_sparse)) = Aloc(:).';
+            id_start = id_start + n_sparse;
         end
 
     end
+    A_addsub = sparse(iid(1:id_start), jid(1:id_start), vals(1:id_start));
 
     % Reorder the rows to match the original target point ordering
     A_addsub(sort_info_t.ptid_srt, :) = A_addsub;
