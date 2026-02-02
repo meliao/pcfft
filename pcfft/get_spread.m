@@ -39,7 +39,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
     % will do it here.
     if dim == 2
 
-        [pts_0, center_0, row_idxes_0] = grid_pts_for_bin_2d(0, grid_info);
+        [pts_0, center_0, row_idxes_0] = grid_pts_for_box_2d(0, grid_info);
     else
         [pts_0, center_0] = grid_pts_for_bin_3d();
     end
@@ -67,7 +67,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
 
         % Get the regular grid points and centers of bin i
         if dim == 2
-            [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_2d(i-1, grid_info);
+            [pts_i, center_i, row_idxes_i] = grid_pts_for_box_2d(i-1, grid_info);
         else
             [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_3d();
         end
@@ -96,7 +96,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
     % Remember, we 0-indexed the bin IDs
     for i = 0:size(id_start,2) - 2
         if dim == 2
-            [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_2d(i, grid_info);
+            [pts_i, center_i, row_idxes_i] = grid_pts_for_box_2d(i, grid_info);
         else
             [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_3d();
         end

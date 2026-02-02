@@ -52,7 +52,7 @@ disp(grid_info.ngrid)
 for bin_id = 0:N_bins-1
     disp("test: On bin_id = " + int2str(bin_id))
 
-    [pts, center, row_idxes] = grid_pts_for_bin_2d(bin_id, grid_info);
+    [pts, center, row_idxes] = grid_pts_for_box_2d(bin_id, grid_info);
     % disp("test: Row_idxes: ")
     % disp(row_idxes)
 

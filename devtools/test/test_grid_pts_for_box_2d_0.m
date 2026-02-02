@@ -50,7 +50,7 @@ id_start = sort_info.id_start;
 
 % Get pts for a certain bin idx
 bin_idx = 4;
-[grid_pts, grid_ctr] = grid_pts_for_bin_2d(bin_idx, grid_info);
+[grid_pts, grid_ctr] = grid_pts_for_box_2d(bin_idx, grid_info);
 
 disp("size of ctr")
 disp(size(grid_ctr))

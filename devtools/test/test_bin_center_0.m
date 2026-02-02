@@ -27,7 +27,7 @@ pad = ceil((grid_info.nspread - nbinpts)/2);
 grid_info.offset = pad * dx - dx/2;
 grid_info.dx = dx;
 
-% [a, b, c] = grid_pts_for_bin_2d(0, grid_info);
+% [a, b, c] = grid_pts_for_box_2d(0, grid_info);
 
 % Test bin_center function
 center_0 = bin_center(0, grid_info);

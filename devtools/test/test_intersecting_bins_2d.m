@@ -28,14 +28,12 @@ N_bin = grid_info.nbin(1) * grid_info.nbin(2);
 
 % valid bin_idxes should be between 0 and N_bin - 1
 for bin_idx = 0:(N_bin - 1)
-    bin_idxes = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
+    [idx_x, idx_y] = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
     % disp("test_intersecting_bins_2d: For bin_idx " + int2str(bin_idx) + ...
     %     ", intersecting bins: ");
     % disp(bin_idxes);
 
-    % Assert that all of the returned bin_idxes are valid
-    assert(all(bin_idxes >= 0));
-    assert(all(bin_idxes < N_bin));
+
 end
 
 %% test_0b
@@ -44,7 +42,8 @@ end
 
 n_pts = 100000;
 L = 2.0;
-Lbd = [-1 -1 1 1];
+Lbd = [-1 1; 
+        -1 1];
 % r points live on [-1, 1] x [-1, 1]
 rng(0);
 r = (rand(2, n_pts) - 0.5) * L;
@@ -58,16 +57,21 @@ ngrid = [9 9];
 nbinpts = 3;
 nbin = [3 3];
 
-% spoof the GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx 
-grid_info = struct;
-grid_info.nbin = nbin;
-grid_info.dx = dx;
-grid_info.Lbd = Lbd;
-grid_info.nspread = 2*nbinpts + 1;
-grid_info.nbinpts = nbinpts;
-pad = ceil((grid_info.nspread - nbinpts)/2);
-grid_info.offset = pad * dx - dx/2;
-grid_info.dx = dx;
+% Generate the GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx 
+grid_info = GridInfo(Lbd, dx, 2*nbinpts + 1, nbinpts, dim);
+disp("test_intersecting_bins_2d: grid_info:");
+disp(grid_info);
+
+% Test the third return value is correct.
+
+[~, ~, bin_4_intersecting_binids] = ...
+    intersecting_bins_2d(4, grid_info, proxy_info);
+
+% This should = [0 1 2 3 4 5 6 7 8
+expected_bin_4_intersecting_binids = [0 1 2 3 4 5 6 7 8];
+disp("test_intersecting_bins_2d: For bin_idx 4, intersecting binids: ");
+disp(bin_4_intersecting_binids);
+assert(all(bin_4_intersecting_binids == expected_bin_4_intersecting_binids));
 
 % spoof the ProxyInfo object. Need radius
 proxy_info = struct;
@@ -101,16 +105,35 @@ for bin_idx = 0:(N_bins - 1)
     plot(proxypts(1,:), proxypts(2,:), 'k-');
 end
 
-% Figure shows that bin idx 0 only intersects with 0, 1, 3
-bin_0_intersecting = intersecting_bins_2d(0, grid_info, proxy_info);
-disp("test_intersecting_bins_2d: For bin_idx 0, intersecting bins: ");
-disp(bin_0_intersecting);
-expected_bin_0_intersecting = [0, 1, 3];
-assert(all(bin_0_intersecting == expected_bin_0_intersecting));
+% Figure shows that bin idx 0 only intersects with 0, 1, 3.
+[bin_0_intersecting_x, bin_0_intersecting_y] = intersecting_bins_2d(0, grid_info, proxy_info);
 
-% Figure shows that bin idx 4 intersects with 1, 3, 4, 5, 7
-bin_4_intersecting = intersecting_bins_2d(4, grid_info, proxy_info);
+% Expect bin_0_intersecting_x = [-1, 0, 1]
+disp("test_intersecting_bins_2d: For bin_idx 0, intersecting bins x: ");
+disp(bin_0_intersecting_x);
+% expected_bin_0_intersecting_y = [-1, 0, 1];
+disp("test_intersecting_bins_2d: For bin_idx 0, intersecting bins y: ");
+disp(bin_0_intersecting_y);
+expected_bin_0_intersecting = [-1 0 1];
+assert(all(bin_0_intersecting_x == expected_bin_0_intersecting));
+assert(all(bin_0_intersecting_y == expected_bin_0_intersecting));
+
+% Figure shows that bin idx 5 intersects with 2, 4, 5, 8.
+% bin_idx 5 corresponds to (id_x, id_y) = (1, 2)
+% So we expect intersecting bins to be
+% id_x in [0, 1, 2]
+% id_y in [1, 2, 3]
+[bin_5_intersecting_x, bin_5_intersecting_y] = intersecting_bins_2d(5, grid_info, proxy_info);
 disp("test_intersecting_bins_2d: For bin_idx 4, intersecting bins: ");
-disp(bin_4_intersecting);
-expected_bin_4_intersecting = [1, 3, 4, 5, 7];
-assert(all(bin_4_intersecting == expected_bin_4_intersecting));
+disp(bin_5_intersecting_x);
+disp(bin_5_intersecting_y);
+expected_bin_5_intersecting_x = [0 1 2];
+expected_bin_5_intersecting_y = [1 2 3];
+
+assert(all(bin_5_intersecting_x == expected_bin_5_intersecting_x));
+assert(all(bin_5_intersecting_y == expected_bin_5_intersecting_y));
+
+close all;
+
+%% test_0c
+

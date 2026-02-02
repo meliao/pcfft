@@ -1,4 +1,4 @@
-function [pts, center, row_idxes] = grid_pts_for_bin_2d(bin_idx, grid_info)
+function [pts, center, row_idxes] = grid_pts_for_box_2d(bin_idx, grid_info)
     % Imagine a regular grid with bounds [xmin ymin xmax ymax] = Lbd
     % and grid spacing <dx>. There are [nx ny] = ngrid points 
     % in each dimension. There are nspread regular discretization points
@@ -25,10 +25,10 @@ function [pts, center, row_idxes] = grid_pts_for_bin_2d(bin_idx, grid_info)
 
     id_y = mod(bin_idx, N_y_bins);
     id_x = floor((bin_idx - id_y)/N_y_bins);
-    % disp("grid_pts_for_bin_2d: id_y: ")
+    % disp("grid_pts_for_box_2d: id_y: ")
     % disp(id_y)
     
-    % disp("grid_pts_for_bin_2d: id_x: ")
+    % disp("grid_pts_for_box_2d: id_x: ")
     % disp(id_x)
     
 
@@ -40,7 +40,7 @@ function [pts, center, row_idxes] = grid_pts_for_bin_2d(bin_idx, grid_info)
     pts = [X(:) Y(:)].';
 
     center = [(xpts(1) + xpts(end)) / 2; (ypts(1) + ypts(end)) / 2];
-    % disp("grid_pts_for_bin_2d: center: ");
+    % disp("grid_pts_for_box_2d: center: ");
 
     % disp(center);
 
