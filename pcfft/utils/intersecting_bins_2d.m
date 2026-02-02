@@ -41,7 +41,4 @@ function [id_xs, id_ys, binids] = intersecting_bins_2d(bin_idx, grid_info, ...
         end
     end
     binids = binids.';
-    % Ensure they are unique
-    % binids = unique(binids);
-
 end

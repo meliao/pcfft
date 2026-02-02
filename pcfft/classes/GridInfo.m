@@ -20,6 +20,8 @@ classdef GridInfo
     %       dim      - problem dimension (integer)
     %       nbin     - (dim,1) number of spreading bins per dimension
     %       offset   - (integer) offset used for indexing the padded grid
+    %       rmax     - (dim, 1) maximum coordinate value of the padded grid
+    %       rmin     - (dim, 1) minimum coordinate value of the padded grid
 
     properties
         ngrid
@@ -32,6 +34,8 @@ classdef GridInfo
         dim
         nbin
         offset
+        rmax
+        rmin
     end
     methods
         function obj = GridInfo(Lbd, dx, nspread, nbinpts, dim)
@@ -71,6 +75,9 @@ classdef GridInfo
                 rgrid = [X(:).'; Y(:).'; Z(:).'];
             end
 
+            rmax = Lbd(:,2) + offset;
+            rmin = Lbd(:,1) - offset;
+
             obj.ngrid = ngrid;
             obj.Lbd = Lbd;
             obj.dx = dx;
@@ -81,6 +88,8 @@ classdef GridInfo
             obj.dim = dim;
             obj.nbin = n_bin;
             obj.offset = offset;
+            obj.rmax = rmax;
+            obj.rmin = rmin;
         end
     end
 end

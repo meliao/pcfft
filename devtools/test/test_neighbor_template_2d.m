@@ -26,7 +26,20 @@ N_bin = grid_info.nbin(1) * grid_info.nbin(2);
 
 % disp("test_intersecting_bins_2d: N_bin = " + int2str(N_bin));
 
-s_temp = neighbor_template_2d(grid_info, proxy_info);
+[nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_2d(grid_info, proxy_info, 8);
+
+assert( bin_idx == 8);
+
+n_x = sqrt(length(nbr_binids));
+expected_n_pts = n_x * grid_info.nbinpts + 2 * grid_info.rpad;
+disp("test_neighbor_template_2d: expected_n_pts: ");
+disp(expected_n_pts^2);
+disp("test_neighbor_template_2d: nbr_gridpts size: ");
+disp(size(nbr_gridpts));
+disp("test_neighbor_template_2d: nbr_grididxes size: ");
+disp(size(nbr_grididxes));
+assert(size(nbr_gridpts, 2) == expected_n_pts^2);
+assert(size(nbr_grididxes, 2) == expected_n_pts^2);
 
 
 
@@ -101,17 +114,13 @@ assert(all(size(r, 2) == size(binid_srt, 2)));
 % end
 
 % Figure shows that bin idx 0 only intersects with 0, 1, 3. 
-temp_at_0 = neighbor_template_2d(grid_info, proxy_info);
+[nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_2d(grid_info, proxy_info, 6);
 
-% Compute the mean
-disp("test_neighbor_template_2d: Mean of template at bin idx 0: ");
-disp(mean(temp_at_0, 2));
-
-% Now center at the center of bin idx 4.
-ctr = bin_center(4, grid_info);
+% Now center at the center of bin idx 0.
+ctr = bin_center(bin_idx, grid_info);
 disp("test_neighbor_template_2d: Centering template at bin idx 4, ctr: ");
 disp(ctr);
-temp_at_4 = ctr + temp_at_0;
+temp_at_4 = nbr_gridpts;
 
 % Plot the regular grid points and plot the template points overtop them.
 scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
@@ -121,11 +130,38 @@ hold on;
 scatter(temp_at_4(1,:), temp_at_4(2,:), 5, 'r', 'filled');
 % close all;
 
-% Confirm that each of the template points matches one of the grid points.
-for i = 1:size(temp_at_4, 2)
-    pt = temp_at_4(:, i);
+% Confirm that each of the template points matches one of the grid points, after
+% filtering
+oob_idxes = nbr_grididxes > grid_info.ngrid(1) * grid_info.ngrid(2);
+valid_temp_pts = temp_at_4(:, ~oob_idxes);
+
+% Plot the valid template points in green
+scatter(valid_temp_pts(1,:), valid_temp_pts(2,:), 20, 'g', 'filled');
+
+for i = 1:size(valid_temp_pts, 2)
+    pt = valid_temp_pts(:, i);
     diffs = grid_info.r - pt;
     dists = sqrt(sum(diffs.^2, 1));
     min_dist = min(dists);
     assert(min_dist < 1e-12);
+end
+
+
+% Check to make sure that the nbr_grididxes for valid points are correct.
+valid_nbr_idxes = nbr_grididxes(~oob_idxes);
+
+% Plot text lables for the valid nbr idxes
+text(valid_temp_pts(1,:), valid_temp_pts(2,:), string(valid_nbr_idxes), 'Color', 'k');
+
+for i = 1:size(valid_temp_pts, 2)
+    pt = valid_temp_pts(:, i);
+    idx = valid_nbr_idxes(i);
+    disp("test_neighbor_template_2d: Checking pt " + int2str(i) + " at idx " + int2str(idx));
+    disp("pt: ");
+    disp(pt);
+    disp("grid pt: ");
+    grid_pt = grid_info.r(:, idx);
+    disp(grid_pt);
+    dist = norm(pt - grid_pt);
+    assert(dist < 1e-12);
 end
