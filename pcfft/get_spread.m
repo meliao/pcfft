@@ -22,23 +22,17 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
     
     
     if nargin < 6; der_fields = {}; end
-    if isempty(der_fields), der_fields = {'r'}; end
     dim = proxy_info.dim;
 
 
     % First, sort the points into bins
     if dim == 2
 
-        sort_info = SortInfo(src_info.r, grid_info.dx, grid_info.Lbd, ...
-                            grid_info.nbin, grid_info.nbinpts);
+        sort_info = SortInfo(src_info, grid_info.dx, grid_info.Lbd, ...
+                            grid_info.nbin, grid_info.nbinpts,der_fields);
         r_sorted = sort_info.r_srt;
         sorted_idxes = sort_info.ptid_srt;
         id_start = sort_info.id_start;
-
-        sort_info.data_srt = [];
-        for field = der_fields
-            sort_info.data_srt.(field{1}) = src_info.(field{1})(:,sorted_idxes);
-        end
 
     else
         [r_sorted, bin_idxes, id_start] = bin_pts_3d();
