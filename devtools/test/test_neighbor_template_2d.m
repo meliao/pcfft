@@ -54,7 +54,7 @@ ngrid = [9 9];
 % x bins and y bins [-1, -0.25], [-0.25, 0.5], [0.5, 1.]
 nbinpts = 3;
 nbin = [3 3];
-nspread = 2 * nbinpts + 1;
+nspread = 2 * nbinpts ;
 
 % Create a GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx, ngrid
 grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim);
@@ -119,7 +119,7 @@ scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
 % Plot the template points
 hold on;
 scatter(temp_at_4(1,:), temp_at_4(2,:), 5, 'r', 'filled');
-close all;
+% close all;
 
 % Confirm that each of the template points matches one of the grid points.
 for i = 1:size(temp_at_4, 2)

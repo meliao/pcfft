@@ -6,7 +6,7 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
     N_targ = size(targ_info.r, 2);
 
     max_bin_idx = grid_info.nbin(1) * grid_info.nbin(2) - 1;
-    n_spreadpts = grid_info.nspread^2;
+    n_dummy = grid_info.nbinpts^2;
     n_gridpts = grid_info.ngrid(1) * grid_info.ngrid(2);
 
 
@@ -15,7 +15,7 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
     % Then build a list of regular gridpoints that are in the intersecting bins
     [reg_neighbor_template_pts, nbr_bin_idx] = neighbor_template_2d(grid_info, proxy_info);
     nbr_info = struct('r', reg_neighbor_template_pts);
-    [pts0, ctr_0, ~] = grid_pts_for_box_2d(nbr_bin_idx, grid_info);
+    [pts0, ctr_0, ~] = grid_pts_for_bin_2d(nbr_bin_idx, grid_info);
     % pts0_centered = pts0 - ctr_0;
     bin_info = struct('r', pts0);
     K_nbr2bin = kern_0(nbr_info, bin_info);
@@ -28,9 +28,9 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
     % Sort the cols of A_spread_s to match the sorted source points
     A_spread_s = A_spread_s(:, sort_info_s.ptid_srt);
 
-    % Add n_spreadpts rows of zeros to A_spread_s to handle empty bins
-    A_spread_s = [A_spread_s; sparse(n_spreadpts, N_src)];
-    dummy_idxes = n_gridpts + 1: n_gridpts + n_spreadpts;
+    % Add n_dummy rows of zeros to A_spread_s to handle empty bins
+    A_spread_s = [A_spread_s; sparse(n_dummy, N_src)];
+    dummy_idxes = n_gridpts + 1: n_gridpts + n_dummy;
     % Sort the cols of A_spread_t to match the sorted target points
     A_spread_t = A_spread_t(:, sort_info_t.ptid_srt);
 
@@ -42,7 +42,7 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         % Need the center of bin i to center the source points, and need the 
         % indexes of the regular grid points for spreading bin i, so we can
         % correctly index A_spread_t.
-        [~, ctr_i, reg_idxs_i] = grid_pts_for_box_2d(bin_idx, grid_info);
+        [~, ctr_i, reg_idxs_i] = grid_pts_for_bin_2d(bin_idx, grid_info);
 
         % Target points in bin i
         idx_ti_start = sort_info_t.id_start(i);
@@ -82,7 +82,7 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
             source_idx = [source_idx, idx_sj_start:idx_sj_end];
 
             % Get the regular grid point idxes for spreading bin j
-            [~, ~, reg_idxs_j] = grid_pts_for_box_2d(source_bin_idx, grid_info);
+            [~, ~, reg_idxs_j] = grid_pts_for_bin_2d(source_bin_idx, grid_info);
             reg_idxes = [reg_idxes, reg_idxs_j];
 
         end
@@ -107,12 +107,12 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         A_spread_s_j = A_spread_s(reg_idxes, source_idx);
 
         % Print shape info for A_spread_t_i
-        % disp("get_addsub: A_spread_t_i size: ");
-        % disp(size(A_spread_t_i));
-        % disp("get_addsub: K_nbr2bin size: ");
-        % disp(size(K_nbr2bin));
-        % disp("get_addsub: A_spread_s_j size: ");
-        % disp(size(A_spread_s_j));
+        disp("get_addsub: A_spread_t_i size: ");
+        disp(size(A_spread_t_i));
+        disp("get_addsub: K_nbr2bin size: ");
+        disp(size(K_nbr2bin));
+        disp("get_addsub: A_spread_s_j size: ");
+        disp(size(A_spread_s_j));
 
         AKA_chunk = A_spread_t_i.' * K_nbr2bin * A_spread_s_j;
 
