@@ -1,12 +1,12 @@
-function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
+function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
                                             src_info, grid_info, proxy_info)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
     % Inputs:
     %   kern_0: function handle with calling sequence kern_0(src,targ) 
     %           this is the free-space kernel
-    %   kern: function handle with calling sequence kern(src,targ) 
-    %           this kernel can have derivatives on the target
+    %   kern_der: function handle with calling sequence kern_der(src,targ) 
+    %           this kernel will be some derivative of the free-space kernel
     %   src_info: struct with field r (dim, nsrc) source points
     %   grid_info: GridInfo object describing the regular grid
     %   proxy_info: ProxyInfo object describing the proxy points
@@ -91,7 +91,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
 
     % Compute one whole big K_src_to_proxy, and later we'll 
     % index its rows. K_src_to_proxy has shape (n_proxy, n_src)
-    K_src_to_proxy = kern(struct('r',r_local), proxy_info);
+    K_src_to_proxy = kern_der(struct('r',r_local), proxy_info);
     K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
 
     % Now, loop through the bins and start to fill in A

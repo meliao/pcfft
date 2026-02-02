@@ -89,6 +89,6 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     % disp("get_grid: dy of yy: " + num2str(yy_dy))
 
     % Init a GridInfo object
-    grid_info = GridInfo(ngrid, Lbd, dx, nspread, nbinpts, pad, rgrid, dim, n_bin, offset);
+    grid_info = GridInfo(ngrid, Lbd, dx, nspread, nbinpts, pad, rgrid, dim, n_bin, offset,n_nbr);
 
 end

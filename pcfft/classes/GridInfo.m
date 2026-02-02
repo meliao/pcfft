@@ -20,6 +20,7 @@ classdef GridInfo
     %       dim      - problem dimension (integer)
     %       nbin     - (dim,1) number of spreading bins per dimension
     %       offset   - (integer) offset used for indexing the padded grid
+    %       n_nbr    - average number of near-field neighbours
 
     properties
         ngrid
@@ -32,9 +33,10 @@ classdef GridInfo
         dim
         nbin
         offset
+        n_nbr
     end
     methods
-        function obj = GridInfo(ngrid, Lbd, dx, nspread, nbinpts, rpad, r, dim, nbin, offset)
+        function obj = GridInfo(ngrid, Lbd, dx, nspread, nbinpts, rpad, r, dim, nbin, offset,n_nbr)
             obj.ngrid = ngrid;
             obj.Lbd = Lbd;
             obj.dx = dx;
@@ -45,6 +47,7 @@ classdef GridInfo
             obj.dim = dim;
             obj.nbin = nbin;
             obj.offset = offset;
+            obj.n_nbr = n_nbr;
         end
     end
 end

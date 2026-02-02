@@ -1,4 +1,4 @@
-function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
+function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
     A_spread_s, A_spread_t)
 
@@ -18,7 +18,7 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
     AKA = A_spread_t.' * K_grid2grid * A_spread_s;
 
     % TODO: correct formula for number of corrections
-    ncor = 1000*mean([N_targ,N_src]);
+    ncor = grid_info.n_nbr*mean([N_targ,N_src]);
 
     % Rows of A_addsub are ordered according to sorted target points.
     % Cols of A_addsub are ordered according to sorted source points.
