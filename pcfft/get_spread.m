@@ -1,5 +1,5 @@
 function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
-                                            src_info, grid_info, proxy_info)
+                                            src_info, grid_info, proxy_info, der_fields)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
     % Inputs:
@@ -10,6 +10,8 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
     %   src_info: struct with field r (dim, nsrc) source points
     %   grid_info: GridInfo object describing the regular grid
     %   proxy_info: ProxyInfo object describing the proxy points
+    %   der_fields: cell array of field names that must be attached to
+    %       the source point inkern_der
     % Outputs:
     %   A_spread: sparse matrix of shape (ngrid^dim, nsrc) mapping source
     %             strengths to grid strengths
@@ -17,6 +19,10 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
     %                 evaluation kern_0(z_i - x_j) where z_i is a regular grid 
     %                 point and x_j is a source point.
     %   sort_info: SortInfo object describing the sorting of source points into bins
+    
+    
+    if nargin < 6; der_fields = {}; end
+    if length(der_fields) == 0, der_fields = {'r'}; end
     dim = proxy_info.dim;
 
 
@@ -28,6 +34,12 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
         r_sorted = sort_info.r_srt;
         sorted_idxes = sort_info.ptid_srt;
         id_start = sort_info.id_start;
+
+        sorted_ptinfo = [];
+        for field = der_fields
+            sorted_ptinfo.(field{1}) = src_info.(field{1})(:,sorted_idxes);
+        end
+
     else
         [r_sorted, bin_idxes, id_start] = bin_pts_3d();
 
@@ -85,13 +97,13 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
         src_pts_in_i_centered = src_pts_in_i - center_i;
 
         r_local(:, idx_start:idx_end) = src_pts_in_i_centered;
-
     end
-
+    src_local = sorted_ptinfo;
+    src_local.r = r_local;
 
     % Compute one whole big K_src_to_proxy, and later we'll 
     % index its rows. K_src_to_proxy has shape (n_proxy, n_src)
-    K_src_to_proxy = kern_der(struct('r',r_local), proxy_info);
+    K_src_to_proxy = kern_der(src_local, proxy_info);
     K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
 
     % Now, loop through the bins and start to fill in A
