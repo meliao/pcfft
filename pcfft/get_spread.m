@@ -35,9 +35,9 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
         sorted_idxes = sort_info.ptid_srt;
         id_start = sort_info.id_start;
 
-        sorted_ptinfo = [];
+        sort_info.data_srt = [];
         for field = der_fields
-            sorted_ptinfo.(field{1}) = src_info.(field{1})(:,sorted_idxes);
+            sort_info.data_srt.(field{1}) = src_info.(field{1})(:,sorted_idxes);
         end
 
     else
@@ -98,7 +98,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
 
         r_local(:, idx_start:idx_end) = src_pts_in_i_centered;
     end
-    src_local = sorted_ptinfo;
+    src_local = sort_info.data_srt;
     src_local.r = r_local;
 
     % Compute one whole big K_src_to_proxy, and later we'll 

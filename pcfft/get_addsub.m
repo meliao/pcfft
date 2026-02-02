@@ -1,11 +1,9 @@
 function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
-    A_spread_s, A_spread_t, der_fields_s, der_fields_t)
+    A_spread_s, A_spread_t)
 
-    if nargin < 11; der_fields_s = {}; end
-    if isempty(der_fields_s), der_fields_s = {'r'}; end
-    if nargin < 12; der_fields_t = {}; end
-    if isempty(der_fields_t), der_fields_t = {'r'}; end
+    der_fields_s = fieldnames(sort_info_s.data_srt);
+    der_fields_t = fieldnames(sort_info_t.data_srt);
 
     N_src = size(src_info.r, 2);
     N_targ = size(targ_info.r, 2);
@@ -41,7 +39,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         idx_ti_start = sort_info_t.id_start(i);
         idx_ti_end = sort_info_t.id_start(i + 1) - 1;
         
-        targ_pts_in_i = sort_info_t.r_srt(:, idx_ti_start:idx_ti_end);
+        % targ_pts_in_i = sort_info_t.r_srt(:, idx_ti_start:idx_ti_end);
+        targ_info_in_i = [];
+        for field = der_fields_t
+            targ_info_in_i.(field{1}) = sort_info_t.data_srt.(field{1})(:,idx_ti_start:idx_ti_end);
+        end
 
         % Find the intersecting bins
         intersecting_bin_idxes = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
@@ -56,11 +58,17 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
             idx_sj_start = sort_info_s.id_start(source_bin_idx + 1);
             idx_sj_end = sort_info_s.id_start(source_bin_idx + 2) - 1;
 
-            src_pts_in_j = sort_info_s.r_srt(:, idx_sj_start:idx_sj_end);
+            % src_pts_in_j = sort_info_s.r_srt(:, idx_sj_start:idx_sj_end);
+            src_pts_in_j = [];
+            for field = der_fields_s
+                src_pts_in_j.(field{1}) = sort_info_s.data_srt.(field{1})(:,idx_sj_start:idx_sj_end);
+            end
 
             % Exact near-field interactions
-            K_src_to_targ = kern_0(struct('r', src_pts_in_j), ...
-                                struct('r', targ_pts_in_i));
+            % K_src_to_targ = kern_st(struct('r', src_pts_in_j), ...
+            %                     struct('r', targ_pts_in_i));
+            K_src_to_targ = kern_st(src_pts_in_j, ...
+                                targ_info_in_i);
 
             % Compute the approx near-field interactions that should be 
             % subtracted

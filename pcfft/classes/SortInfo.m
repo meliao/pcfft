@@ -29,12 +29,15 @@ classdef SortInfo
     %           the source points. So r_srt = r(:, ptid_srt).
     % id_start: shape (N_bins,). Contains the indices of the start of each
     %           bin in r_srt.
+    % data_srt: struct of data associated with each point in r_srt. Each
+    %           field must be of shape (l, n_srd) for some l
     %
     properties
         r_srt
         binid_srt
         ptid_srt
         id_start
+        data_srt
     end
 
     methods
@@ -88,7 +91,9 @@ classdef SortInfo
             obj.binid_srt = binid_srt;
             obj.ptid_srt = ptid_srt;
             obj.id_start = id_start;
-            
+
+            obj.data_srt = [];
+            obj.data_srt.r = r_srt;
         end
     end
 end
