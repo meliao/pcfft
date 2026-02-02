@@ -1,5 +1,5 @@
-function kern_hat = get_kernhat(kern, ngrid, Lbd, dx, offset)
-% evaluate Fourier transform of kernel on rgrid
+function kern_hat = get_kernhat(kern_0, ngrid, Lbd, dx, offset)
+% evaluate Fourier transform of free-space kernel on rgrid
 
 rgrid0 = Lbd(:,1) + dx*ngrid(:) - offset;
 
@@ -22,7 +22,7 @@ elseif length(ngrid) == 3
     rgrid = [X(:).'; Y(:).'; Z(:).'];
 end
 % evaluate kernel
-kernvals = kern(struct('r',rgrid0), struct('r',rgrid));
+kernvals = kern_0(struct('r',rgrid0), struct('r',rgrid));
 
 % Fourier transform
 kernvals = reshape(kernvals, 2*flip(ngrid(:)'));

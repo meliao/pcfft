@@ -22,7 +22,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
     
     
     if nargin < 6; der_fields = {}; end
-    if length(der_fields) == 0, der_fields = {'r'}; end
+    if isempty(der_fields), der_fields = {'r'}; end
     dim = proxy_info.dim;
 
 

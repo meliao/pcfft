@@ -1,6 +1,11 @@
 function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
-    A_spread_s, A_spread_t)
+    A_spread_s, A_spread_t, der_fields_s, der_fields_t)
+
+    if nargin < 11; der_fields_s = {}; end
+    if isempty(der_fields_s), der_fields_s = {'r'}; end
+    if nargin < 12; der_fields_t = {}; end
+    if isempty(der_fields_t), der_fields_t = {'r'}; end
 
     N_src = size(src_info.r, 2);
     N_targ = size(targ_info.r, 2);
