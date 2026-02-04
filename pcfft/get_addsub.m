@@ -2,17 +2,17 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
     A_spread_s, A_spread_t)
 
-    der_fields_s = fieldnames(sort_info_s.data_srt);
-    der_fields_t = fieldnames(sort_info_t.data_srt);
+    der_fields_s = fieldnames(sort_info_s.data_srt)';
+    der_fields_t = fieldnames(sort_info_t.data_srt)';
 
-    N_src = size(src_info.r, 2);
-    N_targ = size(targ_info.r, 2);
+    N_src = size(src_info.r(:,:), 2);
+    N_targ = size(targ_info.r(:,:), 2);
 
     % Rows of A_addsub are ordered according to sorted target points.
     % Cols of A_addsub are ordered according to sorted source points.
 
     K_grid2grid = kern_0(grid_info, grid_info);
-
+    K_grid2grid(1:1+size(K_grid2grid,1):end) = 0;
     % Sort the cols of A_spread_s to match the sorted source points
     A_spread_s = A_spread_s(:, sort_info_s.ptid_srt);
     % Sort the cols of A_spread_t to match the sorted target points
@@ -90,7 +90,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         end
 
     end
-    A_addsub = sparse(iid(1:id_start), jid(1:id_start), vals(1:id_start));
+    A_addsub = sparse(iid(1:id_start), jid(1:id_start), vals(1:id_start), N_targ, N_src);
 
     % Reorder the rows to match the original target point ordering
     A_addsub(sort_info_t.ptid_srt, :) = A_addsub;

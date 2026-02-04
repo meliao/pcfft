@@ -32,7 +32,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %                   surface from the center of the spreading box.
     %               .r : (dim, n_points_total) array containing the proxy points
 
-    dim = size(src_info.r, 1);
+    dim = size(src_info.r(:,:), 1);
     % nsrc = size(src_info.r, 2);
     if nargin < 5
         n_nbr = 1000;
@@ -41,8 +41,8 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     crad = 2;
 
     % Get the half_sidelen and center of the points to specify the regular grid
-    [Lbd, ~] = bounding_box([src_info.r, targ_info.r]);
-    halfside = spread_halfside([src_info.r, targ_info.r], n_nbr, crad);
+    [Lbd, ~] = bounding_box([src_info.r(:,:), targ_info.r(:,:)]);
+    halfside = spread_halfside([src_info.r(:,:), targ_info.r(:,:)], n_nbr, crad);
 
     % get prototype grid for spreading
     [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad);

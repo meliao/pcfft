@@ -57,7 +57,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
 
     % A is a sparse matrix with shape (ngrid^2, nsrc)
     n_grid_pts = size(grid_info.r, 2);
-    A_spread = sparse(n_grid_pts, size(src_info.r, 2));
+    A_spread = sparse(n_grid_pts, size(src_info.r(:,:), 2));
     % disp("get_spread: A_spread shape: ")
     % disp(size(A_spread))
 
@@ -66,7 +66,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
 
     % disp("get_spread: id_start")
     % disp(id_start)
-    r_local = zeros(dim, size(src_info.r, 2));
+    r_local = zeros(dim, size(src_info.r(:,:), 2));
     for i = 1:size(id_start, 2) -1
         
 

@@ -27,6 +27,7 @@ kernvals = kern_0(struct('r',rgrid0), struct('r',rgrid));
 % Fourier transform
 kernvals = reshape(kernvals, 2*flip(ngrid(:)'));
 kernvals = ifftshift(kernvals);
+kernvals(1,1) = 0;
 kern_hat = fftn(kernvals);
 
 end
