@@ -25,19 +25,20 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
     A_add = sparse(N_targ, N_src);
     A_sub = sparse(N_targ, N_src);
 
-    % Sort the cols of A_spread_s to match the sorted source points
+    % Sort the cols of A_spread_s and A_spread_t to match the sorted source points
     A_spread_s = A_spread_s(:, sort_info_s.ptid_srt);
+    A_spread_t = A_spread_t(:, sort_info_t.ptid_srt);
 
     % Add n_dummy rows of zeros to A_spread_s to handle empty bins
     A_spread_s = [A_spread_s; sparse(n_dummy, N_src)];
     dummy_idxes = n_gridpts + 1: n_gridpts + n_dummy;
-    % Sort the cols of A_spread_t to match the sorted target points
-    A_spread_t = A_spread_t(:, sort_info_t.ptid_srt);
+
+
 
     % Loop through all of the bins. 
     for i = 1:size(sort_info_s.id_start, 2) -1
         bin_idx = i - 1; % Because bins are 0-indexed
-        disp("get_addsub: Processing bin " + int2str(bin_idx));
+        % disp("get_addsub: Processing bin " + int2str(bin_idx));
 
         % Need the center of bin i to center the source points, and need the 
         % indexes of the regular grid points for spreading bin i, so we can
@@ -86,6 +87,10 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         % neighboring target bin i. 
         if isempty(source_idx)
             continue;
+        else
+            % Log the bin index and neighbor indices
+            disp("get_addsub: For target bin " + int2str(bin_idx) + ...
+                ", source neighbor bins: " + mat2str(nbr_binids));
         end
 
         % disp("get_addsub: bin " + int2str(bin_idx) + " source_loc size: ");
@@ -117,6 +122,10 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         A_sub(idx_ti_start:idx_ti_end, source_idx) = ...
             A_sub(idx_ti_start:idx_ti_end, source_idx) + AKA_chunk;
 
+        % Log the indices used to update A_add and A_sub for this target bin
+        disp("get_addsub: Updated A_add and A_sub for target bin " + int2str(bin_idx) + ...
+            " with target indices " + int2str(idx_ti_start) + ":" + int2str(idx_ti_end) + ...
+            " and source indices " + int2str(source_idx));
     end
 
     % A_addsub = A_add - A_sub;
@@ -126,7 +135,7 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
     A_sub(sort_info_t.ptid_srt, :) = A_sub;
 
     % % Reorder the columns to match the original source point ordering
-    A_add(:, sort_info_s.ptid_srt) = A_add(:, sort_info_s.ptid_srt);
-    A_sub(:, sort_info_s.ptid_srt) = A_sub(:, sort_info_s.ptid_srt);
+    A_add(:, sort_info_s.ptid_srt) = A_add; %A_add(:, sort_info_s.ptid_srt);
+    A_sub(:, sort_info_s.ptid_srt) = A_sub; %A_sub(:, sort_info_s.ptid_srt);
 
 end

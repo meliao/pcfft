@@ -36,17 +36,24 @@ targ_info = struct;
 targ_info.r = target_pts;
 
 %% Part 1: inspect things for 2 pts
+% In this test, we want to evaluate the accuracy of the addsub matrices by 
+% evaluating equation (5) in the notes. On one side of this equation, we have 
+% the exact interactions between sources and targets, which we can compute
+% directly. On the other side, we have B mu + AKA mu.
+
 
 % In this test, there are 2 source points and 3 target points. 
 % Here are the dense interactions:
 % s(1) -> t(1) : both in box 0
 % s(2) -> t(2) : both in box 5
-% s(2) -> t(3) : s(2) in box 5, t(3) in box 7
+% s(1) -> t(3) : s(1) in box 0, t(3) in box 7. These are near.
 
 % So here are the interactions which are NOT dense:
-% s(1) -> t(2)
-% s(1) -> t(3)
-% s(2) -> t(1)
+% s(1) -> t(2) % 0 and 5 are not near
+% s(2) -> t(1) % 5 and 0 are not near
+% s(2) -> t(3) % 5 and 7 are not near
+
+
 
 tol = 1e-08;
 
