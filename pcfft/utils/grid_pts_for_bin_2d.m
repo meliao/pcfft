@@ -17,6 +17,7 @@ function [pts, center, row_idxes] = grid_pts_for_bin_2d(bin_idx, grid_info)
     dx = grid_info.dx;
     Lbd = grid_info.Lbd;
     ngrid = grid_info.ngrid;
+    rpad = grid_info.rpad;
 
     N_y_bins = grid_info.nbin(2);
     nbinpts = grid_info.nbinpts;
@@ -44,8 +45,8 @@ function [pts, center, row_idxes] = grid_pts_for_bin_2d(bin_idx, grid_info)
     % and the ypts are in position 
     % (id_y - 1) * nbinpts + 1: id_y * nbinpts
     % in the padded grid.
-    x_positions = id_x * nbinpts + 1: id_x * nbinpts + nbinpts ;
-    y_positions = id_y * nbinpts + 1: id_y * nbinpts + nbinpts ;
+    x_positions = rpad + id_x * nbinpts + 1: rpad + id_x * nbinpts + nbinpts ;
+    y_positions = rpad + id_y * nbinpts + 1: rpad + id_y * nbinpts + nbinpts ;
 
     % The padded grid has size ngrid(i)
     % in each dimension i. It loops through the y axis first.

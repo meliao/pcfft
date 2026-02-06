@@ -62,7 +62,7 @@ for bin_id = 0:N_bins-1
     disp(pts_sliced);
     disp("test: pts size: " + int2str(size(pts)));
     disp(pts);
-    diffs = pts_sliced - pts;
+    diffs = abs(pts_sliced - pts);
     disp("diffs")
     disp(diffs)
     

@@ -37,8 +37,16 @@ targ_info.r = target_pts;
 
 %% Part 1: inspect things for 2 pts
 
+% In this test, there are 2 source points and 3 target points. 
+% Here are the dense interactions:
+% s(1) -> t(1) : both in box 0
+% s(2) -> t(2) : both in box 5
+% s(2) -> t(3) : s(2) in box 5, t(3) in box 7
 
-
+% So here are the interactions which are NOT dense:
+% s(1) -> t(2)
+% s(1) -> t(3)
+% s(2) -> t(1)
 
 tol = 1e-08;
 

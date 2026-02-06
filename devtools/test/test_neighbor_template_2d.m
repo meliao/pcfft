@@ -1,21 +1,21 @@
 % Makes sure get_addsub returns without error on a 2D input.
 addpath(genpath('../../pcfft'));
 
+close all;
 
-rad = 10.0;
 tol = 1e-10;
 dim = 2;
 
 k = @(s,t) log_kernel(s,t);
 
 src_info_2d = struct;
-n_src = 13;
+n_src = 137;
 rng(0);
 src_info_2d.r = (rand(2, n_src) - 0.5);
 src_info_2d.weights = rand(n_src, 1);
 
 targ_info_2d = struct;
-ntarg = 17;
+ntarg = 173;
 targ_info_2d.r = rand(2, ntarg) - 0.5;
 
 
@@ -114,7 +114,7 @@ assert(all(size(r, 2) == size(binid_srt, 2)));
 % end
 
 % Figure shows that bin idx 0 only intersects with 0, 1, 3. 
-[nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_2d(grid_info, proxy_info, 6);
+[nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_2d(grid_info, proxy_info, 0);
 
 % Now center at the center of bin idx 0.
 ctr = bin_center(bin_idx, grid_info);
@@ -128,7 +128,10 @@ scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
 % Plot the template points
 hold on;
 scatter(temp_at_4(1,:), temp_at_4(2,:), 5, 'r', 'filled');
-% close all;
+
+
+% Plot text lables for the valid nbr idxes
+text(temp_at_4(1,:), temp_at_4(2,:), string(nbr_grididxes), 'Color', 'k');
 
 % Confirm that each of the template points matches one of the grid points, after
 % filtering
@@ -137,6 +140,7 @@ valid_temp_pts = temp_at_4(:, ~oob_idxes);
 
 % Plot the valid template points in green
 scatter(valid_temp_pts(1,:), valid_temp_pts(2,:), 20, 'g', 'filled');
+close all;
 
 for i = 1:size(valid_temp_pts, 2)
     pt = valid_temp_pts(:, i);

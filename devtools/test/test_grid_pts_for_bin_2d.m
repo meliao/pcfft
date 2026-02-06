@@ -32,6 +32,7 @@ yy = grid_info.Lbd(2, 1) - offset + (0: ngrid(2) - 1) * grid_info.dx;
 grid_info.ngrid = ngrid;
 grid_info.offset = offset;
 grid_info.nbin = n_bin;
+grid_info.rpad = pad;
 
 % Do a lot of points, then plot the gridpts on top of the 
 % scattered points.
@@ -71,9 +72,9 @@ colorbar;
 %% test_1
 % Check the row indices are computed correctly
 
-close all;
+% close all;
 
-tol = 1e-3;
+tol = 1e-7;
 dim = 2;
 
 k = @(s,t) log_kernel(s,t);
@@ -86,7 +87,7 @@ src_info_2d.weights = rand(n_src, 1);
 
 
 targ_info_2d = struct;
-ntarg = 17;
+ntarg = 1700;
 targ_info_2d.r = (rand(2, ntarg) - 0.5).^3;
 
 [grid_info, proxy_info] = get_grid(@log_kernel, ...
@@ -94,7 +95,7 @@ targ_info_2d.r = (rand(2, ntarg) - 0.5).^3;
 disp("test: finished get_grid")
 disp(grid_info.ngrid)
 
-
+assert(grid_info.rpad > 1);
 
 sort_info = SortInfo(src_info_2d.r, grid_info.dx, ...
     grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
@@ -102,14 +103,20 @@ r_sorted = sort_info.r_srt;
 sorted_bin_ids = sort_info.binid_srt;
 id_start = sort_info.id_start;
 
+close all;
 disp("test: grid_info.Lbd");
 disp(grid_info.Lbd);
-% scatter(grid_info.r(1,:), grid_info.r(2,:), 'k.');
-% hold on;
-% scatter(r_sorted(1,:), r_sorted(2,:), 20, sorted_bin_ids, 'filled');
-% colorbar;
-
-
+scatter(grid_info.r(1,:), grid_info.r(2,:), 'k.');
+hold on;
+scatter(r_sorted(1,:), r_sorted(2,:), 20, sorted_bin_ids, 'filled');
+colorbar;
+% Plot bin 1 with red x
+[pts, center, row_indices] = grid_pts_for_bin_2d(1, grid_info);
+scatter(pts(1,:), pts(2,:), 200, 'rx');
+% Plot the associated spreading box
+[boxpts, boxcenter, box_row_indices] = grid_pts_for_box_2d(1, grid_info);
+scatter(boxpts(1,:), boxpts(2,:), 200, 'go');
+close all;
 
 N_x_bins = grid_info.nbin(1);
 N_y_bins = grid_info.nbin(2);
@@ -136,6 +143,7 @@ for bin_id = 0:N_bins-1
     disp("test: pts size: " + int2str(size(pts)));
     disp(pts);
     diffs = pts_sliced - pts;
+    diffs = abs(diffs);
     disp("diffs")
     disp(diffs)
     

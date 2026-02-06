@@ -51,11 +51,12 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         targ_pts_in_i = sort_info_t.r_srt(:, idx_ti_start:idx_ti_end);
 
         % Build the spreading template
-        [nbr_binids, nbr_gridpts, nbr_grididxes, ~] = ...
+        [nbr_binids, ~, nbr_grididxes, ~] = ...
             neighbor_template_2d(grid_info, proxy_info, bin_idx);
 
         % Loop through all of the neighbor bins and fill in the local source points. 
         % After this loop, we will update A_add and A_sub with the neigbors of bin i.
+        % TODO: preallocate this array. We can infer the length from sort_info_s.
         source_loc = [];
         source_idx = [];
 
