@@ -4,8 +4,8 @@ clear;
 
 % Set up many random source and target points
 rng(4);
-n_src = 200;
-n_targ = 300;
+n_src = 10*200;
+n_targ = 10*300;
 n_nbr = 100;
 kern_0 = @(s,t) log_kernel(s,t);
 src_info = struct;
@@ -43,9 +43,9 @@ for i = 1:n_tol_vals
     grid_info, proxy_info);
 
 
-    [A_addsub] = get_addsub(kern_0, kern_0, kern_0, kern_0, src_info, targ_info, ...
+    [A_addsub,A_sub] = get_addsub(kern_0, kern_0, kern_0, kern_0, src_info, targ_info, ...
     grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
-
+A_addsub = A_addsub- A_sub;
 
     K_grid2grid = log_kernel(grid_info, grid_info);
 

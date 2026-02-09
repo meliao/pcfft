@@ -29,6 +29,11 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
     A_spread_s = A_spread_s(:, sort_info_s.ptid_srt);
     A_spread_t = A_spread_t(:, sort_info_t.ptid_srt);
 
+    K_grid2grid = kern_0(grid_info, grid_info);
+    K_grid2grid(1:1+size(K_grid2grid,1):end) = 0;
+    AKA = A_spread_t.' * K_grid2grid * A_spread_s;
+
+
     % Add n_dummy rows of zeros to A_spread_s to handle empty bins
     A_spread_s = [A_spread_s; sparse(n_dummy, N_src)];
     dummy_idxes = n_gridpts + 1: n_gridpts + n_dummy;
@@ -115,7 +120,14 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         disp(size(A_spread_s_j));
 
         AKA_chunk = A_spread_t_i.' * K_nbr2bin * A_spread_s_j;
+        % AKA_chunk = AKA(idx_ti_start:idx_ti_end,source_idx);
 
+        if norm(AKA_chunk - AKA(idx_ti_start:idx_ti_end,source_idx)) > 1e-6;
+            keyboard
+
+            norm( A_spread_s(:, source_idx))
+            norm( A_spread_s(nbr_grididxes, source_idx))
+        end
         disp("get_addsub: AKA_chunk: ")
         disp(AKA_chunk);
 
@@ -123,9 +135,9 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
             A_sub(idx_ti_start:idx_ti_end, source_idx) + AKA_chunk;
 
         % Log the indices used to update A_add and A_sub for this target bin
-        disp("get_addsub: Updated A_add and A_sub for target bin " + int2str(bin_idx) + ...
-            " with target indices " + int2str(idx_ti_start) + ":" + int2str(idx_ti_end) + ...
-            " and source indices " + int2str(source_idx));
+        % disp("get_addsub: Updated A_add and A_sub for target bin " + int2str(bin_idx) + ...
+        %     " with target indices " + int2str(idx_ti_start) + ":" + int2str(idx_ti_end) + ...
+        %     " and source indices " + int2str(source_idx));
     end
 
     % A_addsub = A_add - A_sub;
