@@ -9,7 +9,6 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     N_targ = size(targ_info.r(:,:), 2);
 
 
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Build a spreading template matrix for adjacent source points.
     % Then build a list of regular gridpoints that are in the intersecting bins
@@ -119,7 +118,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         AKA_chunk = A_spread_t_i.' * K_nbr2bin * A_spread_s_j;
 
         Aloc =  K_src_to_targ - AKA_chunk;
-        
+
         % Update COO arrays.
         is = (idx_ti_start:idx_ti_end);
         js = source_idx;
