@@ -54,9 +54,6 @@ classdef GridInfo
 
             ngrid = n_bin * nbinpts + pad * 2;
 
-            disp("get_grid: ngrid:")
-            disp(ngrid)
-
             if dim == 2
                 % Create a regular grid with spacing dx starting at the xmin, ymin point
                 % specified by Lbd. 

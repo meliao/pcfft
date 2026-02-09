@@ -33,6 +33,7 @@ nbinpts_vals = zeros(n_tol_vals, 1);
 
 for i = 1:n_tol_vals
     tol = tol_vals(i);
+    disp("Running with tol = " + num2str(tol));
 
     [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
 
@@ -43,19 +44,19 @@ for i = 1:n_tol_vals
     grid_info, proxy_info);
 
 
-    [A_addsub,A_sub] = get_addsub(kern_0, kern_0, kern_0, kern_0, src_info, targ_info, ...
+    [A_addsub] = get_addsub(kern_0, kern_0, kern_0, kern_0, src_info, targ_info, ...
     grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
-A_addsub = A_addsub- A_sub;
+
 
     K_grid2grid = log_kernel(grid_info, grid_info);
 
     term1 = A_addsub * src_weights;
     term3 = A_spread_t.' * K_grid2grid * A_spread_s * src_weights;
     evals_approx = term1  + term3;
-    disp("tol: " + num2str(tol) + ", evals_approx: ");
-    disp(evals_approx);
-    disp("target_vals: ");
-    disp(target_vals);
+    % disp("tol: " + num2str(tol) + ", evals_approx: ");
+    % disp(evals_approx);
+    % disp("target_vals: ");
+    % disp(target_vals);
 
     errors_at_target = max(abs(evals_approx(:) - target_vals(:))) / max(abs(target_vals(:)));
     disp("tol: " + num2str(tol) + ", errors_at_target: " + num2str(errors_at_target));

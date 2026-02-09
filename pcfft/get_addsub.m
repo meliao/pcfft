@@ -1,4 +1,4 @@
-function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
+function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
     targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
     A_spread_s, A_spread_t)
 
@@ -22,8 +22,7 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
 
     % Rows of A_addsub are ordered according to sorted target points.
     % Cols of A_addsub are ordered according to sorted source points.
-    A_add = sparse(N_targ, N_src);
-    A_sub = sparse(N_targ, N_src);
+    A_addsub = sparse(N_targ, N_src);
 
     % Sort the cols of A_spread_s and A_spread_t to match the sorted source points
     A_spread_s = A_spread_s(:, sort_info_s.ptid_srt);
@@ -36,7 +35,7 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
 
     % Add n_dummy rows of zeros to A_spread_s to handle empty bins
     A_spread_s = [A_spread_s; sparse(n_dummy, N_src)];
-    dummy_idxes = n_gridpts + 1: n_gridpts + n_dummy;
+    % dummy_idxes = n_gridpts + 1: n_gridpts + n_dummy;
 
 
 
@@ -92,62 +91,31 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         % neighboring target bin i. 
         if isempty(source_idx)
             continue;
-        else
-            % Log the bin index and neighbor indices
-            disp("get_addsub: For target bin " + int2str(bin_idx) + ...
-                ", source neighbor bins: " + mat2str(nbr_binids));
         end
 
         % disp("get_addsub: bin " + int2str(bin_idx) + " source_loc size: ");
         % disp(size(source_loc));
 
-        % Update A_add with exact near-field interactions.
+        % Update A_addsub with exact near-field interactions. This is the "add"
+        % part.
         K_src2targ = kern_0(struct('r', source_loc), ...
                             struct('r', targ_pts_in_i ));
-        A_add(idx_ti_start:idx_ti_end, source_idx) = ...
-            A_add(idx_ti_start:idx_ti_end, source_idx) + K_src2targ;
 
-        % Update A_sub with approximated near-field interactions.
+        % Update A_sub with approximated near-field interactions. This is the 
+        % "sub" part.
         A_spread_t_i = A_spread_t(reg_idxs_i, idx_ti_start:idx_ti_end);
         A_spread_s_j = A_spread_s(nbr_grididxes, source_idx);
-
-        % Print shape info for A_spread_t_i
-        disp("get_addsub: A_spread_t_i size: ");
-        disp(size(A_spread_t_i));
-        disp("get_addsub: K_nbr2bin size: ");
-        disp(size(K_nbr2bin));
-        disp("get_addsub: A_spread_s_j size: ");
-        disp(size(A_spread_s_j));
-
         AKA_chunk = A_spread_t_i.' * K_nbr2bin * A_spread_s_j;
-        % AKA_chunk = AKA(idx_ti_start:idx_ti_end,source_idx);
 
-        if norm(AKA_chunk - AKA(idx_ti_start:idx_ti_end,source_idx)) > 1e-6;
-            keyboard
+        A_addsub(idx_ti_start:idx_ti_end, source_idx) = ...
+            A_addsub(idx_ti_start:idx_ti_end, source_idx) + K_src2targ - AKA_chunk;
 
-            norm( A_spread_s(:, source_idx), "fro")
-            norm( A_spread_s(nbr_grididxes, source_idx), "fro")
-        end
-        disp("get_addsub: AKA_chunk: ")
-        disp(AKA_chunk);
-
-        A_sub(idx_ti_start:idx_ti_end, source_idx) = ...
-            A_sub(idx_ti_start:idx_ti_end, source_idx) + AKA_chunk;
-
-        % Log the indices used to update A_add and A_sub for this target bin
-        % disp("get_addsub: Updated A_add and A_sub for target bin " + int2str(bin_idx) + ...
-        %     " with target indices " + int2str(idx_ti_start) + ":" + int2str(idx_ti_end) + ...
-        %     " and source indices " + int2str(source_idx));
     end
 
-    % A_addsub = A_add - A_sub;
 
     % Reorder the rows to match the original target point ordering
-    A_add(sort_info_t.ptid_srt, :) = A_add;
-    A_sub(sort_info_t.ptid_srt, :) = A_sub;
+    A_addsub(sort_info_t.ptid_srt, :) = A_addsub;
 
     % % Reorder the columns to match the original source point ordering
-    A_add(:, sort_info_s.ptid_srt) = A_add; %A_add(:, sort_info_s.ptid_srt);
-    A_sub(:, sort_info_s.ptid_srt) = A_sub; %A_sub(:, sort_info_s.ptid_srt);
-
+    A_addsub(:, sort_info_s.ptid_srt) = A_addsub; 
 end

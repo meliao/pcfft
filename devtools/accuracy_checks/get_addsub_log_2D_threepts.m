@@ -66,20 +66,20 @@ tol = 1e-08;
     grid_info, proxy_info);
 
 
-[A_add, A_sub] = get_addsub(k, k, k, k, src_info, targ_info, grid_info, ...
+[A_addsub] = get_addsub(k, k, k, k, src_info, targ_info, grid_info, ...
     proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 
 % A_addsub = A_add - A_sub;
 
 K_grid2grid = log_kernel(grid_info, grid_info);
 
-term1 = A_add * src_weights;
+term1 = A_addsub * src_weights;
 disp("main: term1: ")
 disp(term1)
 
-term2 = A_sub * src_weights;
-disp("main: term2: ")
-disp(term2)
+% term2 = A_sub * src_weights;
+% disp("main: term2: ")
+% disp(term2)
 
 AKA = A_spread_t.' * K_grid2grid * A_spread_s;
 
@@ -87,7 +87,7 @@ term3 = AKA * src_weights;
 disp("main: term3: ")
 disp(term3)
 
-evals_approx = term1 - term2 + term3;
+evals_approx = term1 + term3;
 
 disp("main: evals_approx: ")
 disp(evals_approx)
@@ -99,12 +99,12 @@ disp("errors_at_target: " + num2str(errors_at_target));
 
 
 % Print out A_add, A_sub, and AKA for debugging
-disp("main: A_add: ")
-disp(full(A_add))
-disp("main: A_sub: ")
-disp(full(A_sub))
-disp("main: AKA: ")
-disp(full(AKA))
+disp("main: A_addsub: ")
+disp(full(A_addsub))
+% disp("main: A_sub: ")
+% disp(full(A_sub))
+% disp("main: AKA: ")
+% disp(full(AKA))
 
 assert(errors_at_target < tol);
 

@@ -105,16 +105,16 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
         idx_end = id_start(i+2) - 1;
 
         % Do the logging if there is a nonempty set of src point indices
-        if idx_end >= idx_start
-            disp("get_spread: bin i: " + int2str(i))
-            disp("get_spread: row_idxes_i:")
-            disp(row_idxes_i)
-            disp("get_spread: n_grid_pts: " + int2str(n_grid_pts))
-        else
-            disp("get_spread: bin i : " + int2str(i) + " empty")
-            disp("get_spread: idx_start: " +  num2str(idx_start))
-            disp("get_spread: idx_end: " +  num2str(idx_end))
-        end
+        % if idx_end >= idx_start
+        %     disp("get_spread: bin i: " + int2str(i))
+        %     disp("get_spread: row_idxes_i:")
+        %     disp(row_idxes_i)
+        %     disp("get_spread: n_grid_pts: " + int2str(n_grid_pts))
+        % else
+        %     disp("get_spread: bin i : " + int2str(i) + " empty")
+        %     disp("get_spread: idx_start: " +  num2str(idx_start))
+        %     disp("get_spread: idx_end: " +  num2str(idx_end))
+        % end
 
 
         % K_src_to_proxy_i = K_src_to_proxy(:, idx_start:idx_end);
