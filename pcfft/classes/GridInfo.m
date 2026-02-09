@@ -22,7 +22,7 @@ classdef GridInfo
     %       offset   - (integer) offset used for indexing the padded grid
     %       rmax     - (dim, 1) maximum coordinate value of the padded grid
     %       rmin     - (dim, 1) minimum coordinate value of the padded grid
-    %       n_nbr     - TODO
+    %       n_nbr    - average number of near-field neighbours
 
     properties
         ngrid
@@ -77,6 +77,10 @@ classdef GridInfo
             rmax = max(rgrid, [], 2);
             rmin = min(rgrid, [], 2);
 
+        n_nbr
+    end
+    methods
+        function obj = GridInfo(ngrid, Lbd, dx, nspread, nbinpts, rpad, r, dim, nbin, offset,n_nbr)
             obj.ngrid = ngrid;
             obj.Lbd = Lbd;
             obj.dx = dx;

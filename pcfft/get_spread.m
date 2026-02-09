@@ -1,13 +1,17 @@
-function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
-                                            src_info, grid_info, proxy_info)
+function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
+                                            src_info, grid_info, proxy_info, der_fields)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
     % Inputs:
-    %   kern_0: TODO
-    %   kern: TODO
+    %   kern_0: function handle with calling sequence kern_0(src,targ) 
+    %           this is the free-space kernel
+    %   kern_der: function handle with calling sequence kern_der(src,targ) 
+    %           this kernel will be some derivative of the free-space kernel
     %   src_info: struct with field r (dim, nsrc) source points
     %   grid_info: GridInfo object describing the regular grid
     %   proxy_info: ProxyInfo object describing the proxy points
+    %   der_fields: cell array of field names that must be attached to
+    %       the source point inkern_der
     % Outputs:
     %   A_spread: sparse matrix of shape (ngrid^dim, nsrc) mapping source
     %             strengths to grid strengths
@@ -15,17 +19,21 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
     %                 evaluation kern_0(z_i - x_j) where z_i is a regular grid 
     %                 point and x_j is a source point.
     %   sort_info: SortInfo object describing the sorting of source points into bins
+    
+    
+    if nargin < 6; der_fields = {}; end
     dim = proxy_info.dim;
 
 
     % First, sort the points into bins
     if dim == 2
 
-        sort_info = SortInfo(src_info.r, grid_info.dx, grid_info.Lbd, ...
-                            grid_info.nbin, grid_info.nbinpts);
+        sort_info = SortInfo(src_info, grid_info.dx, grid_info.Lbd, ...
+                            grid_info.nbin, grid_info.nbinpts,der_fields);
         r_sorted = sort_info.r_srt;
         sorted_idxes = sort_info.ptid_srt;
         id_start = sort_info.id_start;
+
     else
         [r_sorted, bin_idxes, id_start] = bin_pts_3d();
 
@@ -49,7 +57,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
 
     % A is a sparse matrix with shape (ngrid^2, nsrc)
     n_grid_pts = size(grid_info.r, 2);
-    A_spread = sparse(n_grid_pts, size(src_info.r, 2));
+    A_spread = sparse(n_grid_pts, size(src_info.r(:,:), 2));
     % disp("get_spread: A_spread shape: ")
     % disp(size(A_spread))
 
@@ -58,7 +66,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
 
     % disp("get_spread: id_start")
     % disp(id_start)
-    r_local = zeros(dim, size(src_info.r, 2));
+    r_local = zeros(dim, size(src_info.r(:,:), 2));
     for i = 1:size(id_start, 2) -1
         
 
@@ -83,13 +91,13 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern, ...
         src_pts_in_i_centered = src_pts_in_i - center_i;
 
         r_local(:, idx_start:idx_end) = src_pts_in_i_centered;
-
     end
-
+    src_local = sort_info.data_srt;
+    src_local.r = r_local;
 
     % Compute one whole big K_src_to_proxy, and later we'll 
     % index its rows. K_src_to_proxy has shape (n_proxy, n_src)
-    K_src_to_proxy = kern_0(struct('r',r_local), proxy_info);
+    K_src_to_proxy = kern_der(src_local, proxy_info);
     K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
 
     % Now, loop through the bins and start to fill in A

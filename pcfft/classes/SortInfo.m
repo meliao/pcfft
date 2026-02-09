@@ -1,7 +1,7 @@
 classdef SortInfo
     %SORTINFO Information about sorting of source points into bins.
     % 
-    % Sort points <r> into a number of bins.
+    % Sort points <src_info.r> into a number of bins.
     % Imagine a regular grid with bounds [xmin ymin xmax ymax] = Lbd
     % and grid spacing <dx>. There are [nx ny] = ngrid points 
     % in each dimension.
@@ -26,19 +26,25 @@ classdef SortInfo
     % binid_srt: shape (n_src,). Contains the bin indexes of the sorted
     %           source points.
     % ptid_srt: shape (n_src,). Contains the indices of the sorting of 
-    %           the source points. So r_srt = r(:, ptid_srt).
+    %           the source points. So r_srt = src_fin.r(:, ptid_srt).
     % id_start: shape (N_bins,). Contains the indices of the start of each
     %           bin in r_srt.
+    % data_srt: struct of data associated with each point in r_srt. Each
+    %           field must be of shape (l, n_srd) for some l
     %
     properties
         r_srt
         binid_srt
         ptid_srt
         id_start
+        data_srt
     end
 
     methods
-        function obj = SortInfo(r, dx, Lbd, nbin, nbinpts)
+        function obj = SortInfo(src_info, dx, Lbd, nbin, nbinpts,der_fields)
+
+            if isempty(der_fields), der_fields = {'r'}; end
+            r = src_info.r;
 
             % If size(r,1) != 2, error
             if size(r,1) ~= 2
@@ -88,7 +94,12 @@ classdef SortInfo
             obj.binid_srt = binid_srt;
             obj.ptid_srt = ptid_srt;
             obj.id_start = id_start;
-            
+
+            obj.data_srt = [];
+            for field = der_fields
+                obj.data_srt.(field{1}) = src_info.(field{1})(:,ptid_srt);
+            end
+
         end
     end
 end

@@ -1,9 +1,12 @@
-function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
+function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
     A_spread_s, A_spread_t)
 
-    N_src = size(src_info.r, 2);
-    N_targ = size(targ_info.r, 2);
+    der_fields_s = fieldnames(sort_info_s.data_srt)';
+    der_fields_t = fieldnames(sort_info_t.data_srt)';
+
+    N_src = size(src_info.r(:,:), 2);
+    N_targ = size(targ_info.r(:,:), 2);
 
 
 
@@ -57,7 +60,11 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
         idx_ti_start = sort_info_t.id_start(i);
         idx_ti_end = sort_info_t.id_start(i + 1) - 1;
         
-        targ_pts_in_i = sort_info_t.r_srt(:, idx_ti_start:idx_ti_end);
+        % targ_pts_in_i = sort_info_t.r_srt(:, idx_ti_start:idx_ti_end);
+        targ_info_in_i = [];
+        for field = der_fields_t
+            targ_info_in_i.(field{1}) = sort_info_t.data_srt.(field{1})(:,idx_ti_start:idx_ti_end);
+        end
 
         % Build the spreading template
         [nbr_binids, ~, nbr_grididxes, ~] = ...
@@ -87,8 +94,6 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
 
             source_loc = [source_loc, loc_src_in_j];
             source_idx = [source_idx, idx_sj_start:idx_sj_end];
-
-
         end
 
         % It may be the case that there are no source points in the bins 
@@ -97,10 +102,15 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
             continue;
         end
 
+        src_pts_in_j = [];
+        for field = der_fields_s
+            src_pts_in_j.(field{1}) = sort_info_s.data_srt.(field{1})(:,idx_sj_start:idx_sj_end);
+        end
+
         % Update A_addsub with exact near-field interactions. This is the "add"
         % part.
-        K_src2targ = kern_0(struct('r', source_loc), ...
-                            struct('r', targ_pts_in_i ));
+        K_src_to_targ = kern_st(src_pts_in_j, ...
+                            targ_info_in_i);
 
         % Update A_sub with approximated near-field interactions. This is the 
         % "sub" part.
@@ -125,6 +135,7 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
         id_start = id_start + n_sparse;
 
     end
+    A_addsub = sparse(iid(1:id_start), jid(1:id_start), vals(1:id_start), N_targ, N_src);
 
     A_addsub = sparse(iid(1:id_start), jid(1:id_start), vals(1:id_start), N_targ, N_src);
 
