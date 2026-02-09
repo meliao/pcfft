@@ -77,10 +77,6 @@ classdef GridInfo
             rmax = max(rgrid, [], 2);
             rmin = min(rgrid, [], 2);
 
-        n_nbr
-    end
-    methods
-        function obj = GridInfo(ngrid, Lbd, dx, nspread, nbinpts, rpad, r, dim, nbin, offset,n_nbr)
             obj.ngrid = ngrid;
             obj.Lbd = Lbd;
             obj.dx = dx;

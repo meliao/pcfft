@@ -104,7 +104,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
         src_pts_in_j = [];
         for field = der_fields_s
-            src_pts_in_j.(field{1}) = sort_info_s.data_srt.(field{1})(:,idx_sj_start:idx_sj_end);
+            src_pts_in_j.(field{1}) = sort_info_s.data_srt.(field{1})(:,source_idx);
         end
 
         % Update A_addsub with exact near-field interactions. This is the "add"
@@ -118,10 +118,8 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         A_spread_s_j = A_spread_s(nbr_grididxes, source_idx);
         AKA_chunk = A_spread_t_i.' * K_nbr2bin * A_spread_s_j;
 
-        Aloc =  K_src2targ - AKA_chunk;
-
-        % A_addsub(idx_ti_start:idx_ti_end, source_idx) = Aloc;
-
+        Aloc =  K_src_to_targ - AKA_chunk;
+        
         % Update COO arrays.
         is = (idx_ti_start:idx_ti_end);
         js = source_idx;
@@ -135,8 +133,6 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         id_start = id_start + n_sparse;
 
     end
-    A_addsub = sparse(iid(1:id_start), jid(1:id_start), vals(1:id_start), N_targ, N_src);
-
     A_addsub = sparse(iid(1:id_start), jid(1:id_start), vals(1:id_start), N_targ, N_src);
 
     % Reorder the rows to match the original target point ordering
