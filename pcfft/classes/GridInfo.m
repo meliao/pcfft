@@ -75,8 +75,8 @@ classdef GridInfo
                 rgrid = [X(:).'; Y(:).'; Z(:).'];
             end
 
-            rmax = Lbd(:,2) + offset;
-            rmin = Lbd(:,1) - offset;
+            rmax = max(rgrid, [], 2);
+            rmin = min(rgrid, [], 2);
 
             obj.ngrid = ngrid;
             obj.Lbd = Lbd;

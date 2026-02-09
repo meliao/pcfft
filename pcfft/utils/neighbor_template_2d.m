@@ -56,8 +56,10 @@ function [nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_2
     end
 
     % Mark the row_idxes corresponding to out-of-bounds grid points with a dummy
-    out_of_bounds = (nbr_gridpts(1, :) < rmin(1)) | (nbr_gridpts(1, :) > rmax(1)) | ...
-                    (nbr_gridpts(2, :) < rmin(2)) | (nbr_gridpts(2, :) > rmax(2));
+    % Might need a tiny bit of margin here
+    margin = 0.1 * dx;
+    out_of_bounds = (nbr_gridpts(1, :) < rmin(1) - margin) | (nbr_gridpts(1, :) > rmax(1) + margin) | ...
+                    (nbr_gridpts(2, :) < rmin(2) - margin) | (nbr_gridpts(2, :) > rmax(2) + margin);
     nbr_grididxes(out_of_bounds) = dummy_idx;
 
 

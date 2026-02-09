@@ -66,7 +66,7 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         source_loc = [];
         source_idx = [];
 
-        for j = 1:size(nbr_binids, 2)
+        for j = 1:length(nbr_binids)
             % This iter of the loop does interaction between target bin i and 
             % source bin j
             source_bin_idx = nbr_binids(j);
@@ -125,8 +125,8 @@ function [A_add, A_sub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, 
         if norm(AKA_chunk - AKA(idx_ti_start:idx_ti_end,source_idx)) > 1e-6;
             keyboard
 
-            norm( A_spread_s(:, source_idx))
-            norm( A_spread_s(nbr_grididxes, source_idx))
+            norm( A_spread_s(:, source_idx), "fro")
+            norm( A_spread_s(nbr_grididxes, source_idx), "fro")
         end
         disp("get_addsub: AKA_chunk: ")
         disp(AKA_chunk);

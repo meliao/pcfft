@@ -140,7 +140,7 @@ valid_temp_pts = temp_at_4(:, ~oob_idxes);
 
 % Plot the valid template points in green
 scatter(valid_temp_pts(1,:), valid_temp_pts(2,:), 20, 'g', 'filled');
-close all;
+% close all;
 
 for i = 1:size(valid_temp_pts, 2)
     pt = valid_temp_pts(:, i);
@@ -157,15 +157,98 @@ valid_nbr_idxes = nbr_grididxes(~oob_idxes);
 % Plot text lables for the valid nbr idxes
 text(valid_temp_pts(1,:), valid_temp_pts(2,:), string(valid_nbr_idxes), 'Color', 'k');
 
+% Plot the spreading box for bin idx 0
+[boxpts, boxctr, boxidxes] = grid_pts_for_box_2d(0, grid_info);
+disp("test_neighbor_template_2d: boxidxes: ");
+disp(boxidxes);
+boxpts2 = grid_info.r(:, boxidxes);
+% Check equality between boxpts and boxpts2
+diffs = boxpts - boxpts2;
+dists = sqrt(sum(diffs.^2, 1));
+assert(max(dists) < 1e-12);
+scatter(boxpts2(1,:), boxpts2(2,:), 20, 'm', 'filled');
+
+
 for i = 1:size(valid_temp_pts, 2)
     pt = valid_temp_pts(:, i);
     idx = valid_nbr_idxes(i);
-    disp("test_neighbor_template_2d: Checking pt " + int2str(i) + " at idx " + int2str(idx));
-    disp("pt: ");
-    disp(pt);
-    disp("grid pt: ");
+    % disp("test_neighbor_template_2d: Checking pt " + int2str(i) + " at idx " + int2str(idx));
+    % disp("pt: ");
+    % disp(pt);
+    % disp("grid pt: ");
     grid_pt = grid_info.r(:, idx);
-    disp(grid_pt);
+    % disp(grid_pt);
     dist = norm(pt - grid_pt);
     assert(dist < 1e-12);
 end
+
+
+% close all;
+%% test_0c
+
+% Check that for a given A_spread_s matrix, indexing it with the 
+% nbr_grididxes gets all of the relevant entries for a given bin_idx.
+rad = 2.0;
+
+% Set up two source points
+rng(4);
+n_src = 2;
+source_pts = [-0.0531 0.00223
+                -0.00497 0.4143];
+
+% target points are close but not exactly = source points
+target_pts = [-0.0491 0.00234 0.1
+                -0.00678 0.4102 0.1];
+disp(size(target_pts));
+
+
+src_weights = zeros(n_src,1);
+src_weights(1) = 1.0;
+src_weights = src_weights(:);
+
+% Define the kernel
+k = @(s,t) log_kernel(s,t);
+
+K_src_to_target = log_kernel(struct('r',source_pts), struct('r',target_pts));
+
+target_vals = K_src_to_target * src_weights;
+n_nbr = 3; % 10000 points / 500 is approximately 20 boxes
+
+src_info = struct;
+src_info.r = source_pts;
+targ_info = struct;
+targ_info.r = target_pts;
+tol = 1e-08;
+
+[grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
+
+[A_spread_s, K_src_to_reg, sort_info_s] = get_spread(k, k, src_info, ...
+    grid_info, proxy_info);
+
+[A_spread_t, K_targ_to_reg, sort_info_t] = get_spread(k, k, targ_info, ...
+    grid_info, proxy_info);
+
+n_bins = grid_info.nbin(1) * grid_info.nbin(2);
+
+for bin_idx = 0:(n_bins - 1)
+    [nbr_binids, nbr_gridpts, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+    disp("test_neighbor_template_2d: Checking bin idx " + int2str(bin_idx));
+    disp("nbr_grididxes: ");
+    disp(nbr_grididxes);
+
+    % Filter out the nbr_gridpts which correspond to invalid nbr_grididxes
+    oob_idxes = nbr_grididxes > grid_info.ngrid(1) * grid_info.ngrid(2);
+    valid_nbr_grididxes = nbr_grididxes(~oob_idxes);
+    valid_nbr_gridpts = nbr_gridpts(:, ~oob_idxes);
+    
+    % Make a new figure with the grid points and the template points for this bin idx
+    figure;
+    scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
+    hold on;
+    scatter(valid_nbr_gridpts(1,:), valid_nbr_gridpts(2,:), 20, 'rx');
+    title("Bin idx " + int2str(bin_idx));
+    xlabel("x");
+    ylabel("y");
+end
+
+close all;

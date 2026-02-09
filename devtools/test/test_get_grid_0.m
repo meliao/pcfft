@@ -29,6 +29,12 @@ assert(proxy_info.dim == dim);
 assert(ndims(grid_info.r) == 2);
 assert(size(grid_info.r, 1) == 2);
 
+% Check that the grid bounds are computed correctly.
+assert(all(grid_info.r(1,:) >= grid_info.rmin(1)));
+assert(all(grid_info.r(1,:) <= grid_info.rmax(1)));
+assert(all(grid_info.r(2,:) >= grid_info.rmin(2)));
+assert(all(grid_info.r(2,:) <= grid_info.rmax(2)));
+
 figure(1);
 scatter(src_info_2d.r(1,:), src_info_2d.r(2,:));
 hold on
@@ -67,3 +73,5 @@ hold off
 
 assert(ndims(grid_info.r) == 2);
 assert(size(grid_info.r, 1) == 3);
+
+
