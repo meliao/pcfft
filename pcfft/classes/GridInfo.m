@@ -22,6 +22,7 @@ classdef GridInfo
     %       offset   - (integer) offset used for indexing the padded grid
     %       rmax     - (dim, 1) maximum coordinate value of the padded grid
     %       rmin     - (dim, 1) minimum coordinate value of the padded grid
+    %       n_nbr     - TODO
 
     properties
         ngrid
@@ -36,9 +37,10 @@ classdef GridInfo
         offset
         rmax
         rmin
+        n_nbr
     end
     methods
-        function obj = GridInfo(Lbd, dx, nspread, nbinpts, dim)
+        function obj = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr)
 
 
     
@@ -87,6 +89,7 @@ classdef GridInfo
             obj.offset = offset;
             obj.rmax = rmax;
             obj.rmin = rmin;
+            obj.n_nbr = n_nbr;
         end
     end
 end

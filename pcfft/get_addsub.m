@@ -5,9 +5,6 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
     N_src = size(src_info.r, 2);
     N_targ = size(targ_info.r, 2);
 
-    max_bin_idx = grid_info.nbin(1) * grid_info.nbin(2) - 1;
-    n_dummy = grid_info.nbinpts^2;
-    n_gridpts = grid_info.ngrid(1) * grid_info.ngrid(2);
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -22,21 +19,28 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
 
     % Rows of A_addsub are ordered according to sorted target points.
     % Cols of A_addsub are ordered according to sorted source points.
-    A_addsub = sparse(N_targ, N_src);
+    % A_addsub = sparse(N_targ, N_src);
 
     % Sort the cols of A_spread_s and A_spread_t to match the sorted source points
     A_spread_s = A_spread_s(:, sort_info_s.ptid_srt);
     A_spread_t = A_spread_t(:, sort_info_t.ptid_srt);
 
-    K_grid2grid = kern_0(grid_info, grid_info);
-    K_grid2grid(1:1+size(K_grid2grid,1):end) = 0;
-    AKA = A_spread_t.' * K_grid2grid * A_spread_s;
 
+    % Add 1 row of zeros to A_spread_s to handle empty bins
+    A_spread_s = [A_spread_s; sparse(1, N_src)];
+    % dummy_idx = n_gridpts + 1;
 
-    % Add n_dummy rows of zeros to A_spread_s to handle empty bins
-    A_spread_s = [A_spread_s; sparse(n_dummy, N_src)];
-    % dummy_idxes = n_gridpts + 1: n_gridpts + n_dummy;
+    % TODO: correct formula for number of corrections
+    ncor = grid_info.n_nbr*ceil(mean([N_targ,N_src]));
 
+    % These are the arrays we will use to build the sparse A_addsub
+    % in COO format.
+    % Rows of A_addsub are ordered according to sorted target points.
+    % Cols of A_addsub are ordered according to sorted source points.
+    iid = zeros(1,ncor);
+    jid = zeros(1,ncor);
+    vals = zeros(1,ncor);
+    id_start = 0;
 
 
     % Loop through all of the bins. 
@@ -47,7 +51,7 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
         % Need the center of bin i to center the source points, and need the 
         % indexes of the regular grid points for spreading bin i, so we can
         % correctly index A_spread_t.
-        [~, ctr_i, reg_idxs_i] = grid_pts_for_box_2d(bin_idx, grid_info);
+        [~, ~, reg_idxs_i] = grid_pts_for_box_2d(bin_idx, grid_info);
 
         % Target points in bin i
         idx_ti_start = sort_info_t.id_start(i);
@@ -93,9 +97,6 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
             continue;
         end
 
-        % disp("get_addsub: bin " + int2str(bin_idx) + " source_loc size: ");
-        % disp(size(source_loc));
-
         % Update A_addsub with exact near-field interactions. This is the "add"
         % part.
         K_src2targ = kern_0(struct('r', source_loc), ...
@@ -107,11 +108,25 @@ function [A_addsub] = get_addsub(kern_0, kern_s, kern_t, kern_st, src_info, ...
         A_spread_s_j = A_spread_s(nbr_grididxes, source_idx);
         AKA_chunk = A_spread_t_i.' * K_nbr2bin * A_spread_s_j;
 
-        A_addsub(idx_ti_start:idx_ti_end, source_idx) = ...
-            A_addsub(idx_ti_start:idx_ti_end, source_idx) + K_src2targ - AKA_chunk;
+        Aloc =  K_src2targ - AKA_chunk;
+
+        % A_addsub(idx_ti_start:idx_ti_end, source_idx) = Aloc;
+
+        % Update COO arrays.
+        is = (idx_ti_start:idx_ti_end);
+        js = source_idx;
+        is = repmat(is(:), 1, size(js,2));
+        js = repmat(js(:).', size(is,1), 1);
+        n_sparse = numel(Aloc);
+
+        iid(id_start + (1:n_sparse)) = is(:).';
+        jid(id_start + (1:n_sparse)) = js(:).';
+        vals(id_start + (1:n_sparse)) = Aloc(:).';
+        id_start = id_start + n_sparse;
 
     end
 
+    A_addsub = sparse(iid(1:id_start), jid(1:id_start), vals(1:id_start), N_targ, N_src);
 
     % Reorder the rows to match the original target point ordering
     A_addsub(sort_info_t.ptid_srt, :) = A_addsub;

@@ -43,6 +43,6 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad);
 
 
-    grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim);
+    grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr);
     
 end
