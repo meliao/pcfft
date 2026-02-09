@@ -4,8 +4,8 @@ clear;
 
 % Set up many random source and target points
 rng(4);
-n_src = 200;
-n_targ = 300;
+n_src = 10*200;
+n_targ = 10*300;
 n_nbr = 100;
 kern_0 = @(s,t) log_kernel(s,t);
 src_info = struct;
@@ -33,6 +33,7 @@ nbinpts_vals = zeros(n_tol_vals, 1);
 
 for i = 1:n_tol_vals
     tol = tol_vals(i);
+    disp("Running with tol = " + num2str(tol));
 
     [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
 
@@ -52,10 +53,10 @@ for i = 1:n_tol_vals
     term1 = A_addsub * src_weights;
     term3 = A_spread_t.' * K_grid2grid * A_spread_s * src_weights;
     evals_approx = term1  + term3;
-    disp("tol: " + num2str(tol) + ", evals_approx: ");
-    disp(evals_approx);
-    disp("target_vals: ");
-    disp(target_vals);
+    % disp("tol: " + num2str(tol) + ", evals_approx: ");
+    % disp(evals_approx);
+    % disp("target_vals: ");
+    % disp(target_vals);
 
     errors_at_target = max(abs(evals_approx(:) - target_vals(:))) / max(abs(target_vals(:)));
     disp("tol: " + num2str(tol) + ", errors_at_target: " + num2str(errors_at_target));

@@ -1,7 +1,7 @@
 function center = bin_center(bin_idx, grid_info)
 % Returns the center of the spreading bin at index <bin_idx>
 %
-%   The bin indexing follows the scheme used in grid_pts_for_bin_2d: 
+%   The bin indexing follows the scheme used in grid_pts_for_box_2d: 
 %   bin_idx = id_x * N_y_bins + id_y
 
     if nargin < 2
@@ -15,7 +15,7 @@ function center = bin_center(bin_idx, grid_info)
     nbinpts = grid_info.nbinpts;
     offset = grid_info.offset;
 
-    % Compute integer bin ids (consistent with grid_pts_for_bin_2d)
+    % Compute integer bin ids (consistent with grid_pts_for_box_2d)
     id_y = mod(bin_idx, N_y_bins);
     id_x = floor((bin_idx - id_y) / N_y_bins);
 

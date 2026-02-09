@@ -122,7 +122,7 @@ for i = 1:n_tol_vals
     % away from the target_pts.
     n_bins_total = grid_info.nbin(1) * grid_info.nbin(2) ;
     for j = 0:n_bins_total -1
-        [pts, center, row_idxes] = grid_pts_for_bin_2d(j, grid_info);
+        [pts, center, row_idxes] = grid_pts_for_box_2d(j, grid_info);
         xdists = center(1) - target_pts(1);
         ydists = center(2) - target_pts(2);
         dists = sqrt(xdists.^2 + ydists.^2);

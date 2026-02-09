@@ -36,7 +36,7 @@ addpath(genpath('../../pcfft'));
 % colorbar;
 
 % for bin_id = sorted_bin_ids
-%     [pts_i, center, row_idxes] = grid_pts_for_bin_2d(bin_id, grid_info, 1);
+%     [pts_i, center, row_idxes] = grid_pts_for_box_2d(bin_id, grid_info, 1);
 %     scatter(pts_i(1, :), pts_i(2, :), 'ro');
 % end
 
@@ -79,7 +79,7 @@ disp("test: id_start")
 disp(id_start)
 
 for bin_id = sorted_bin_ids
-    [pts_i, center, row_idxes] = grid_pts_for_bin_2d(bin_id, grid_info);
+    [pts_i, center, row_idxes] = grid_pts_for_box_2d(bin_id, grid_info);
     % pts_sliced should exactly match pts
     pts_sliced = grid_info.r(:, row_idxes);
     disp("test: pts_sliced");

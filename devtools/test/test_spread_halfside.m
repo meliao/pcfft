@@ -36,3 +36,5 @@ r = sort(r(:));
 
 % check that n_nbr is about right
 [sum(r < crad*2*half_side) / nsrc, n_nbr]
+
+close all;

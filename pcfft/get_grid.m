@@ -25,12 +25,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %               1000.
     %
     % Returns grid_info: GridInfo object
-    %         proxy_info: struct the proxy points with fields
-    %               .n_points_total : integer, the total number of proxy points
-    %               .dim : dimension of the problem
-    %               .radius : float specifying the distance of proxy
-    %                   surface from the center of the spreading box.
-    %               .r : (dim, n_points_total) array containing the proxy points
+    %         proxy_info: ProxyInfo object
 
     dim = size(src_info.r(:,:), 1);
     % nsrc = size(src_info.r, 2);
@@ -48,6 +43,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad);
 
 
+    grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr);
     
     bin_sidelen = dx * nbinpts;
 
