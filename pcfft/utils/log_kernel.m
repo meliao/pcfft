@@ -1,4 +1,4 @@
-function k_evals = log_kernel(src_pts, target_pts)
+function [k_evals,grad] = log_kernel(src_pts, target_pts)
 % src_pts has shape (2, M)
 % target_pts has shape (2, N)
 % Computes log{|| src - target||}
@@ -13,4 +13,11 @@ dist = sqrt(rx.^2 + ry.^2);
 k_evals = log(dist);
 
 k_evals(dist < 1e-14) = 0;
+
+if nargout > 1
+    grad = zeros(size(rx,1),size(rx,2),2);
+    grad(:,:,1) = -rx ./ dist.^2;
+    grad(:,:,2) = -ry ./ dist.^2;
+    grad(dist < 1e-14,:) = 0;
+end
 end
