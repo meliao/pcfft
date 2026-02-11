@@ -61,9 +61,19 @@ u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
 
 
 
+## Compiling docs
 
+First set up a python virtual environment and install the following packages:
+```
+pip install sphinx sphinxcontrib-matlabdomain
+```
 
-
+Then to compile, do
+```
+cd docs
+make html
+open _build/html/index.html # Approximate location
+```
 
 
 
