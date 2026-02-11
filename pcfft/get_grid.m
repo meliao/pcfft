@@ -11,21 +11,27 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     % Returns information about the regular grid and the proxy points.
     %
     %
-    % Inputs kernel : Function mapping (source_pts, target_pts) to a matrix of
+    % Inputs 
+    %   kernel - Function mapping (source_pts, target_pts) to a matrix of
     %               size (n_target, n_src).
-    %           src_info : struct giving information about the sources
+    %   src_info - struct giving information about the sources
     %               .r : shape (dim, n_src) specifying the location of the
     %                   sources.
-    %           targ_info : struct describing the target points.
+    %   targ_info - struct describing the target points.
     %               .r : shape (dim, n_targ) specifying the taget locations.
-    %           tol : float specifying absolute error tolerance. Error is 
+    %   tol - float specifying absolute error tolerance. Error is 
     %               evaluated at a surface 1.1 * radius of the proxy surface
-    %           n_nbr : (optional) int specifying the average number of
+    %   n_nbr : (optional) int specifying the average number of
     %               interactions that must be done directly. Defaults to
     %               1000.
+    % 
+    % Outputs 
+    %   grid_info - GridInfo object
+    %   proxy_info - ProxyInfo object
     %
-    % Returns grid_info: GridInfo object
-    %         proxy_info: ProxyInfo object
+    %
+    %
+
 
     dim = size(src_info.r(:,:), 1);
     % nsrc = size(src_info.r, 2);

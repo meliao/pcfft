@@ -1,5 +1,5 @@
 classdef GridInfo
-    %GRIDINFO Describes the regular grid used for spreading.
+    % GRIDINFO Describes the regular grid used for spreading.
     %
     %   GRIDINFO stores information about the regular grid used by the
     %   spreading routines. The grid is divided into non-overlapping spreading

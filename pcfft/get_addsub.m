@@ -1,6 +1,30 @@
 function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
     A_spread_s, A_spread_t)
+    % GET_ADDSUB computes the correction for near-field interactions.
+    %
+    %
+    %
+    % Inputs:
+    %   kern_0 - TODO
+    %   kern_st - TODO
+    %   src_info - struct with info about source points.
+    %   targ_info - struct with info about target points.
+    %   grid_info - GridInfo object describing the regular grid.
+    %   proxy_info - ProxyInfo object describing the proxy points.
+    %   sort_info_s - struct with info about how source points are sorted into bins.
+    %   sort_info_t - struct with info about how target points are sorted into bins.
+    %   A_spread_s - TODO
+    %   A_spread_t - TODO
+    %
+    % Outputs:
+    %   A_addsub - sparse matrix of size (n_targ, n_src) such that
+    %               A_addsub + A_approx is the exact near-field interaction matrix
+    %               between source and target points. Here A_approx is the
+    %               matrix of approximated near-field interactions computed using
+    %               the spreading and interpolation matrices.
+    %
+    %
 
     der_fields_s = fieldnames(sort_info_s.data_srt)';
     der_fields_t = fieldnames(sort_info_t.data_srt)';
