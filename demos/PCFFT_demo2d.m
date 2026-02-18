@@ -39,7 +39,7 @@ t1 = tic;
 [A_addsub] = get_addsub(kern_0, kern_st, srcs, targs, ...
     grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 % get DFT of kernel
-kern_0hat = get_kernhat(kern_0,grid_info.ngrid, grid_info.Lbd, grid_info.dx, grid_info.offset);
+kern_0hat = get_kernhat(kern_0,grid_info);
 
 tprecom = toc(t1)
 

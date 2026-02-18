@@ -1,5 +1,10 @@
-function kern_hat = get_kernhat(kern_0, ngrid, Lbd, dx, offset)
-% evaluate Fourier transform of free-space kernel on rgrid
+function kern_hat = get_kernhat(kern_0, grid_info)
+% evaluate Fourier transform of free-space kernel on the grid in grid_info
+
+ ngrid = grid_info.ngrid;
+ Lbd = grid_info.Lbd;
+ dx = grid_info.dx;
+ offset = grid_info.offset;
 
 rgrid0 = Lbd(:,1) + dx*ngrid(:) - offset;
 

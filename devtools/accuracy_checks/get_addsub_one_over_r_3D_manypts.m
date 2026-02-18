@@ -53,7 +53,7 @@ for i = 1:n_tol_vals
     % K_grid2grid = one_over_r_kernel(grid_info, grid_info);
     % term3 = A_spread_t.' * K_grid2grid * A_spread_s * src_weights;
 
-    kern_0hat = get_kernhat(kern_0,grid_info.ngrid, grid_info.Lbd, grid_info.dx, grid_info.offset);
+    kern_0hat = get_kernhat(kern_0,grid_info);
     str_grid = A_spread_s*src_weights;
     str_hat = fftn(reshape(str_grid,size(kern_0hat)/2),size(kern_0hat));
     u_hat = kern_0hat .* str_hat;

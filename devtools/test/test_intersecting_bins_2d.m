@@ -58,7 +58,7 @@ nbinpts = 3;
 nbin = [3 3];
 
 % Generate the GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx 
-grid_info = GridInfo(Lbd, dx, 2*nbinpts + 1, nbinpts, dim);
+grid_info = GridInfo(Lbd, dx, 2*nbinpts + 1, nbinpts, dim, 0);
 disp("test_intersecting_bins_2d: grid_info:");
 disp(grid_info);
 

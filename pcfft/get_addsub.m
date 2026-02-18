@@ -26,6 +26,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
     bin_info = struct('r', pts0);
     K_nbr2bin = kern_0(nbr_info, bin_info);
+    r = 0;
+    for i = 1:dim
+        r = r + (reg_neighbor_template_pts(i,:) - pts0(i,:).').^2;
+    end
+    K_nbr2bin(r<1e-14) = 0;
 
     % Rows of A_addsub are ordered according to sorted target points.
     % Cols of A_addsub are ordered according to sorted source points.
@@ -131,6 +136,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         % part.
         K_src_to_targ = kern_st(src_pts_in_j, ...
                             targ_info_in_i);
+        r = 0;
+        for k = 1:dim
+            r = r + (src_pts_in_j.r(k,:) - targ_info_in_i.r(k,:).').^2;
+        end
+        K_src_to_targ(r<1e-14) = 0;
 
         % Update A_sub with approximated near-field interactions. This is the 
         % "sub" part.
