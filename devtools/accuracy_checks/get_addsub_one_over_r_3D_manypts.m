@@ -47,20 +47,8 @@ for i = 1:n_tol_vals
     [A_addsub] = get_addsub(kern_0, kern_0, src_info, targ_info, ...
     grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 
-    term1 = A_addsub * src_weights;
-
-    
-    % K_grid2grid = one_over_r_kernel(grid_info, grid_info);
-    % term3 = A_spread_t.' * K_grid2grid * A_spread_s * src_weights;
-
     kern_0hat = get_kernhat(kern_0,grid_info);
-    str_grid = A_spread_s*src_weights;
-    str_hat = fftn(reshape(str_grid,size(kern_0hat)/2),size(kern_0hat));
-    u_hat = kern_0hat .* str_hat;
-    ugrid = ifftn(u_hat);
-    ugrid = ugrid(1:size(kern_0hat,3)/2,1:size(kern_0hat,2)/2,1:size(kern_0hat,1)/2);
-    term3 = A_spread_t.'*ugrid(:);
-    evals_approx = term1  + term3;
+    evals_approx = pcfft_apply(src_weights,A_spread_s,A_spread_t,A_addsub,kern_0hat);
     % disp("tol: " + num2str(tol) + ", evals_approx: ");
     % disp(evals_approx);
     % disp("target_vals: ");

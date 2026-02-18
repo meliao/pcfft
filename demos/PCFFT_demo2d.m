@@ -53,13 +53,9 @@ tdens_app = toc
 
 %% Apply
 
+
 tic;
-str_grid = A_spread_s*str;
-str_hat = fftn(reshape(str_grid,size(kern_0hat)/2),size(kern_0hat));
-u_hat = kern_0hat .* str_hat;
-ugrid = ifftn(u_hat);
-ugrid = ugrid(1:size(kern_0hat,2)/2,1:size(kern_0hat,1)/2);
-u = A_spread_t.'*ugrid(:) + A_addsub*str;
+u = pcfft_apply(str,A_spread_s,A_spread_t,A_addsub,kern_0hat);
 tapply = toc
 err = norm(u - utrue) / norm(utrue)
 
