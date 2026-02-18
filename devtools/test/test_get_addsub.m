@@ -45,7 +45,7 @@ grid_info, proxy_info);
 
 
 
-[A_addsub] = get_addsub(kern_0, kern, kern, kern, src_info_2d, targ_info_2d, ...
+[A_addsub] = get_addsub(kern_0, kern, src_info_2d, targ_info_2d, ...
     grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 
 % Check that A_adsub has the correct size.

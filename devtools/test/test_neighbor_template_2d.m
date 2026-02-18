@@ -70,7 +70,7 @@ nbin = [3 3];
 nspread = 2 * nbinpts ;
 
 % Create a GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx, ngrid
-grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim);
+grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, -1);
 % grid_info = struct;
 % grid_info.nbin = nbin;
 % grid_info.dx = dx;
@@ -85,7 +85,7 @@ grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim);
 proxy_info = struct;
 proxy_info.radius = 0.5;
 
-[sort_info] = SortInfo(r, dx, Lbd, nbin, nbinpts);
+[sort_info] = SortInfo(struct('r', r), dx, Lbd, nbin, nbinpts);
 r_srt = sort_info.r_srt;
 binid_srt = sort_info.binid_srt;
 ptid_srt = sort_info.ptid_srt;

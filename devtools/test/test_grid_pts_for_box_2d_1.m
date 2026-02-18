@@ -23,7 +23,7 @@ targ_info_2d.r = (rand(2, ntarg) - 0.5).^3;
 disp("test: finished get_grid")
 disp(grid_info.ngrid)
 
-sort_info = SortInfo(src_info_2d.r, grid_info.dx, ...
+sort_info = SortInfo(src_info_2d, grid_info.dx, ...
     grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
 r_sorted = sort_info.r_srt;
 sorted_bin_ids = sort_info.binid_srt;

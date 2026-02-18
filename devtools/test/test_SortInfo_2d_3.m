@@ -24,7 +24,7 @@ r = [-0.9, 0.0, 0.8;
 assert(size(r,1) == 2);
 assert(size(r,2) == 3);
 
-sort_info = SortInfo(r, dx, Lbd, nbin, nbinpts);
+sort_info = SortInfo(struct('r', r), dx, Lbd, nbin, nbinpts);
 r_sorted = sort_info.r_srt;
 bin_idxes = sort_info.binid_srt;
 id_start = sort_info.id_start;
@@ -64,7 +64,7 @@ r2 = [-0.9, 0.8;
 assert(size(r2,1) == 2);
 assert(size(r2,2) == 2);
 
-sort_info2 = SortInfo(r2, dx, Lbd, nbin, nbinpts);
+sort_info2 = SortInfo(struct('r', r2), dx, Lbd, nbin, nbinpts);
 r_sorted2 = sort_info2.r_srt;
 bin_idxes2 = sort_info2.binid_srt;
 id_start2 = sort_info2.id_start;
@@ -102,7 +102,7 @@ r3 = [-0.9, -0.9, 0.0;
 assert(size(r3,1) == 2);
 assert(size(r3,2) == 3);
 
-sort_info3 = SortInfo(r3, dx, Lbd, nbin, nbinpts);
+sort_info3 = SortInfo(struct('r', r3), dx, Lbd, nbin, nbinpts);
 r_sorted3 = sort_info3.r_srt;
 bin_idxes3 = sort_info3.binid_srt;
 id_start3 = sort_info3.id_start;

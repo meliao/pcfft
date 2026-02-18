@@ -43,7 +43,7 @@ classdef SortInfo
     methods
         function obj = SortInfo(src_info, dx, Lbd, nbin, nbinpts,der_fields)
 
-            if isempty(der_fields), der_fields = {'r'}; end
+            if nargin < 6 || isempty(der_fields), der_fields = {'r'}; end
             r = src_info.r;
 
             % If size(r,1) != 2, error
