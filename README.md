@@ -1,11 +1,13 @@
 # pcfft
 This repository provides routines for quickly computing N-Body calculations in 2D and 3D and is designed to work with generic translation invariant kernels
 
-$$u_i = \sum_{j\neq i} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
+$$u_i = \sum_{j\neq i} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j.$$
 
 The routines can also be used to compute sums involving source and target derivatives, such as
 
-$$w_i = \sum_{j\neq i} \partial_{\mathbf{n}_i}\partial_{\mathbf{n}_j} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
+$$w_i = \sum_{j\neq i} \partial_{\mathbf{n}_i}\partial_{\mathbf{n}_j} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j.$$
+
+**NOTE:** The routines always skip terms with $x_i=y_j$.
 
 ### User-callable precomputation routines
 [grid_info, pxy_info] = get_grid(kern_0, srcinfo, targinfo, eps, fill)
@@ -51,6 +53,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 * Vector valued demo
 * Gradient demo
 * Flexural/4th order
+
 
 
 
