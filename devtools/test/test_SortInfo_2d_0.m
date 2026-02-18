@@ -18,7 +18,6 @@ ngrid = [9 5];
 nbin = [3 2];
 N_bins = nbin(1) * nbin(2) + 1; % Total number of bins in this case.
 nbinpts = 3;
-
 sort_info = SortInfo(struct('r', r), dx, Lbd, nbin, nbinpts);
 r_srt = sort_info.r_srt;
 binid_srt = sort_info.binid_srt;

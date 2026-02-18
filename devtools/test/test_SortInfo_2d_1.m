@@ -15,7 +15,7 @@ ngrid = [9 9];
 % x bins and y bins [-1, -0.25], [-0.25, 0.5], [0.5, 1.]
 nbinpts = 3;
 nbin = [3 3];
-[sort_info] = SortInfo(r, dx, Lbd, nbin, nbinpts);
+[sort_info] = SortInfo(struct('r', r), dx, Lbd, nbin, nbinpts);
 r_srt = sort_info.r_srt;
 binid_srt = sort_info.binid_srt;
 ptid_srt = sort_info.ptid_srt;
