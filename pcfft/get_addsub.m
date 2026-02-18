@@ -95,7 +95,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         
         % source_loc = [];
         % source_idx = [];
-        source_idx = zeros(1,length(nbr_binids)*grid_info.n_nbr);
+        source_idx = zeros(1,grid_info.n_nbr);
         istart = 1;
 
         for j = 1:length(nbr_binids)
