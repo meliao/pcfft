@@ -33,6 +33,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 
 ### wishlist:
 * vector valued kernels
+* Profiling, particularly on an old computer
 
 
 ### proposed parameter plan:
@@ -50,6 +51,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 * Vector valued demo
 * Gradient demo
 * Flexural/4th order
+
 
 
 
