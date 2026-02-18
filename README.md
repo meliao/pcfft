@@ -38,8 +38,7 @@ See the `demos/` directory.
 
 ### wishlist:
 * vector valued kernels
-* kernels with source and target information
-* concentric proxy surfaces
+
 
 ### proposed parameter plan:
 
@@ -50,6 +49,12 @@ See the `demos/` directory.
 * Sweep up proxy points to bring the error back down to tolerance
 
 
+### Desired demos
+* Chunkie demo
+* FMM3DBIE demo
+* Vector valued demo
+* Gradient demo
+* Flexural/4th order
 
 
 
