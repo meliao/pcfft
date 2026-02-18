@@ -22,6 +22,8 @@ This routine returns the matrix that fixes the interactions that are done incorr
 kern_hat = get_kernhat(kern_0, grid_info)
 evaluate FFT of kern_0 on grid
 
+u = pcfft_apply(sigma,A_spread_s,A_spread_t,A_addsub,kern_0hat)
+Compute the N-body sum using a precorrected FFT
 
 ### Sample use
 
@@ -53,6 +55,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 * Vector valued demo
 * Gradient demo
 * Flexural/4th order
+
 
 
 
