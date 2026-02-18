@@ -87,8 +87,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         % Loop through all of the neighbor bins and fill in the local source points. 
         % After this loop, we will update A_add and A_sub with the neigbors of bin i.
         % TODO: preallocate this array. We can infer the length from sort_info_s.
-        source_loc = [];
-        source_idx = [];
+        
+        % source_loc = [];
+        % source_idx = [];
+        source_idx = zeros(1,length(nbr_binids)*grid_info.n_nbr);
+        istart = 1;
 
         for j = 1:length(nbr_binids)
             % This iter of the loop does interaction between target bin i and 
@@ -103,12 +106,15 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
             % Source points in bin j
             idx_sj_start = sort_info_s.id_start(source_bin_idx + 1);
             idx_sj_end = sort_info_s.id_start(source_bin_idx + 2) - 1;
+            if idx_sj_end<idx_sj_start, continue,end
+            % loc_src_in_j = sort_info_s.r_srt(:, idx_sj_start:idx_sj_end);
 
-            loc_src_in_j = sort_info_s.r_srt(:, idx_sj_start:idx_sj_end);
-
-            source_loc = [source_loc, loc_src_in_j];
-            source_idx = [source_idx, idx_sj_start:idx_sj_end];
+            % source_loc = [source_loc, loc_src_in_j];
+            % source_idx = [source_idx, idx_sj_start:idx_sj_end];
+            source_idx(istart:istart+(idx_sj_end-idx_sj_start)) = idx_sj_start:idx_sj_end;
+            istart = istart + (idx_sj_end-idx_sj_start+1);
         end
+        source_idx = source_idx(1:istart-1);
 
         % It may be the case that there are no source points in the bins 
         % neighboring target bin i. 

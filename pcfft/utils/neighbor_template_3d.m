@@ -69,6 +69,7 @@ function [nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_3
                     (nbr_gridpts(2, :) < rmin(2) - margin) | (nbr_gridpts(2, :) > rmax(2) + margin) | ...
                     (nbr_gridpts(3, :) < rmin(3) - margin) | (nbr_gridpts(3, :) > rmax(3) + margin);
     nbr_grididxes(out_of_bounds) = dummy_idx;
+    % nbr_grididxes(out_of_bounds) = [];
 
 
 end
