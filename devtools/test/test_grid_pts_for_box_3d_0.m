@@ -3,27 +3,27 @@ addpath(genpath("../../pcfft"));
 % Set up a geometry with ~ 100 bins
 
 tol = 1e-3;
-dim = 2;
+dim = 3;
 
-k = @(s,t) log_kernel(s,t);
+k = @(s,t) one_over_r_kernel(s,t);
 
-src_info_2d = struct;
+src_info_3d = struct;
 n_src = 1000;
 rng(0);
-src_info_2d.r = (rand(2, n_src) - 0.5) .^3;
-src_info_2d.weights = rand(n_src, 1);
+src_info_3d.r = (rand(dim, n_src) - 0.5) .^3;
+src_info_3d.weights = rand(n_src, 1);
 
 
-targ_info_2d = struct;
+targ_info_3d = struct;
 ntarg = 17;
-targ_info_2d.r = (rand(2, ntarg) - 0.5).^3;
+targ_info_3d.r = (rand(dim, ntarg) - 0.5).^3;
 
-[grid_info, proxy_info] = get_grid(@log_kernel, ...
-    src_info_2d, targ_info_2d, tol);
+[grid_info, proxy_info] = get_grid(k, ...
+    src_info_3d, targ_info_3d, tol);
 disp("test: finished get_grid")
 disp(grid_info.ngrid)
 
-sort_info = SortInfo(src_info_2d, grid_info.dx, ...
+sort_info = SortInfo(src_info_3d, grid_info.dx, ...
     grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
 r_sorted = sort_info.r_srt;
 sorted_bin_ids = sort_info.binid_srt;
@@ -40,7 +40,8 @@ disp(grid_info.Lbd);
 
 N_x_bins = grid_info.nbin(1);
 N_y_bins = grid_info.nbin(2);
-N_bins = N_x_bins * N_y_bins;
+N_z_bins = grid_info.nbin(3);
+N_bins = N_x_bins * N_y_bins * N_z_bins;
 
 disp("grid_info.ngrid")
 disp(grid_info.ngrid)
@@ -52,7 +53,7 @@ disp(grid_info.ngrid)
 for bin_id = 0:N_bins-1
     disp("test: On bin_id = " + int2str(bin_id))
 
-    [pts, center, row_idxes] = grid_pts_for_box_2d(bin_id, grid_info);
+    [pts, center, row_idxes] = grid_pts_for_box_3d(bin_id, grid_info);
     % disp("test: Row_idxes: ")
     % disp(row_idxes)
 
@@ -67,9 +68,9 @@ for bin_id = 0:N_bins-1
     disp(diffs)
     
     % Scatter pts and pts_sliced
-    scatter(pts(1,:), pts(2,:), 100, 'ko');
-    hold on;
-    scatter(pts_sliced(1,:), pts_sliced(2,:), 200, 'rx');
+    % scatter(pts(1,:), pts(2,:), 100, 'ko');
+    % hold on;
+    % scatter(pts_sliced(1,:), pts_sliced(2,:), 200, 'rx');
 
     assert(all(size(pts_sliced) == size(pts)));
     assert(all(diffs(:) < 1e-15));

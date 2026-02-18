@@ -43,28 +43,47 @@ classdef SortInfo
     methods
         function obj = SortInfo(src_info, dx, Lbd, nbin, nbinpts,der_fields)
 
-            if isempty(der_fields), der_fields = {'r'}; end
+            if nargin < 6 || isempty(der_fields), der_fields = {'r'}; end
             r = src_info.r;
-
-            % If size(r,1) != 2, error
-            if size(r,1) ~= 2
-                error('r must be of shape (2, n_pts). 3D support not yet implemented.');
-            end
 
             nbin = nbin(:);
             N_x_bins = nbin(1);
             N_y_bins = nbin(2);
-            N_bins = N_x_bins * N_y_bins;
+
+            if size(r,1) == 2
+                N_bins = N_x_bins * N_y_bins;
 
 
-            % Find the ID of the bin in the X dim that each 
-            % point occupies.
-            % NOTE THAT id_x and id_y are zero-indexed!!
-            id_x = floor((r(1,:) - Lbd(1)) / (nbinpts * dx));
-            % Same for the Y dim.
-            id_y = floor((r(2,:) - Lbd(2)) / (nbinpts * dx));
+                % Find the ID of the bin in the X dim that each 
+                % point occupies.
+                % NOTE THAT id_x and id_y are zero-indexed!!
+                id_x = floor((r(1,:) - Lbd(1)) / (nbinpts * dx));
+                % Same for the Y dim.
+                id_y = floor((r(2,:) - Lbd(2)) / (nbinpts * dx));
 
-            bin_ids = id_x * N_y_bins + id_y;
+                bin_ids = id_x * N_y_bins + id_y;
+
+
+
+
+            else
+                % 3D code here.
+                N_z_bins = nbin(3);
+                N_bins = N_x_bins * N_y_bins * N_z_bins;
+
+                % Find the ID of the bin in the X, Y, Z dims.
+                % NOTE THAT id_x and id_y are zero-indexed!!
+                id_x = floor((r(1,:) - Lbd(1)) / (nbinpts * dx));
+                % Same for the Y dim.
+                id_y = floor((r(2,:) - Lbd(2)) / (nbinpts * dx));
+                % Same for the Z dim.
+                id_z = floor((r(3,:) - Lbd(3)) / (nbinpts * dx));
+
+                bin_ids = id_x * N_y_bins * N_z_bins + id_y * N_z_bins + id_z;
+            end
+
+
+            % Sort the bins
             [binid_srt, ptid_srt] = sort(bin_ids);
 
             % Sort the points
@@ -89,6 +108,7 @@ classdef SortInfo
             end
             % Fill in the rest of the bins
             id_start(current_bin+2:N_bins+1) = size(r, 2) + 1;
+
 
             obj.r_srt = r_srt;
             obj.binid_srt = binid_srt;

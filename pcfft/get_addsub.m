@@ -8,14 +8,22 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     N_src = size(src_info.r(:,:), 2);
     N_targ = size(targ_info.r(:,:), 2);
 
+    dim = size(src_info.r, 1);
+
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Build a spreading template matrix for adjacent source points.
     % Then build a list of regular gridpoints that are in the intersecting bins
-    [~, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_2d(grid_info, proxy_info);
-    nbr_info = struct('r', reg_neighbor_template_pts);
-    [pts0, ctr_0, ~] = grid_pts_for_box_2d(nbr_bin_idx, grid_info);
+    if dim == 2
+        [~, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_2d(grid_info, proxy_info);
+        [pts0, ctr_0, ~] = grid_pts_for_box_2d(nbr_bin_idx, grid_info);
+    else
+        [~, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_3d(grid_info, proxy_info);
+        [pts0, ctr_0, ~] = grid_pts_for_box_3d(nbr_bin_idx, grid_info);
+    end
     % pts0_centered = pts0 - ctr_0;
+    nbr_info = struct('r', reg_neighbor_template_pts);
+
     bin_info = struct('r', pts0);
     K_nbr2bin = kern_0(nbr_info, bin_info);
 
@@ -53,7 +61,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         % Need the center of bin i to center the source points, and need the 
         % indexes of the regular grid points for spreading bin i, so we can
         % correctly index A_spread_t.
-        [~, ~, reg_idxs_i] = grid_pts_for_box_2d(bin_idx, grid_info);
+        if dim == 2
+            [~, ctr_i, reg_idxs_i] = grid_pts_for_box_2d(bin_idx, grid_info);
+        else
+            [~, ~, reg_idxs_i] = grid_pts_for_box_3d(bin_idx, grid_info);
+        end
 
         % Target points in bin i
         idx_ti_start = sort_info_t.id_start(i);
@@ -66,8 +78,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         end
 
         % Build the spreading template
-        [nbr_binids, ~, nbr_grididxes, ~] = ...
-            neighbor_template_2d(grid_info, proxy_info, bin_idx);
+        if dim == 2
+            [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info);
+        else
+             [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_3d(grid_info, proxy_info);
+        end
 
         % Loop through all of the neighbor bins and fill in the local source points. 
         % After this loop, we will update A_add and A_sub with the neigbors of bin i.

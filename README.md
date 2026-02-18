@@ -27,17 +27,7 @@ evaluate FFT of kern_0 on grid
 
 ### Sample use
 
-
-
-```
-str = A_spread_s * mu; str = full(str);
-
-str_hat = fft2(reshape(str,size(kern_hat));
-u_hat = kern_hat .* str_hat;
-ugrid = ifft2(u_hat);
-    
-u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
-```
+See the `demos/` directory.
 
 
 
