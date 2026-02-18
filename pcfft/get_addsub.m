@@ -79,9 +79,9 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
         % Build the spreading template
         if dim == 2
-            [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info);
+            [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
         else
-             [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_3d(grid_info, proxy_info);
+             [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_3d(grid_info, proxy_info, bin_idx);
         end
 
         % Loop through all of the neighbor bins and fill in the local source points. 

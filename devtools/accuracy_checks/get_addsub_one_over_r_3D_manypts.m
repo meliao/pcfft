@@ -21,7 +21,7 @@ target_vals = K_exact * src_weights;
 
 
 
-tol_vals = [1e-02 1e-03 1e-04 1e-05 1e-06 1e-07 1e-08];
+tol_vals = [1e-02 1e-03 1e-04 1e-05];
 n_tol_vals = size(tol_vals, 2);
 error_vals = zeros(n_tol_vals, 1);
 % dx_vals = zeros(n_tol_vals, 1);

@@ -28,7 +28,7 @@ n_nbr = 500; % 10000 points / 500 is approximately 20 boxes
 
 %% Part 2: Re-do the above but loop over tol values and plot tol vs error
 
-tol_vals = [1e-02 1e-03 1e-04 1e-05 1e-06 1e-07 1e-08];
+tol_vals = [1e-02 1e-03 1e-04 1e-05];
 n_tol_vals = size(tol_vals, 2);
 error_vals = zeros(n_tol_vals, 1);
 dx_vals = zeros(n_tol_vals, 1);
