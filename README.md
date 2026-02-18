@@ -34,7 +34,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 
 
 ### wishlist:
-* vector valued kernels
+* vector valued kernels <- after profiling
 * Profiling, particularly on an old computer
 
 
@@ -53,6 +53,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 * Vector valued demo
 * Gradient demo
 * Flexural/4th order
+
 
 
 
