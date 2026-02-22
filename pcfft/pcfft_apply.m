@@ -21,7 +21,7 @@ ugrid = ifftn(u_hat);
 if length(size(kern_0hat)) == 2
     ugrid = ugrid(1:size(kern_0hat,2)/2,1:size(kern_0hat,1)/2);
 else
-    ugrid = ugrid(1:size(kern_0hat,3)/2,1:size(kern_0hat,2)/2,1:size(kern_0hat,1)/2);
+    ugrid = ugrid(1:size(kern_0hat,1)/2,1:size(kern_0hat,2)/2,1:size(kern_0hat,3)/2);
 end
 u = A_spread_t.'*ugrid(:) + A_addsub*sigma;
 

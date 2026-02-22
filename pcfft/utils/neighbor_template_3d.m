@@ -53,23 +53,16 @@ function [nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_3
     ngridpts = grid_info.ngrid(1) * grid_info.ngrid(2) * grid_info.ngrid(3);
     dummy_idx =  ngridpts + 1;
 
-    nbr_grididxes = ones(1, npts^3);
-    for i = 1:npts
-        for j = 1:npts
-            start_row = (i-1) * npts^2 + (j-1) * npts + 1;
-            end_row = start_row + npts - 1;
-            nbr_grididxes(start_row:end_row) = (x_positions(i)-1) * ngrid(2) * ngrid(3) + (y_positions(j)-1) * ngrid(3) + z_positions ;
-        end
-    end
+    nbr_grididxes = (z_positions(:)) + (y_positions(:)-1).'*ngrid(3) + reshape(x_positions-1,1,1,[]) * ngrid(2) * ngrid(3);
 
     % Mark the row_idxes corresponding to out-of-bounds grid points with a dummy
     % Might need a tiny bit of margin here
     margin = 0.1 * dx;
-    out_of_bounds = (nbr_gridpts(1, :) < rmin(1) - margin) | (nbr_gridpts(1, :) > rmax(1) + margin) | ...
-                    (nbr_gridpts(2, :) < rmin(2) - margin) | (nbr_gridpts(2, :) > rmax(2) + margin) | ...
-                    (nbr_gridpts(3, :) < rmin(3) - margin) | (nbr_gridpts(3, :) > rmax(3) + margin);
-    nbr_grididxes(out_of_bounds) = dummy_idx;
-    % nbr_grididxes(out_of_bounds) = [];
 
+    nbr_grididxes(nbr_zpts<rmin(3) - margin | nbr_zpts > rmax(3) + margin,:,:) = dummy_idx;
+    nbr_grididxes(:,nbr_ypts<rmin(2) - margin | nbr_ypts > rmax(2) + margin,:) = dummy_idx;
+    nbr_grididxes(:,:,nbr_xpts<rmin(1) - margin | nbr_xpts > rmax(1) + margin) = dummy_idx;
+
+    nbr_grididxes = nbr_grididxes(:).';
 
 end

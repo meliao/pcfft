@@ -13,7 +13,7 @@ src_info = struct;
 src_info.r = (rand(2, n_src) - 0.5);
 
 targ_info = struct;
-targ_info.r = (rand(2, n_targ) - 0.5);
+targ_info.r = [1;2].*(rand(2, n_targ) - 0.5);
 
 src_weights = rand(n_src, 1);
 K_exact = kern_0(src_info, targ_info);

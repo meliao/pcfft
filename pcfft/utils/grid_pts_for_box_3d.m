@@ -57,12 +57,6 @@ function [pts, center, row_idxes] = grid_pts_for_box_3d(bin_idx, grid_info)
 
     % The padded grid has size ngrid(i)
     % in each dimension i. It loops through the z axis first, then y, then x.
-    row_idxes = ones(1, nspread^3);
-    for i = 1:nspread
-        for j = 1:nspread
-            start_row = (i-1) * nspread^2 + (j-1) * nspread + 1;
-            end_row = start_row + nspread - 1;
-            row_idxes(start_row:end_row) = (x_positions(i)-1) * ngrid(2) * ngrid(3) + (y_positions(j)-1) * ngrid(3) + z_positions ;
-        end
-    end
+    row_idxes = (z_positions(:)) + (y_positions(:)-1).'*ngrid(3) + reshape(x_positions-1,1,1,[]) * ngrid(2) * ngrid(3);
+    row_idxes = row_idxes(:).';
 end
