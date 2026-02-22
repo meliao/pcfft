@@ -32,6 +32,7 @@ function [id_xs, id_ys, id_zs, binids] = intersecting_bins_3d(bin_idx, grid_info
 
     % Compute the binids
     binids = id_zs(:) + id_ys(:).'*N_z_bins + reshape(id_xs,1,1,[]) * N_y_bins * N_z_bins;
+
     binids(:,:,id_xs<0 | id_xs >= grid_info.nbin(1)) = [];
     binids(:,id_ys<0 | id_ys >= grid_info.nbin(2),:) = [];
     binids(id_zs<0 | id_zs >= grid_info.nbin(3),:,:) = [];

@@ -69,7 +69,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         if dim == 2
             [~, ctr_i, reg_idxs_i] = grid_pts_for_box_2d(bin_idx, grid_info);
         else
-            [~, ~, reg_idxs_i] = grid_pts_for_box_3d(bin_idx, grid_info);
+            [reg_idxs_i] = grid_ids_for_box_3d(bin_idx, grid_info);
         end
 
         % Target points in bin i
@@ -85,37 +85,33 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         % Build the spreading template
         if dim == 2
             [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+            nbr_binids(nbr_binids==-1) =[];
         else
-             [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_3d(grid_info, proxy_info, bin_idx);
+             [nbr_binids, nbr_grididxes] = neighbor_bins_3d(grid_info, proxy_info, bin_idx);
         end
 
         % Loop through all of the neighbor bins and fill in the local source points. 
         % After this loop, we will update A_add and A_sub with the neigbors of bin i.
-        % TODO: preallocate this array. We can infer the length from sort_info_s.
-        
-        % source_loc = [];
-        % source_idx = [];
+
+        % get index of first and last source in each neighboring bin
+        idx_sj_starts = sort_info_s.id_start(nbr_binids + 1);
+        idx_sj_ends = sort_info_s.id_start(nbr_binids + 2) - 1;
+
+        % remove empty neighbors
+        ifilled = idx_sj_ends>=idx_sj_starts;
+        idx_sj_starts = idx_sj_starts(ifilled);
+        idx_sj_ends = idx_sj_ends(ifilled);
+
+        % get list of all neighbors
         source_idx = zeros(1,grid_info.n_nbr);
         istart = 1;
-
-        for j = 1:length(nbr_binids)
+        for j = 1:length(idx_sj_starts)
             % This iter of the loop does interaction between target bin i and 
-            % source bin j
-            source_bin_idx = nbr_binids(j);
+            % the jth neighboring source bin
+            idx_sj_start = idx_sj_starts(j);
+            idx_sj_end = idx_sj_ends(j);
 
-            % If the source bin idx is invalid, skip it.
-            if source_bin_idx == -1
-                continue;
-            end
-
-            % Source points in bin j
-            idx_sj_start = sort_info_s.id_start(source_bin_idx + 1);
-            idx_sj_end = sort_info_s.id_start(source_bin_idx + 2) - 1;
-            if idx_sj_end<idx_sj_start, continue,end
-            % loc_src_in_j = sort_info_s.r_srt(:, idx_sj_start:idx_sj_end);
-
-            % source_loc = [source_loc, loc_src_in_j];
-            % source_idx = [source_idx, idx_sj_start:idx_sj_end];
+            % store indices
             source_idx(istart:istart+(idx_sj_end-idx_sj_start)) = idx_sj_start:idx_sj_end;
             istart = istart + (idx_sj_end-idx_sj_start+1);
         end
