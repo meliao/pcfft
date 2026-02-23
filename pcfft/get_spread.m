@@ -1,4 +1,4 @@
-function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
+function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
                                             src_info, grid_info, proxy_info, der_fields)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
@@ -15,9 +15,6 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
     % Outputs:
     %   A_spread: sparse matrix of shape (ngrid^dim, nsrc) mapping source
     %             strengths to grid strengths
-    %   K_src_to_reg: matrix of shape (nreg, nsrc). Entry (i, j) is the kernel
-    %                 evaluation kern_0(z_i - x_j) where z_i is a regular grid 
-    %                 point and x_j is a source point.
     %   sort_info: SortInfo object describing the sorting of source points into bins
     
     
