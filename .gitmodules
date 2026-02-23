@@ -1,3 +1,0 @@
-[submodule "pcfft/FLAM"]
-	path = pcfft/FLAM
-	url = git@github.com:klho/FLAM.git
