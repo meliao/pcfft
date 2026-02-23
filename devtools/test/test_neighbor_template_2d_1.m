@@ -56,6 +56,7 @@ targ_info.r = target_pts;
 
 
 tol = 1e-08;
+n_nbr = 5;
 
 [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
 

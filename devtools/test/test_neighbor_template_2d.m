@@ -212,8 +212,7 @@ k = @(s,t) log_kernel(s,t);
 K_src_to_target = log_kernel(struct('r',source_pts), struct('r',target_pts));
 
 target_vals = K_src_to_target * src_weights;
-n_nbr = 3; % 10000 points / 500 is approximately 20 boxes
-
+n_nbr = 5;
 src_info = struct;
 src_info.r = source_pts;
 targ_info = struct;
@@ -232,9 +231,9 @@ n_bins = grid_info.nbin(1) * grid_info.nbin(2);
 
 for bin_idx = 0:(n_bins - 1)
     [nbr_binids, nbr_gridpts, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
-    disp("test_neighbor_template_2d: Checking bin idx " + int2str(bin_idx));
-    disp("nbr_grididxes: ");
-    disp(nbr_grididxes);
+    % disp("test_neighbor_template_2d: Checking bin idx " + int2str(bin_idx));
+    % disp("nbr_grididxes: ");
+    % disp(nbr_grididxes);
 
     % Filter out the nbr_gridpts which correspond to invalid nbr_grididxes
     oob_idxes = nbr_grididxes > grid_info.ngrid(1) * grid_info.ngrid(2);

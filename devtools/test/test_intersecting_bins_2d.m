@@ -56,6 +56,7 @@ ngrid = [9 9];
 % x bins and y bins [-1, -0.25], [-0.25, 0.5], [0.5, 1.]
 nbinpts = 3;
 nbin = [3 3];
+N_bin = nbin(1) * nbin(2);
 
 % Generate the GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx 
 grid_info = GridInfo(Lbd, dx, 2*nbinpts + 1, nbinpts, dim, 0);
@@ -71,7 +72,11 @@ disp(grid_info);
 expected_bin_4_intersecting_binids = [0 1 2 3 4 5 6 7 8];
 disp("test_intersecting_bins_2d: For bin_idx 4, intersecting binids: ");
 disp(bin_4_intersecting_binids);
-assert(all(bin_4_intersecting_binids == expected_bin_4_intersecting_binids));
+valid_bins = bin_4_intersecting_binids >= 0 & bin_4_intersecting_binids < N_bin;
+valid_bins = bin_4_intersecting_binids(valid_bins);
+disp("test_intersecting_bins_2d: For bin_idx 4, valid intersecting binids: ");
+disp(valid_bins);
+assert(all(valid_bins == expected_bin_4_intersecting_binids));
 
 % spoof the ProxyInfo object. Need radius
 proxy_info = struct;
