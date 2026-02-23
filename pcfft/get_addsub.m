@@ -10,6 +10,20 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
     dim = size(src_info.r, 1);
 
+    if ~isa(kern_0,'function_handle')
+        try
+            kern_0 = kern_0.eval;
+        catch
+            error('kern_0 is not a function and does not have an eval property')
+        end
+    end
+    if ~isa(kern_st,'function_handle')
+        try
+            kern_st = kern_st.eval;
+        catch
+            error('kern_st is not a function and does not have an eval property')
+        end
+    end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Build a spreading template matrix for adjacent source points.
