@@ -1,16 +1,13 @@
-Example usage
-=============
-
-There are a list of demos being built in the ``demos/`` directory of the 
-source repository. Here is a very simple example.
+Example usage 1
+================
 
 First, suppose we want to evaluate the following sum:
 
-.. math:: f(y) = \sum_{j=1}^N K(y - x_j) \mu_j
+.. math:: f(y) = \sum_{j=1}^N k(y - x_j) \mu_j
 
-where :math:`K` evaluates the kernel for 3D electrostatic interactions:
+where :math:`k` evaluates the kernel for 3D electrostatic interactions:
 
-.. math:: K(y-x_j) = \frac{1}{4\pi \|y-x_j\|}
+.. math:: k(y-x_j) = \frac{1}{4\pi \|y-x_j\|}
 
 In this setting, we can think of the points :math:`x_j` as sources, each with strength :math:`\mu_j`. The points :math:`y_i` are targets. The goal is to evaluate :math:`f(y_i)` for many target points :math:`y_i` efficiently. We will call the number of target points :math:`M` and the number of source points :math:`N`.
 
@@ -31,7 +28,6 @@ First, we need to define the kernel as a function handle:
 
        dist = sqrt(rx.^2 + ry.^2 + rz.^2);
        k_evals = 1 ./ dist;
-       k_evals(dist < 1e-14) = 0;
        evals = k_evals / (4*pi);
     end
 
@@ -43,7 +39,7 @@ Next, we need to define the source and target points. For simplicity, we will ju
    M = 3000; % number of targets
    src_info.r = rand(3, N);
    targ_info.r = rand(3, M);
-   src_info.mu = rand(N, 1);
+   mu = rand(N, 1);
 
 To evaluate the sum, we first need to construct a regular grid that will be used for the FFT. We need to choose the grid spacing carefully so that sources spread on the regular grid can accurately represent the far-field kernel evaluations. :func:`get_grid` handles this for us:
 
@@ -74,7 +70,7 @@ Finally, we can evaluate the sum by calling :func:`get_kernhat` and :func:`pcfft
 .. code:: matlab
 
    kern_hat = get_kernhat(kern, grid_info);
-   f = pcfft_apply(src_info.mu, A_spread_src, A_spread_targ, ...
+   f = pcfft_apply(mu, A_spread_src, A_spread_targ, ...
                    A_addsub, kern_hat);
 
-Notice that we didn't use ``src_info.mu`` until the final line of this example. If the source points, target points, and kernel are fixed, we can think of all of the steps before the call to :func:`pcfft_apply` as a precomputation step. Once the precomputation is done, we can apply the same operator to different source strengths :math:`\mu` very quickly by calling :func:`pcfft_apply` again with the new source strengths and the same matrices.
+Notice that we didn't use ``mu`` until the final line of this example. If the source points, target points, and kernel are fixed, we can think of all of the steps before the call to :func:`pcfft_apply` as a precomputation step. Once the precomputation is done, we can apply the same operator to different source strengths :math:`\mu` very quickly by calling :func:`pcfft_apply` again with the new source strengths and the same matrices.

@@ -21,7 +21,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     %   struct with info about how source points are sorted into bins.
     % sort_info_t : struct
     %   struct with info about how target points are sorted into bins.
-    % A_spread_s : sparse matrix
+    % A_spread_s : sparse matrix [nreg, nsrc]
     %   TODO
     % A_spread_t : sparse matrix
     %   TODO
