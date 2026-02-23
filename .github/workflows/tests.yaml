@@ -1,0 +1,15 @@
+name: runtests
+on: [push]
+jobs:
+  my-job:
+    name: Run MATLAB Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive	
+      - name: Run tests
+        uses: matlab-actions/run-command@v0
+        with:
+          command: cd('./devtools/test'); res = runtests; assert(all([res.Passed]))
