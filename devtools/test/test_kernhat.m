@@ -36,7 +36,7 @@ kerns = log_kernel(struct('r',rgrid(:,ipt)), struct('r',rgrid));
 u = kerns*str(ipt);
 
 % compute u using fft
-kern_hat = get_kernhat(@log_kernel,ngrid, Lbd, grid_info.dx, grid_info.offset);
+kern_hat = get_kernhat(@log_kernel,grid_info);
 
 str_hat = fftn(reshape(str,flip(ngrid(:)')),flip(2*ngrid(:)'));
 u_hat = kern_hat .* str_hat;
@@ -103,7 +103,7 @@ kerns = one_over_r_kernel(struct('r',rgrid(:,ipt)), struct('r',rgrid));
 u = kerns*str(ipt);
 % %%
 % compute u using fft
-kern_hat = get_kernhat(@one_over_r_kernel,ngrid, Lbd, grid_info.dx, grid_info.offset);
+kern_hat = get_kernhat(@one_over_r_kernel,grid_info);
 
 str_hat = fftn(reshape(str,flip(ngrid(:)')),flip(2*ngrid(:)'));
 u_hat = kern_hat .* str_hat;

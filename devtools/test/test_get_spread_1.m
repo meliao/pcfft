@@ -68,3 +68,4 @@ disp(expected_shape)
 
 % assert that A_spread has shape (n_grid_pts, n_src)
 assert(all(isequal(size(A_spread), expected_shape)));
+

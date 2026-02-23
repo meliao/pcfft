@@ -37,18 +37,11 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
 
 
     % First, sort the points into bins
-    if dim == 2
-
-        sort_info = SortInfo(src_info, grid_info.dx, grid_info.Lbd, ...
-                            grid_info.nbin, grid_info.nbinpts,der_fields);
-        r_sorted = sort_info.r_srt;
-        sorted_idxes = sort_info.ptid_srt;
-        id_start = sort_info.id_start;
-
-    else
-        [r_sorted, bin_idxes, id_start] = bin_pts_3d();
-
-    end
+    sort_info = SortInfo(src_info, grid_info.dx, grid_info.Lbd, ...
+                        grid_info.nbin, grid_info.nbinpts,der_fields);
+    r_sorted = sort_info.r_srt;
+    sorted_idxes = sort_info.ptid_srt;
+    id_start = sort_info.id_start;
 
 
     % disp("get_spread: id_start:")
@@ -60,7 +53,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
 
         [pts_0, center_0, row_idxes_0] = grid_pts_for_box_2d(0, grid_info);
     else
-        [pts_0, center_0] = grid_pts_for_bin_3d();
+        [pts_0, center_0] = grid_pts_for_box_3d(0, grid_info);
     end
     pts_0_centered = pts_0 - center_0;
     K_reg_to_proxy = kern_0(struct('r',pts_0_centered), proxy_info);
@@ -88,7 +81,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
         if dim == 2
             [pts_i, center_i, row_idxes_i] = grid_pts_for_box_2d(i-1, grid_info);
         else
-            [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_3d();
+            [pts_i, center_i, row_idxes_i] = grid_pts_for_box_3d(i-1, grid_info);
         end
         % disp("get_spread: In bin " + int2str(i))
         % disp("get_spread: idx_start " + int2str(idx_start))
@@ -117,7 +110,7 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
         if dim == 2
             [pts_i, center_i, row_idxes_i] = grid_pts_for_box_2d(i, grid_info);
         else
-            [pts_i, center_i, row_idxes_i] = grid_pts_for_bin_3d();
+            [pts_i, center_i, row_idxes_i] = grid_pts_for_box_3d(i, grid_info);
         end
 
         idx_start = id_start(i+1);

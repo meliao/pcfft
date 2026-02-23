@@ -1,44 +1,33 @@
 # pcfft
 This repository provides routines for quickly computing N-Body calculations in 2D and 3D and is designed to work with generic translation invariant kernels
 
-$$u_i = \sum_{j\neq i} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
+$$u_i = \sum_{j\neq i} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j.$$
 
-Also supports sums of the form
+The routines can also be used to compute sums involving source and target derivatives, such as
 
-$$v_i = \sum_{j\neq i} \partial_{\mathbf{n}_j} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
+$$w_i = \sum_{j\neq i} \partial_{\mathbf{n}_i}\partial_{\mathbf{n}_j} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j.$$
 
-$$w_i = \sum_{j\neq i} \partial_{\mathbf{n}_i} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
-
-$$\tilde{w}_i = \sum_{j\neq i} \partial_{\mathbf{n}_i}\partial_{\mathbf{n}_j} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j$$
+**NOTE:** The routines always skip terms with $x_i=y_j$.
 
 ### User-callable precomputation routines
-[grid_info, pxyinfo] = get_grid(kern, srcinfo, targinfo, eps, fill)
+[grid_info, pxy_info] = get_grid(kern_0, srcinfo, targinfo, eps, fill)
 This routine determines the size of the equispaced grid, the number of proxy points used for spreading, and the spreading parameters
 
-[A_spread, sortinfo] = get_spread(kern_0, kern, srcinfo, grid_info, pxyinfo)
+[A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, srcinfo, grid_info, pxy_info)
 This routine returns the matrix that maps charge strengths at srcinfo.r to charge strengths on the equispaced grid, it also returns some point binning info used in get_addsub
 
-A_add_sub = get_addsub(kern_0, kern_s, kern_t, kern_st, srcinfo, targinfo, grid_info, pxyinfo, sortinfo_s, sortinfo_t)
+A_add_sub = get_addsub(kern_0, kern_st, srcs, targs, grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t)
 This routine returns the matrix that fixes the interactions that are done incorrectly by the fast apple
 
 kern_hat = get_kernhat(kern_0, grid_info)
 evaluate FFT of kern_0 on grid
 
+u = pcfft_apply(sigma,A_spread_s,A_spread_t,A_addsub,kern_0hat)
+Compute the N-body sum using a precorrected FFT
 
 ### Sample use
 
-
-
-```
-str = A_spread_s * mu; str = full(str);
-
-str_hat = fft2(reshape(str,size(kern_hat));
-u_hat = kern_hat .* str_hat;
-ugrid = ifft2(u_hat);
-    
-u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
-```
-
+See the `demos/` directory for a variety of examples, including demonstrating pairing this package with some popular repositories.
 
 
 ### Depenencies
@@ -47,9 +36,9 @@ u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
 
 
 ### wishlist:
-* vector valued kernels
-* kernels with source and target information
-* concentric proxy surfaces
+* vector valued kernels <- after profiling
+* Profiling, particularly on an old computer
+
 
 ### proposed parameter plan:
 
@@ -58,6 +47,17 @@ u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
 * Sweep down to determine nspread
 * Determine bin side that is an integer multiple of dx closest to half the box size
 * Sweep up proxy points to bring the error back down to tolerance
+
+
+### Desired demos
+* Chunkie demo
+* FMM3DBIE demo
+* Vector valued demo
+* Gradient demo
+* Flexural/4th order
+
+
+
 
 
 

@@ -58,7 +58,7 @@ nbinpts = 3;
 nbin = [3 3];
 
 % Generate the GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx 
-grid_info = GridInfo(Lbd, dx, 2*nbinpts + 1, nbinpts, dim);
+grid_info = GridInfo(Lbd, dx, 2*nbinpts + 1, nbinpts, dim, 0);
 disp("test_intersecting_bins_2d: grid_info:");
 disp(grid_info);
 
@@ -77,7 +77,7 @@ assert(all(bin_4_intersecting_binids == expected_bin_4_intersecting_binids));
 proxy_info = struct;
 proxy_info.radius = 0.5;
 
-[sort_info] = SortInfo(r, dx, Lbd, nbin, nbinpts);
+[sort_info] = SortInfo(struct('r', r), dx, Lbd, nbin, nbinpts);
 r_srt = sort_info.r_srt;
 binid_srt = sort_info.binid_srt;
 ptid_srt = sort_info.ptid_srt;

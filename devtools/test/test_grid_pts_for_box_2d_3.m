@@ -67,7 +67,7 @@ tol = 1e-05;
 
 [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
 
-sort_info = SortInfo(src_info.r, grid_info.dx, ...
+sort_info = SortInfo(src_info, grid_info.dx, ...
     grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
 r_sorted = sort_info.r_srt;
 sorted_bin_ids = sort_info.binid_srt;

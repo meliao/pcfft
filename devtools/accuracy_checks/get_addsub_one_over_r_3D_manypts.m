@@ -4,16 +4,16 @@ clear;
 
 % Set up many random source and target points
 rng(4);
-n_src = 10*200;
-n_targ = 10*300;
-n_nbr = 100;
-kern_0 = @(s,t) log_kernel(s,t);
+n_src = 2e4;
+n_targ = 3e4;
+n_nbr = 1000;
+kern_0 = @(s,t) one_over_r_kernel(s,t);
 src_info = struct;
 % Source and target points are random in [-0.5, 0.5] x [-0.5, 0.5]
-src_info.r = (rand(2, n_src) - 0.5);
+src_info.r = (rand(3, n_src) - 0.5);
 
 targ_info = struct;
-targ_info.r = [1;2].*(rand(2, n_targ) - 0.5);
+targ_info.r = [1;2;3].*(rand(3, n_targ) - 0.5);
 
 src_weights = rand(n_src, 1);
 K_exact = kern_0(src_info, targ_info);
@@ -21,7 +21,7 @@ target_vals = K_exact * src_weights;
 
 
 
-tol_vals = [1e-02 1e-03 1e-04 1e-05 1e-06 1e-07 1e-08];
+tol_vals = [1e-02 1e-03 1e-04 1e-05];
 n_tol_vals = size(tol_vals, 2);
 error_vals = zeros(n_tol_vals, 1);
 % dx_vals = zeros(n_tol_vals, 1);
@@ -47,12 +47,8 @@ for i = 1:n_tol_vals
     [A_addsub] = get_addsub(kern_0, kern_0, src_info, targ_info, ...
     grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 
-
-    K_grid2grid = log_kernel(grid_info, grid_info);
-
-    term1 = A_addsub * src_weights;
-    term3 = A_spread_t.' * K_grid2grid * A_spread_s * src_weights;
-    evals_approx = term1  + term3;
+    kern_0hat = get_kernhat(kern_0,grid_info);
+    evals_approx = pcfft_apply(src_weights,A_spread_s,A_spread_t,A_addsub,kern_0hat);
     % disp("tol: " + num2str(tol) + ", evals_approx: ");
     % disp(evals_approx);
     % disp("target_vals: ");

@@ -42,7 +42,7 @@ L = 4.0;
 rng(0);
 r = (rand(2, n_pts) - 0.5) * L;
 
-sort_info = SortInfo(r, grid_info.dx, grid_info.Lbd, ...
+sort_info = SortInfo(struct('r', r), grid_info.dx, grid_info.Lbd, ...
     grid_info.nbin, grid_info.nbinpts);
 r_sorted = sort_info.r_srt;
 sorted_bin_ids = sort_info.binid_srt;
@@ -97,7 +97,7 @@ disp(grid_info.ngrid)
 
 assert(grid_info.rpad > 1);
 
-sort_info = SortInfo(src_info_2d.r, grid_info.dx, ...
+sort_info = SortInfo(src_info_2d, grid_info.dx, ...
     grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
 r_sorted = sort_info.r_srt;
 sorted_bin_ids = sort_info.binid_srt;

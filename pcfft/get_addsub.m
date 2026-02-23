@@ -40,16 +40,29 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     N_src = size(src_info.r(:,:), 2);
     N_targ = size(targ_info.r(:,:), 2);
 
+    dim = size(src_info.r, 1);
+
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Build a spreading template matrix for adjacent source points.
     % Then build a list of regular gridpoints that are in the intersecting bins
-    [~, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_2d(grid_info, proxy_info);
-    nbr_info = struct('r', reg_neighbor_template_pts);
-    [pts0, ctr_0, ~] = grid_pts_for_box_2d(nbr_bin_idx, grid_info);
+    if dim == 2
+        [~, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_2d(grid_info, proxy_info);
+        [pts0, ctr_0, ~] = grid_pts_for_box_2d(nbr_bin_idx, grid_info);
+    else
+        [~, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_3d(grid_info, proxy_info);
+        [pts0, ctr_0, ~] = grid_pts_for_box_3d(nbr_bin_idx, grid_info);
+    end
     % pts0_centered = pts0 - ctr_0;
+    nbr_info = struct('r', reg_neighbor_template_pts);
+
     bin_info = struct('r', pts0);
     K_nbr2bin = kern_0(nbr_info, bin_info);
+    r = 0;
+    for i = 1:dim
+        r = r + (reg_neighbor_template_pts(i,:) - pts0(i,:).').^2;
+    end
+    K_nbr2bin(r<1e-14) = 0;
 
     % Rows of A_addsub are ordered according to sorted target points.
     % Cols of A_addsub are ordered according to sorted source points.
@@ -85,7 +98,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         % Need the center of bin i to center the source points, and need the 
         % indexes of the regular grid points for spreading bin i, so we can
         % correctly index A_spread_t.
-        [~, ~, reg_idxs_i] = grid_pts_for_box_2d(bin_idx, grid_info);
+        if dim == 2
+            [~, ctr_i, reg_idxs_i] = grid_pts_for_box_2d(bin_idx, grid_info);
+        else
+            [reg_idxs_i] = grid_ids_for_box_3d(bin_idx, grid_info);
+        end
 
         % Target points in bin i
         idx_ti_start = sort_info_t.id_start(i);
@@ -98,34 +115,39 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         end
 
         % Build the spreading template
-        [nbr_binids, ~, nbr_grididxes, ~] = ...
-            neighbor_template_2d(grid_info, proxy_info, bin_idx);
+        if dim == 2
+            [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+            nbr_binids(nbr_binids==-1) =[];
+        else
+             [nbr_binids, nbr_grididxes] = neighbor_bins_3d(grid_info, proxy_info, bin_idx);
+        end
 
         % Loop through all of the neighbor bins and fill in the local source points. 
         % After this loop, we will update A_add and A_sub with the neigbors of bin i.
-        % TODO: preallocate this array. We can infer the length from sort_info_s.
-        source_loc = [];
-        source_idx = [];
 
-        for j = 1:length(nbr_binids)
+        % get index of first and last source in each neighboring bin
+        idx_sj_starts = sort_info_s.id_start(nbr_binids + 1);
+        idx_sj_ends = sort_info_s.id_start(nbr_binids + 2) - 1;
+
+        % remove empty neighbors
+        ifilled = idx_sj_ends>=idx_sj_starts;
+        idx_sj_starts = idx_sj_starts(ifilled);
+        idx_sj_ends = idx_sj_ends(ifilled);
+
+        % get list of all neighbors
+        source_idx = zeros(1,grid_info.n_nbr);
+        istart = 1;
+        for j = 1:length(idx_sj_starts)
             % This iter of the loop does interaction between target bin i and 
-            % source bin j
-            source_bin_idx = nbr_binids(j);
+            % the jth neighboring source bin
+            idx_sj_start = idx_sj_starts(j);
+            idx_sj_end = idx_sj_ends(j);
 
-            % If the source bin idx is invalid, skip it.
-            if source_bin_idx == -1
-                continue;
-            end
-
-            % Source points in bin j
-            idx_sj_start = sort_info_s.id_start(source_bin_idx + 1);
-            idx_sj_end = sort_info_s.id_start(source_bin_idx + 2) - 1;
-
-            loc_src_in_j = sort_info_s.r_srt(:, idx_sj_start:idx_sj_end);
-
-            source_loc = [source_loc, loc_src_in_j];
-            source_idx = [source_idx, idx_sj_start:idx_sj_end];
+            % store indices
+            source_idx(istart:istart+(idx_sj_end-idx_sj_start)) = idx_sj_start:idx_sj_end;
+            istart = istart + (idx_sj_end-idx_sj_start+1);
         end
+        source_idx = source_idx(1:istart-1);
 
         % It may be the case that there are no source points in the bins 
         % neighboring target bin i. 
@@ -142,12 +164,17 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         % part.
         K_src_to_targ = kern_st(src_pts_in_j, ...
                             targ_info_in_i);
+        r = 0;
+        for k = 1:dim
+            r = r + (src_pts_in_j.r(k,:) - targ_info_in_i.r(k,:).').^2;
+        end
+        K_src_to_targ(r<1e-14) = 0;
 
         % Update A_sub with approximated near-field interactions. This is the 
         % "sub" part.
         A_spread_t_i = A_spread_t(reg_idxs_i, idx_ti_start:idx_ti_end);
         A_spread_s_j = A_spread_s(nbr_grididxes, source_idx);
-        AKA_chunk = A_spread_t_i.' * K_nbr2bin * A_spread_s_j;
+        AKA_chunk = (A_spread_t_i.' * K_nbr2bin) * A_spread_s_j;
 
         Aloc =  K_src_to_targ - AKA_chunk;
 
