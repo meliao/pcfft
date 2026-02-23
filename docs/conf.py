@@ -34,3 +34,9 @@ primary_domain = "mat"
 matlab_src_dir = '..'
 autoclass_content = 'both'
 matlab_short_links = True
+
+# Options for napoleon
+napoleon_use_ivar = True
+napoleon_use_param = True
+napoleon_use_rtype = True
+

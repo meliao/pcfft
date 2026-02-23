@@ -1,13 +1,13 @@
 classdef SortInfo
     % Information about sorting of source points into bins.
     %
-    % Sort points <src_info.r> into a number of bins. Imagine a regular grid
-    % with bounds [xmin ymin xmax ymax] = Lbd and grid spacing <dx>. There are
-    % [nx ny] = ngrid points in each dimension.
+    % Sorts points ``src_info.r`` into a number of bins. Imagine a regular grid
+    % with bounds ``[xmin ymin xmax ymax] = Lbd`` and grid spacing ``dx``. There are
+    % ``[nx ny] = ngrid`` points in each dimension.
     %
-    % We want to sort the points into bins which are <nbinpts> regular
-    % gridpoints across. There are nbin(1) such bins in the x dimension and
-    % nbin(2) in the y dimension. Create indices for these bins by looping
+    % We want to sort the points into bins which are ``grid_info.nbinpts`` regular
+    % gridpoints across. There are ``grid_info.nbin(1)`` such bins in the x dimension and
+    % ``grid_info.nbin(2)`` in the y dimension. This class creates indices for these bins by looping
     % over x first and then y.
     %
     % Example of bin construction:
@@ -19,18 +19,18 @@ classdef SortInfo
     %
     % Attributes
     % ----------
-    % r_srt : (2, n_src) matrix
+    % r_srt : array [dim, n_src]
     %   Contains the source points sorted by bin index.
-    % binid_srt : (n_src,) matrix
+    % binid_srt : array [n_src, 1]
     %   Contains the bin indexes of the sorted source points.
-    % ptid_srt : (n_src,) matrix
-    %   Contains the indices of the sorting of the source points. So r_srt =
-    %   src_fin.r(:, ptid_srt).
-    % id_start : (N_bins,) matrix
-    %   Contains the indices of the start of each bin in r_srt.
+    % ptid_srt : array [n_src, 1]
+    %   Contains the indices of the sorting of the source points. So ``r_srt =
+    %   src_info.r(:, ptid_srt)``.
+    % id_start : array [N_bins + 1, 1]
+    %   Contains the indices of the start of each bin in ``r_srt``.
     % data_srt : struct
-    %   struct of data associated with each point in r_srt. Each field must
-    %   be of shape (l, n_srd) for some l.
+    %   struct of data associated with each point in ``r_srt``. Each field must
+    %   be of shape ``[l, n_src]`` for some ``l``.
     %
     properties
         r_srt

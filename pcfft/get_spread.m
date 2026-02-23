@@ -5,29 +5,26 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
     %
     % Parameters
     % ----------
-    % kern_0 : function handle
-    %   Has calling sequence kern_0(src,targ). This is the free-space kernel.
-    % kern_der : function handle
-    %   Has calling sequence kern_der(src,targ). This kernel will be some 
-    %   derivative of the free-space kernel.
-    % src_info : struct
-    %   Has an array in field src_info.r with shape (dim, nsrc), specifying the 
-    %   source points.
+    % kern_0 : kernel
+    %   The free-space kernel.
+    % kern_der : kernel
+    %   Some derivative of the free-space kernel.
+    % src_info : point_info
+    %   Specifies the source points.
     % grid_info : GridInfo
     %   object describing the regular grid
     % proxy_info : ProxyInfo
     %   object describing the proxy points
     % der_fields : cell array
-    %   Contains field names that must be attached to the source point in kern_der
+    %   Contains field names that must be attached to the source point in ``kern_der``
     %
     %
     % Returns
     % -------
-    % A_spread : sparse matrix
-    %   Has shape (ngrid^dim, nsrc) mapping source strengths to grid strengths
-    % K_src_to_reg : matrix
-    %   Has shape (nreg, nsrc). Entry (i, j) is the kernel evaluation 
-    %   kern_0(z_i - x_j) where z_i is a regular grid point and x_j is a source 
+    % A_spread : sparse matrix [nreg, nsrc]
+    %   Mapps source strengths to equivalent strengths on the regular grid.
+    % K_src_to_reg : matrix [nreg, nsrc]
+    %   Entry (i, j) is the kernel evaluation kern_0(z_i - x_j) where z_i is a regular grid point and x_j is a source 
     %   point.
     % sort_info : SortInfo
     %   Object describing the sorting of source points into bins

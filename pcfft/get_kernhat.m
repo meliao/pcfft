@@ -1,16 +1,16 @@
 function kern_hat = get_kernhat(kern_0, grid_info)
-% evaluate Fourier transform of free-space kernel on the grid in ``grid_info``.
+% Evaluate Fourier transform of free-space kernel on the grid in ``grid_info``.
 %
 % Parameters
 % ----------
-% kern_0 : function handle
-%   TODO
+% kern_0 : kernel
+%   Free-space kernel.
 % grid_info : GridInfo
 %   object describing the regular grid.
 %
 % Returns
 % -------
-% kern_hat : (TODO, TODO) matrix
+% kern_hat : matrix [TODO, TODO]
 %   TODO
 
 ngrid = grid_info.ngrid;

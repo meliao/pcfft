@@ -20,6 +20,7 @@ at a large number of source points :math:`x_j` and target points :math:`y_i` eff
 
  * The method applies to a broad class of smooth translation-invariant kernels :math:`k(y, x) = k(y - x)`, not just kernels arising from the Green's function of an elliptic PDE. 
  * The Fourier transform of the kernel is not required. 
+ * After a one-time precomputation step, the apply step uses Fast Fourier Transforms and sparse linear algebra, making it very fast for large problems.
 
 
 :doc:`usage` provides a brief introduction to using the package to evaluate sums of the form :math:`(1)`, and :doc:`usage_normal_der` shows how to evaluate sums of the form :math:`(2)`. More examples are being built at `<https://github.com/meliao/pcfft/tree/main/demos>`_.
@@ -34,7 +35,7 @@ PCFFT can be installed from source:
 
 .. code:: bash
 
-   git clone https://github.com/meliao/pcfft.git
+   git clone https://github.com/meliao/pcfft.git --recurse-submodules
 
 
 The package depends on Kenneth Ho's package FLAM, available at `<https://github.com/klho/FLAM>`_. 

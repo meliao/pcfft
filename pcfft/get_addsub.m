@@ -5,34 +5,31 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     %
     % Parameters
     % ----------
-    % kern_0 : function handle
-    %   TODO
-    % kern_st : function handle
-    %   TODO
-    % src_info : struct
-    %   struct with info about source points.
-    % targ_info : struct
-    %   struct with info about target points.
+    % kern_0 : kernel
+    %   Free-space kernel.
+    % kern_st : kernel
+    %   Derivative of the free-space kernel.
+    % src_info : point_info
+    %   Specifies the source points.
+    % targ_info : point_info
+    %   Specifies the target points.
     % grid_info : GridInfo
     %   GridInfo object describing the regular grid.
     % proxy_info : ProxyInfo
     %   ProxyInfo object describing the proxy points.
-    % sort_info_s : struct
-    %   struct with info about how source points are sorted into bins.
-    % sort_info_t : struct
-    %   struct with info about how target points are sorted into bins.
+    % sort_info_s : SortInfo
+    %   Specifies how source points are sorted into bins.
+    % sort_info_t : SortInfo
+    %   Specifies how target points are sorted into bins.
     % A_spread_s : sparse matrix [nreg, nsrc]
-    %   TODO
-    % A_spread_t : sparse matrix
-    %   TODO
+    %   Maps source strengths to equivalent strengths on the regular grid.
+    % A_spread_t : sparse matrix [nreg, ntarg]
+    %   Maps target strengths to equivalent strengths on the regular grid. Its adjoint is used to map regular grid strengths to equivalent strengths on the target points.
     %
     % Returns
     % -------
-    % A_addsub : sparse matrix
-    %   sparse matrix of size (n_targ, n_src) such that A_addsub + A_approx is
-    %   the exact near-field interaction matrix between source and target
-    %   points. Here A_approx is the matrix of approximated near-field
-    %   interactions computed using the spreading and interpolation matrices.
+    % A_addsub : sparse matrix [n_targ, n_src]
+    %   A sparse matrix which corrects for the incorrect near-field interactions computed using the spreading matrices.
 
     der_fields_s = fieldnames(sort_info_s.data_srt)';
     der_fields_t = fieldnames(sort_info_t.data_srt)';

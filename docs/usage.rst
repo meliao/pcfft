@@ -1,7 +1,7 @@
 Example usage 1
 ================
 
-First, suppose we want to evaluate the following sum:
+Suppose we want to evaluate the following sum:
 
 .. math:: f(y) = \sum_{j=1}^N k(y - x_j) \mu_j
 
@@ -37,6 +37,8 @@ Next, we need to define the source and target points. For simplicity, we will ju
 
    N = 1000; % number of sources
    M = 3000; % number of targets
+   src_info = struct();
+   targ_info = struct();
    src_info.r = rand(3, N);
    targ_info.r = rand(3, M);
    mu = rand(N, 1);

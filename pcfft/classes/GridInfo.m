@@ -1,15 +1,15 @@
 classdef GridInfo
-    % Describe the regular grid used for spreading.
+    % Describes the regular grid used for spreading; is created by ``get_grid()``.
     %
-    % Store information about the regular grid used by the spreading
+    % Stores information about the regular grid used by the spreading
     % routines. The grid is divided into non-overlapping spreading bins, each
     % of which is spread to a larger spreading box independently.
     %
     % Attributes
     % ----------
-    % ngrid : (dim, 1) matrix
+    % ngrid : array [dim, 1]
     %   number of regular grid points per dimension.
-    % Lbd : (dim, 2) matrix
+    % Lbd : array [dim, 2]
     %   containing the points (xmin, ymin, zmin) and
     %   (xmax, ymax, zmax). Describes the bounding box of the union of source
     %   and target points.
@@ -21,18 +21,18 @@ classdef GridInfo
     % nbinpts : int
     %   width in dx's of the spreading bin.
     % rpad : int
-    %   TODO
-    % r : (dim, npts) matrix
+    %   Width of the margin between the bounding box specified by Lbd and the regular grid points.
+    % r : array [dim, npts]
     %   padded regular grid points.
     % dim : int
     %   problem dimension.
-    % nbin : (dim, 1) matrix
+    % nbin : array [dim, 1]
     %   number of spreading bins per dimension.
     % offset : int
     %   Number of dx's used to pad the grid.
-    % rmax : (dim, 1) matrix
+    % rmax : array [dim, 1]
     %   maximum coordinate value of the padded grid.
-    % rmin : (dim, 1) matrix
+    % rmin : array [dim, 1]
     %   minimum coordinate value of the padded grid.
     % n_nbr : int
     %   average number of near-field neighbours.
