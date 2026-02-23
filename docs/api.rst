@@ -1,8 +1,12 @@
 pcfft API
 ===================
 
-.. automodule:: pcfft
-   :members:
+.. mat:currentmodule:: pcfft
+.. mat:autofunction:: get_grid
+.. mat:autofunction:: get_spread
+.. mat:autofunction:: get_addsub
+.. mat:autofunction:: get_kernhat
+.. mat:autofunction:: pcfft_apply
 
 
 Built-in classes

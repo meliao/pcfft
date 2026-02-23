@@ -1,17 +1,23 @@
 function u = pcfft_apply(sigma,A_spread_s,A_spread_t,A_addsub,kern_0hat)
-% compute N-body sum using a precorrected FFT
+% Compute N-body sum using a precorrected FFT.
 %
-% Arguments
-% ---------
-% sigma : charge densities
-% A_spread_s : source spreading matrix (see get_spread)
-% A_spread_t : target spreading matrix
-% A_addsub : near field corrections matrix (see get_addsub)
-% kern_0hat : Fourier transform of background kernel (see get_kernhat)
+% Parameters
+% ----------
+% sigma : matrix
+%   TODO
+% A_spread_s : sparse matrix
+%   source spreading matrix (see get_spread).
+% A_spread_t : sparse matrix
+%   target spreading matrix.
+% A_addsub : sparse matrix
+%   near field corrections matrix (see get_addsub).
+% kern_0hat : matrix
+%   Fourier transform of background kernel (see get_kernhat).
 %
-% Output
-% ---------
-% u : potential
+% Returns
+% -------
+% u : matrix
+%   potential.
 
 
 sigma_grid = A_spread_s*sigma;

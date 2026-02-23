@@ -23,13 +23,14 @@ FLAM must be loaded into the MATLAB path. PCFFT can be installed from source:
    git clone https://github.com/meliao/pcfft.git
 
 
-Usage quickstart
+Example usage
 -----------------
+:doc:`usage` provides a brief introduction to using the package. More detailed demos are being built at `<https://github.com/meliao/pcfft/tree/main/demos>`_. 
 
 .. toctree::
-   :maxdepth: 2
    :caption: Contents:
 
    api
    kernels
+   usage
 
