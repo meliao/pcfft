@@ -1,7 +1,8 @@
 %Chunkie integration demo
 %
 % Solve Dirichlet scattering problems with many inclusions
-
+addpath(genpath('../../pcfft'));
+addpath("utils");
 
 % planewave direction
 phi = 0;
