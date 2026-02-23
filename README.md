@@ -65,14 +65,14 @@ u = A_spread_t.'*ugrid(:) + A_add_sub*mu;
 
 First set up a python virtual environment and install the following packages:
 ```
-pip install sphinx sphinxcontrib-matlabdomain
+pip install sphinx sphinxcontrib-matlabdomain sphinx_rtd_thetme
 ```
 
 Then to compile, do
 ```
 cd docs
 make html
-open _build/html/index.html # Approximate location
+open _build/html/index.html
 ```
 
 

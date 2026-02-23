@@ -1,36 +1,36 @@
 classdef SortInfo
-    %SORTINFO Information about sorting of source points into bins.
-    % 
-    % Sort points <src_info.r> into a number of bins.
-    % Imagine a regular grid with bounds [xmin ymin xmax ymax] = Lbd
-    % and grid spacing <dx>. There are [nx ny] = ngrid points 
-    % in each dimension.
-    % 
-    % We want to sort the points into bins which are <nbinpts> 
-    % regular gridpoints across. There are nbin(1) such bins in the x dimension
-    % and nbin(2) in the y dimension.
-    % Create indices for these bins by looping over x first and then y.
+    % Information about sorting of source points into bins.
+    %
+    % Sort points <src_info.r> into a number of bins. Imagine a regular grid
+    % with bounds [xmin ymin xmax ymax] = Lbd and grid spacing <dx>. There are
+    % [nx ny] = ngrid points in each dimension.
+    %
+    % We want to sort the points into bins which are <nbinpts> regular
+    % gridpoints across. There are nbin(1) such bins in the x dimension and
+    % nbin(2) in the y dimension. Create indices for these bins by looping
+    % over x first and then y.
     %
     % Example of bin construction:
     % Suppose the points in r live on [-1, 1] x [-0.5, 0.5]
     % dx = 0.25
-    % and if we set nbinpts = 3, we expect 
+    % and if we set nbinpts = 3, we expect
     % x bins [-1., -0.25], [-0.25, 0.5], [0.5, 1.]
     % y bins [-0.5, 0.25], [0.25, 0.5]
     %
-    %
-    %
-    % Object properties:
-    % r_srt: shape (2, n_src). Contains the source points sorted by bin
-    %           index.
-    % binid_srt: shape (n_src,). Contains the bin indexes of the sorted
-    %           source points.
-    % ptid_srt: shape (n_src,). Contains the indices of the sorting of 
-    %           the source points. So r_srt = src_fin.r(:, ptid_srt).
-    % id_start: shape (N_bins,). Contains the indices of the start of each
-    %           bin in r_srt.
-    % data_srt: struct of data associated with each point in r_srt. Each
-    %           field must be of shape (l, n_srd) for some l
+    % Attributes
+    % ----------
+    % r_srt : (2, n_src) matrix
+    %   Contains the source points sorted by bin index.
+    % binid_srt : (n_src,) matrix
+    %   Contains the bin indexes of the sorted source points.
+    % ptid_srt : (n_src,) matrix
+    %   Contains the indices of the sorting of the source points. So r_srt =
+    %   src_fin.r(:, ptid_srt).
+    % id_start : (N_bins,) matrix
+    %   Contains the indices of the start of each bin in r_srt.
+    % data_srt : struct
+    %   struct of data associated with each point in r_srt. Each field must
+    %   be of shape (l, n_srd) for some l.
     %
     properties
         r_srt

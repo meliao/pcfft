@@ -7,11 +7,11 @@ pcfft API
 
 Built-in classes
 -------------------
-.. autoclass:: pcfft.GridInfo
+.. autoclass:: pcfft.classes.GridInfo
    :members:
 
-.. autoclass:: ProxyInfo
+.. autoclass:: pcfft.classes.ProxyInfo
    :members:
 
-.. autoclass:: SortInfo
+.. autoclass:: pcfft.classes.SortInfo
    :members:

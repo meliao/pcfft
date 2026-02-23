@@ -1,21 +1,30 @@
 classdef ProxyInfo
-    %PROXYINFO Describes the proxy surface for spreading weights.
+    % Describe the proxy surface for spreading weights.
     %
-    %   PROXYINFO stores metadata describing the proxy surface used by the
-    %   spreading routines to compute spreading weights. The proxy surface can
-    %   consist of one or more concentric shells of points.
+    % Store metadata describing the proxy surface used by the spreading
+    % routines to compute spreading weights. The proxy surface can consist of
+    % one or more concentric shells of points.
     %
-    %   Properties
-    %       dim              - problem dimension (integer)
-    %       n_points_total   - total number of proxy points = nproxy * nshell
-    %       nproxy           - number of proxy points per shell
-    %       nshell           - number of concentric shells in the proxy
-    %       halfside         - TODO
-    %       crad             - TODO
-    %       tol              - relative L_inf error tolerance for generating 
-    %                          the proxy surface
-    %       radius           - proxy radius
-    %       r                - (dim, n_points_total) array of proxy point coords
+    % Attributes
+    % ----------
+    % dim : int
+    %   problem dimension (integer).
+    % n_points_total : int
+    %   total number of proxy points = nproxy * nshell.
+    % nproxy : int
+    %   number of proxy points per shell.
+    % nshell : int
+    %   number of concentric shells in the proxy.
+    % halfside : float
+    %   TODO
+    % crad : float
+    %   TODO
+    % tol : float
+    %   relative L_inf error tolerance for generating the proxy surface.
+    % radius : float
+    %   proxy radius.
+    % r : (dim, n_points_total) matrix
+    %   array of proxy point coords.
 
     properties
         dim
