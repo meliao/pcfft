@@ -6,7 +6,7 @@
 % planewave direction
 phi = 0;
 % ambient wavenumber
-zk = 10;
+zk = 20;
 kvec = zk*[cos(phi);sin(phi)];
 
 %% Make a field of scatters
@@ -121,7 +121,7 @@ A_addsub_eval = A_addsub_eval.*chnkr.wts(:).';
 tprecom = toc(t1)
 
 sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_c,cors,skern_hat);
-
+% return
 %%
 tic;
 % build fast direct solver
