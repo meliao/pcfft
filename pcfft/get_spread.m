@@ -24,6 +24,9 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
     if nargin < 6; der_fields = {}; end
     dim = proxy_info.dim;
 
+    % if kern_der is not provided, we use the free-space kernel
+    if isempty(kern_der), kern_der = kern_0; end
+
 
     % First, sort the points into bins
     sort_info = SortInfo(src_info, grid_info.dx, grid_info.Lbd, ...

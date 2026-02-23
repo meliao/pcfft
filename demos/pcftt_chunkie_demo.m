@@ -114,6 +114,8 @@ t1 = tic;
 % get DFT of kernel
 skern_hat = get_kernhat(skern.eval,grid_info);
 
+
+
 cors = chunkermat(chnkr,dkern,struct('corrections',1));
 cors = cors + A_addsub_c.*chnkr.wts(:).' + 0.5*speye(size(cors));
 A_spread_s = A_spread_s.*chnkr.wts(:).';
