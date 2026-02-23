@@ -6,15 +6,15 @@
 % planewave direction
 phi = 0;
 % ambient wavenumber
-zk = 20;
+zk = 10;
 kvec = zk*[cos(phi);sin(phi)];
 
 %% Make a field of scatters
 
 % geometry preferences
 cparams = [];
-cparams.maxchunklength = min(4.0/max(zk),0.125);
-                              
+% cparams.maxchunklen = min(4.0/max(zk),0.125);
+cparams.maxchunklen = min(4.0/max(zk));
 pref = []; 
 pref.k = 16;
 narms =5;
