@@ -4,9 +4,9 @@ clear;
 
 % Set up many random source and target points
 rng(4);
-n_src = 200;
-n_targ = 300;
-n_nbr = 100;
+n_src = 2e4;
+n_targ = 3e4;
+n_nbr = 1000;
 kern_0 = @(s,t) one_over_r_kernel(s,t);
 src_info = struct;
 % Source and target points are random in [-0.5, 0.5] x [-0.5, 0.5]

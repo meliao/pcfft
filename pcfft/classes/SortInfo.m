@@ -44,7 +44,7 @@ classdef SortInfo
         function obj = SortInfo(src_info, dx, Lbd, nbin, nbinpts,der_fields)
 
             if nargin < 6 || isempty(der_fields), der_fields = {'r'}; end
-            r = src_info.r;
+            r = src_info.r(:,:);
 
             nbin = nbin(:);
             N_x_bins = nbin(1);
