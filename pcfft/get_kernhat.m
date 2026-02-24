@@ -1,5 +1,18 @@
 function kern_hat = get_kernhat(kern_0, grid_info)
-% evaluate Fourier transform of free-space kernel on the grid in grid_info
+% Evaluate Fourier transform of free-space kernel on the grid in ``grid_info``.
+%
+% @Tristan, can you fill in the expected output shapes here?
+% Parameters
+% ----------
+% kern_0 : kernel
+%   Free-space kernel.
+% grid_info : GridInfo
+%   object describing the regular grid.
+%
+% Returns
+% -------
+% kern_hat : matrix [TODO, TODO]
+%   Fourier transform of the kernel evaluated on the grid.
 
 if ~isa(kern_0,'function_handle')
     try

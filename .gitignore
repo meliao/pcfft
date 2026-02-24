@@ -9,4 +9,5 @@
 *.log
 *.out
 
-FLAM/
+docs/_build/
+venv/
