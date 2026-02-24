@@ -31,6 +31,14 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
         n_nbr = 1000;
     end
 
+    if ~isa(kernel,'function_handle')
+        try
+            kernel = kernel.eval;
+        catch
+            error('kernel is not a function and does not have an eval property')
+        end
+    end
+
     crad = 2;
 
     % Get the half_sidelen and center of the points to specify the regular grid

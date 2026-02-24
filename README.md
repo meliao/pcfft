@@ -55,6 +55,8 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 * Vector valued demo
 * Gradient demo
 * Flexural/4th order
+* Matern kernel
+
 
 
 

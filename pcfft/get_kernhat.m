@@ -13,10 +13,18 @@ function kern_hat = get_kernhat(kern_0, grid_info)
 % kern_hat : matrix [TODO, TODO]
 %   TODO
 
-ngrid = grid_info.ngrid;
-Lbd = grid_info.Lbd;
-dx = grid_info.dx;
-offset = grid_info.offset;
+if ~isa(kern_0,'function_handle')
+    try
+        kern_0 = kern_0.eval;
+    catch
+        error('kern_0 is not a function and does not have an eval property')
+    end
+end
+
+ ngrid = grid_info.ngrid;
+ Lbd = grid_info.Lbd;
+ dx = grid_info.dx;
+ offset = grid_info.offset;
 
 rgrid0 = Lbd(:,1) + dx*ngrid(:) - offset;
 

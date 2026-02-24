@@ -38,18 +38,21 @@ for i = 1:n_tol_vals
     [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
 
 
-    [A_spread_s, K_src_to_reg_s, sort_info_s ]= get_spread(kern_0, kern_0, src_info, ...
+    [A_spread_s, sort_info_s ]= get_spread(kern_0, kern_0, src_info, ...
     grid_info, proxy_info);
-    [A_spread_t, K_src_to_reg_t, sort_info_t ]= get_spread(kern_0, kern_0, targ_info, ...
+    [A_spread_t, sort_info_t ]= get_spread(kern_0, kern_0, targ_info, ...
     grid_info, proxy_info);
 
 
-    [A_addsub] = get_addsub(kern_0, kern_0, src_info, targ_info, ...
+    A_addsub = get_addsub(kern_0, kern_0, src_info, targ_info, ...
     grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 
+    %%% TODO: Why does this give the wrong answer?
+    % kern_0hat = get_kernhat(kern_0,grid_info);
+    % evals_approx2= pcfft_apply(src_weights,A_spread_s,A_spread_t,A_addsub,kern_0hat);
 
     K_grid2grid = log_kernel(grid_info, grid_info);
-
+    K_grid2grid(1:size(K_grid2grid,1)+1:end) = 0;
     term1 = A_addsub * src_weights;
     term3 = A_spread_t.' * K_grid2grid * A_spread_s * src_weights;
     evals_approx = term1  + term3;

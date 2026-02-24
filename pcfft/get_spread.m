@@ -1,4 +1,4 @@
-function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
+function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
                                             src_info, grid_info, proxy_info, der_fields)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
@@ -32,6 +32,23 @@ function [A_spread, K_src_to_reg, sort_info] = get_spread(kern_0, kern_der, ...
     if nargin < 6; der_fields = {}; end
     dim = proxy_info.dim;
 
+    % if kern_der is not provided, we use the free-space kernel
+    if isempty(kern_der), kern_der = kern_0; end
+
+    if ~isa(kern_0,'function_handle')
+        try
+            kern_0 = kern_0.eval;
+        catch
+            error('kern_0 is not a function and does not have an eval property')
+        end
+    end
+    if ~isa(kern_der,'function_handle')
+        try
+            kern_der = kern_der.eval;
+        catch
+            error('kern_der is not a function and does not have an eval property')
+        end
+    end
 
     % First, sort the points into bins
     sort_info = SortInfo(src_info, grid_info.dx, grid_info.Lbd, ...

@@ -6,15 +6,15 @@
 % planewave direction
 phi = 0;
 % ambient wavenumber
-zk = 20;
+zk = 10;
 kvec = zk*[cos(phi);sin(phi)];
 
 %% Make a field of scatters
 
 % geometry preferences
 cparams = [];
-cparams.maxchunklength = min(4.0/max(zk),0.125);
-                              
+% cparams.maxchunklen = min(4.0/max(zk),0.125);
+cparams.maxchunklen = min(4.0/max(zk));
 pref = []; 
 pref.k = 16;
 narms =5;
@@ -98,21 +98,23 @@ srcs.n = chnkr.n(:,:);
 t1 = tic;
 
 % setup grid
-[grid_info, proxy_info] = get_grid(skern.eval, chnkr, targout, eps);
+[grid_info, proxy_info] = get_grid(skern, chnkr, targout, eps);
 % get spreading operators
-[A_spread_s, ~, sort_info_c]= get_spread(skern.eval, dkern.eval, chnkr, ...
+[A_spread_s, sort_info_c]= get_spread(skern, dkern, chnkr, ...
     grid_info, proxy_info, {'r','n'});
-[A_spread_c, ~, ~]= get_spread(skern.eval, skern.eval, chnkr, ...
+[A_spread_c, ~]= get_spread(skern, skern, chnkr, ...
     grid_info, proxy_info);
-[A_spread_t, ~, sort_info_t] = get_spread(skern.eval, skern.eval, targout, ...
+[A_spread_t, sort_info_t] = get_spread(skern, skern, targout, ...
     grid_info, proxy_info);
 % build corrections
-[A_addsub_c] = get_addsub(skern.eval, dkern.eval, chnkr, chnkr, ...
+A_addsub_c = get_addsub(skern, dkern, chnkr, chnkr, ...
     grid_info, proxy_info, sort_info_c, sort_info_c, A_spread_s, A_spread_c);
-[A_addsub_eval] = get_addsub(skern.eval, dkern.eval, chnkr, targout, ...
+A_addsub_eval = get_addsub(skern, dkern, chnkr, targout, ...
     grid_info, proxy_info, sort_info_c, sort_info_t, A_spread_s, A_spread_t);
 % get DFT of kernel
-skern_hat = get_kernhat(skern.eval,grid_info);
+skern_hat = get_kernhat(skern,grid_info);
+
+
 
 cors = chunkermat(chnkr,dkern,struct('corrections',1));
 cors = cors + A_addsub_c.*chnkr.wts(:).' + 0.5*speye(size(cors));
