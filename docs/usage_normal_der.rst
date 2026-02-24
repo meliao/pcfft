@@ -7,13 +7,11 @@ Suppose we want to evaluate the following sum:
     
    g(y_i) = \sum_{j=1}^N \partial_{\boldsymbol{n}_j} k(y_i, x_j) \mu_j
 
-where :math:`k` is a 2D logarithmic kernel, which arises as the Green's function of the Laplace equation in 2D:
+where :math:`k` is a 2D logarithmic kernel, which arises as a multiple of the Green's function of the Laplace equation in 2D:
 
 .. math:: k(y-x_j) = \log ( \|y-x_j\| )
 
-.. note:: @Tristan, is the following sentence correct?
-
-This type of sum typically arises when solving a boundary integral equation formulation of an elliptic BVP with Neumann boundary conditions.
+This type of sum arises in some two dimensional electrostatics calculutations and when evaluating the solution of a boundary integral equation formulation of an elliptic BVP with Neumann boundary conditions.
 :doc:`usage` shows how to evaluate a similar sum without the normal derivatives. First, we have to define the kernel and its gradient. See the note in :doc:`api` for more details on how to specify kernels and points.
 
 .. code:: matlab
@@ -73,9 +71,9 @@ Because we are taking derivatives with respect to the source points, we need to 
 
 .. code:: matlab
 
-   [A_spread_src, ~, srt_info_src] = get_spread(kern, kern_s, src_info, ...
+   [A_spread_src, srt_info_src] = get_spread(kern, kern_s, src_info, ...
                                                 grid_info, proxy_info);
-   [A_spread_targ, ~, srt_info_targ] = get_spread(kern, [], targ_info, ...
+   [A_spread_targ, srt_info_targ] = get_spread(kern, [], targ_info, ...
                                                 grid_info, proxy_info);
 
 .. note:: @Tristan, can you explain why we need to specify kern_s in get_addsub?
