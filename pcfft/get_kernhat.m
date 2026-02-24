@@ -11,7 +11,7 @@ function kern_hat = get_kernhat(kern_0, grid_info)
 %
 % Returns
 % -------
-% kern_hat : matrix [TODO, TODO]
+% kern_hat : matrix [2*ngrid(dim), ..., 2*ngrid(1)]
 %   Fourier transform of the kernel evaluated on the grid.
 
 if ~isa(kern_0,'function_handle')

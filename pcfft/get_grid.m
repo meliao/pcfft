@@ -12,7 +12,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %   struct describing the target points.
     % tol : float
     %   float specifying absolute error tolerance. Error is evaluated at a
-    %   surface 1.1 * radius of the proxy surface.
+    %   surface 1.1 * radius of the innermost proxy surface.
     % n_nbr : int, optional
     %   int specifying the average number of interactions that must be done
     %   directly. Defaults to 1000.
