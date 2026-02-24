@@ -71,7 +71,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 
 
 ## Desired demos
-* Chunkie demo
+* Chunkie demo -- separate demos for basic use+plotting and time comparison with FMM.
 * FMM3DBIE demo
 * Vector valued demo
 * Gradient demo

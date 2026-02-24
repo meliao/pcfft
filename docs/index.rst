@@ -19,7 +19,7 @@ PCFFT is a MATLAB library for fast N-body summation of translation-invariant ker
 at a large number of source points :math:`x_j` and target points :math:`y_i` efficiently. The code is designed to be easy to use and adaptable to a wide range of kernels, allowing the user to rapidly prototype large-scale numerical computations. In particular:
 
  * The method applies to a broad class of smooth translation-invariant kernels :math:`k(y, x) = k(y - x)`, not just kernels arising from the Green's function of an elliptic PDE. 
- * The Fourier transform of the kernel is not required. 
+ * Analytical knowledge of the Fourier transform of the kernel is not required. 
  * After a one-time precomputation step, the apply step uses Fast Fourier Transforms and sparse linear algebra, making it very fast for large problems.
 
 

@@ -4,18 +4,22 @@ ntargs = 2e4;
 
 L = 2;
 
+% Define the sources
 srcs = [];
 srcs.r = L*2*(rand(2,nsrcs) - 0.5);
+% Specify the normal vector at each source point. 
 srcs.n = randn(2,nsrcs);
-srcs.n = srcs.r;
+srcs.n = srcs.r; % @Tristan, why are we doing this?
+
+% Define the targets
 targs = [];
 targs.r = L*2*(rand(2,ntargs) - 0.5);
 targs.n = randn(2,ntargs);
 
 kern_0 = @(s,t) log_kernel(s, t);
-% kern_0 = @(s,t) one_over_r_kernel2D(s, t);
+% Our implementation of log_kernel can return the gradient; see def of 
+% wrap_d at the bottom of this file.
 kern_s = @(s,t) wrap_d(kern_0,s,t);
-% kern_s = kern_0;
 kern_t = kern_0;
 kern_st = kern_s;
 

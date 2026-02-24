@@ -1,8 +1,10 @@
-pcfft API
+PCFFT API
 ===================
 
 Specifying kernels and points
 ------------------------------
+
+.. note:: @Tristan can you go over this section and fill in what is missing? Things like `src_info.n`, kernel returning grad, ... ?
 
 To specify points, the user should construct a structure with field ``r`` containing the coordinates of the points. If there are :math:`N` source points in :math:`\mathbb{R}^3`, the ``r`` field should be an array with shape ``[3, N]``. The same applies to target points.
 
@@ -14,6 +16,7 @@ To specify points, the user should construct a structure with field ``r`` contai
    targ_info = struct();
    src_info.r = rand(3, N);
    targ_info.r = rand(3, M);
+
 
 The PCFFT package requires the kernel to be specified as a MATLAB function handle. We assume a few things about the kernel function:
 

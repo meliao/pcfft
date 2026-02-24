@@ -3,8 +3,8 @@ function u = pcfft_apply(sigma, A_spread_s, A_spread_t, A_addsub, kern_0hat)
 %
 % Parameters
 % ----------
-% sigma : matrix
-%   TODO
+% sigma : matrix [nsrc, 1]
+%   Source strengths.
 % A_spread_s : sparse matrix
 %   source spreading matrix (see get_spread).
 % A_spread_t : sparse matrix
