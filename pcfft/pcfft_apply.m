@@ -1,4 +1,4 @@
-function u = pcfft_apply(sigma,A_spread_s,A_spread_t,A_addsub,kern_0hat)
+function u = pcfft_apply(sigma, A_spread_s, A_spread_t, A_addsub, kern_0hat)
 % Compute N-body sum using a precorrected FFT.
 %
 % Parameters

@@ -8,14 +8,15 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     % kern_0 : kernel
     %   The free-space kernel.
     % kern_der : kernel
-    %   Some derivative of the free-space kernel.
+    %   Some derivative of the free-space kernel. This can be left empty by 
+    %   passing in an empty array, in which case the free-space kernel will be used.
     % src_info : point_info
     %   Specifies the source points.
     % grid_info : GridInfo
     %   object describing the regular grid
     % proxy_info : ProxyInfo
     %   object describing the proxy points
-    % der_fields : cell array
+    % der_fields : cell array, optional
     %   Contains field names that must be attached to the source point in ``kern_der``
     %
     %
@@ -23,9 +24,6 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     % -------
     % A_spread : sparse matrix [nreg, nsrc]
     %   Mapps source strengths to equivalent strengths on the regular grid.
-    % K_src_to_reg : matrix [nreg, nsrc]
-    %   Entry (i, j) is the kernel evaluation kern_0(z_i - x_j) where z_i is a regular grid point and x_j is a source 
-    %   point.
     % sort_info : SortInfo
     %   Object describing the sorting of source points into bins
 

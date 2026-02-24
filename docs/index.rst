@@ -38,7 +38,7 @@ PCFFT can be installed from source:
    git clone https://github.com/meliao/pcfft.git --recurse-submodules
 
 
-The package depends on Kenneth Ho's package FLAM, available at `<https://github.com/klho/FLAM>`_. 
+The package depends on Kenneth Ho's package FLAM, available at `<https://github.com/fastalgorithms/FLAM>`_. 
 
 .. toctree::
    :maxdepth: 1

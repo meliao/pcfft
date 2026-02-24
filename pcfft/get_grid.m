@@ -51,42 +51,4 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
 
     grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr);
     
-    % bin_sidelen = dx * nbinpts;
-
-    % % Number of spreading bins in each dimension.
-    % n_bin = ceil(diff(Lbd, 1, 2) / bin_sidelen);
-
-    % % Number of points padding each side
-    % pad = ceil((nspread - nbinpts) / 2);
-    % % Width below the bottom corner of Lbd to start the regular grid points
-    % offset = pad * dx - dx / 2;
-
-    % ngrid = n_bin * nbinpts + pad * 2;
-
-    % disp("get_grid: ngrid:")
-    % disp(ngrid)
-
-    % if dim == 2
-    %     % Create a regular grid with spacing dx starting at the xmin, ymin point
-    %     % specified by Lbd. 
-    %     xx = Lbd(1, 1) - offset + (0: ngrid(1) - 1) * dx;
-    %     yy = Lbd(2, 1) - offset + (0: ngrid(2) - 1) * dx;
-    %     [X, Y] = meshgrid(xx, yy);
-    %     rgrid = [X(:).'; Y(:).'];
-    % elseif dim == 3
-    %     xx = Lbd(1, 1) - offset + (0: ngrid(1) - 1) * dx;
-    %     yy = Lbd(2, 1) - offset + (0: ngrid(2) - 1) * dx;
-    %     zz = Lbd(3, 1) - offset + (0: ngrid(3) - 1) * dx;
-    %     [X, Y, Z] = meshgrid(xx, yy, zz);
-    %     X = permute(X,[3,1,2]);
-    %     Y = permute(Y,[3,1,2]);
-    %     Z = permute(Z,[3,1,2]);
-    %     rgrid = [X(:).'; Y(:).'; Z(:).'];
-    % end
-
-    % xx_dx = xx(2) - xx(1);
-    % disp("get_grid: dx of xx: " + num2str(xx_dx))
-
-    % yy_dy = yy(2) - yy(1);
-    % disp("get_grid: dy of yy: " + num2str(yy_dy))
 end
