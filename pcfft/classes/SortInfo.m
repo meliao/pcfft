@@ -6,9 +6,9 @@ classdef SortInfo
     % ``[nx ny] = ngrid`` points in each dimension.
     %
     % We want to sort the points into bins which are ``grid_info.nbinpts`` regular
-    % gridpoints across. There are ``grid_info.nbin(1)`` such bins in the x dimension and
-    % ``grid_info.nbin(2)`` in the y dimension. This class creates indices for these bins by looping
-    % over x first and then y.
+    % gridpoints across. There are ``grid_info.nbin(1)`` such bins in the x
+    % dimension, ``grid_info.nbin(2)`` in the y dimension, etc.... This class creates indices for these bins by looping
+    % over x first and then y (and then z).
     %
     % Example of bin construction:
     % Suppose the points in r live on [-1, 1] x [-0.5, 0.5]
