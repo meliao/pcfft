@@ -14,6 +14,8 @@ where :math:`k` is a 2D logarithmic kernel, which arises as a multiple of the Gr
 This type of sum arises in when solving a boundary integral equation formulation of an elliptic BVP with Dirichlet boundary conditions.
 :doc:`usage` shows how to evaluate a similar sum without the normal derivatives. First, we have to define the kernel and its gradient. See the note in :doc:`api` for more details on how to specify kernels and points.
 
+.. note:: @Tristan, there is a shape error when I try to run this code, in the  this line: ``k_evals = src_pts.n(1,:).'.*rx + src_pts.n(2,:).'.*ry``. I can't tell what the shapes should be here.
+
 .. code:: matlab
 
    function k_evals = kern(src_pts, target_pts)
@@ -66,15 +68,15 @@ We construct the regular grid just as we did before -- we only need to specify t
 .. code:: matlab
 
    tol = 1e-6;
-   [grid_info, proxy_info] = get_grid(kern, src_info, targ_info, tol);
+   [grid_info, proxy_info] = get_grid(@kern, src_info, targ_info, tol);
 
 Because we are taking derivatives with respect to the source points, we need to specify the kernel and its gradient when we call :func:`get_spread`: for the sources. The targets are not differentiated, so we can just specify the free-space kernel.
 
 .. code:: matlab
 
-   [A_spread_src, srt_info_src] = get_spread(kern, kern_s, src_info, ...
-                                                grid_info, proxy_info);
-   [A_spread_targ, srt_info_targ] = get_spread(kern, [], targ_info, ...
+   [A_spread_src, srt_info_src] = get_spread(@kern, @kern_s, src_info, ...
+                                             grid_info, proxy_info, {'r','n'});
+   [A_spread_targ, srt_info_targ] = get_spread(@kern, [], targ_info, ...
                                                 grid_info, proxy_info);
 
 .. note:: @Tristan, can you explain why we need to specify kern_s in get_addsub?
@@ -83,7 +85,7 @@ When we call :func:`get_addsub`, we need to provide the free-space kernel and th
 
 .. code:: matlab
 
-   A_addsub = get_addsub(kern, kern_s, src_info, targ_info, grid_info, ...
+   A_addsub = get_addsub(@kern, @kern_s, src_info, targ_info, grid_info, ...
                          proxy_info, srt_info_src, srt_info_targ, ...
                          A_spread_src, A_spread_targ);
 
@@ -93,7 +95,7 @@ The final precomputation step is the same as before, using the free-space kernel
 
 .. code:: matlab
 
-   kern_hat = get_kernhat(kern, grid_info);
+   kern_hat = get_kernhat(@kern, grid_info);
 
 Finally, we can evaluate the sum by calling :func:`pcfft_apply`:
 

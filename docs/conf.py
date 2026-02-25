@@ -38,5 +38,5 @@ matlab_short_links = True
 # Options for napoleon
 napoleon_use_ivar = True
 napoleon_use_param = True
-napoleon_use_rtype = True
+napoleon_use_rtype = False
 

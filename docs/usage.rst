@@ -48,15 +48,15 @@ To evaluate the sum, we first need to construct a regular grid that will be used
 .. code:: matlab
 
    tol = 1e-6;
-   [grid_info, proxy_info] = get_grid(kern, src_info, targ_info, tol);
+   [grid_info, proxy_info] = get_grid(@kern, src_info, targ_info, tol);
 
 Next, we call :func:`get_spread` to compute the matrices which spread the sources and targets to the regular grid.
 
 .. code:: matlab
 
-   [A_spread_src, srt_info_src] = get_spread(kern, [], src_info, ...
+   [A_spread_src, srt_info_src] = get_spread(@kern, [], src_info, ...
                                                 grid_info, proxy_info);
-   [A_spread_targ, srt_info_targ] = get_spread(kern, [], targ_info, ...
+   [A_spread_targ, srt_info_targ] = get_spread(@kern, [], targ_info, ...
                                                 grid_info, proxy_info);
 
 Note that the second argument was left empty as we do not wish to take any derivatives of `k`.
@@ -65,7 +65,7 @@ The matrices ``A_spread_src`` and ``A_spread_targ`` take care of the far-field i
 
 .. code:: matlab
 
-   A_addsub = get_addsub(kern, [], src_info, targ_info, grid_info, ...
+   A_addsub = get_addsub(@kern, [], src_info, targ_info, grid_info, ...
                          proxy_info, srt_info_src, srt_info_targ, ...
                          A_spread_src, A_spread_targ);
 
@@ -73,7 +73,7 @@ Finally, we can evaluate the sum by calling :func:`get_kernhat` and :func:`pcfft
 
 .. code:: matlab
 
-   kern_hat = get_kernhat(kern, grid_info);
+   kern_hat = get_kernhat(@kern, grid_info);
    f = pcfft_apply(mu, A_spread_src, A_spread_targ, ...
                    A_addsub, kern_hat);
 
