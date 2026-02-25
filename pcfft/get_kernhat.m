@@ -1,5 +1,6 @@
 function kern_hat = get_kernhat(kern_0, grid_info)
 % Evaluate Fourier transform of free-space kernel on the grid in ``grid_info``.
+% Ignores the self-interaction.
 %
 % Parameters
 % ----------

@@ -8,7 +8,9 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     % kern_0 : kernel
     %   Free-space kernel.
     % kern_st : kernel
-    %   Derivative of the free-space kernel.
+    %   Direct interaction kernel, which must be a combination of
+    %   derivatives of the free-space kernel. If left empty the free-space
+    %   kernel will be used.
     % src_info : point_info
     %   Specifies the source points.
     % targ_info : point_info
@@ -38,6 +40,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     N_targ = size(targ_info.r(:,:), 2);
 
     dim = size(src_info.r, 1);
+    if isempty(kern_st), kern_st = kern_0; end
 
     if ~isa(kern_0,'function_handle')
         try

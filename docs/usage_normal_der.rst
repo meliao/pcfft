@@ -36,7 +36,7 @@ This type of sum arises in when solving a boundary integral equation formulation
       %         - src_pts.r with shape (2, M)
       %         - src_pts.n with shape (2, M)
       % target_pts is a struct where  target_pts.r has shape (2, N)
-      % Computes \partial_{n(target)}log{|| src - target||}
+      % Computes \partial_{n(src)}log{|| src - target||}
       % Output shape is (N, M)
 
       % Shape (N, M)

@@ -59,6 +59,8 @@ Next, we call :func:`get_spread` to compute the matrices which spread the source
    [A_spread_targ, srt_info_targ] = get_spread(kern, [], targ_info, ...
                                                 grid_info, proxy_info);
 
+Note that the second argument was left empty as we do not wish to take any derivatives of `k`.
+
 The matrices ``A_spread_src`` and ``A_spread_targ`` take care of the far-field interactions, but we need to correct for near-field interactions which must be computed exactly. We do this by calling :func:`get_addsub`:
 
 .. code:: matlab
