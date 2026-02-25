@@ -47,7 +47,7 @@ This type of sum arises in when solving a boundary integral equation formulation
 
       dist = sqrt(rx.^2 + ry.^2);
 
-      k_evals = src_pts.n(1,:).'.*rx + src_pts.n(2,:).'.*ry
+      k_evals = src_pts.n(1,:).*rx + src_pts.n(2,:).*ry
       k_evals = k_evals ./ dist.^2;
    end
 
