@@ -25,7 +25,7 @@ kern_t = @(s,t) my_kernel(t,s).';
 kern_st = @(s,t) my_kernel(s,t);
 
 % charges
-str = randn(2*nsrcs,1);
+str = randn(nsrcs,1);
 
 %% Precompuation
 
