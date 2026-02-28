@@ -82,9 +82,13 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     % Cols of A_addsub are ordered according to sorted source points.
     % A_addsub = sparse(N_targ, N_src);
 
+    opdim = [size(A_spread_t,2)/N_targ, size(A_spread_s,2)/N_src];
+
     % Sort the cols of A_spread_s and A_spread_t to match the sorted source points
-    A_spread_s = A_spread_s(:, sort_info_s.ptid_srt);
-    A_spread_t = A_spread_t(:, sort_info_t.ptid_srt);
+    src_sort_ids = opdim(2)*(sort_info_s.ptid_srt-1) + (1:opdim(2)).';
+    A_spread_s = A_spread_s(:, src_sort_ids(:));
+    targ_sort_ids = opdim(1)*(sort_info_t.ptid_srt-1) + (1:opdim(1)).';
+    A_spread_t = A_spread_t(:, targ_sort_ids(:));
 
 
     % Add 1 row of zeros to A_spread_s to handle empty bins
@@ -150,6 +154,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
         % get list of all neighbors
         source_idx = zeros(1,grid_info.n_nbr);
+        source_idx_dof = zeros(1,opdim(2)*grid_info.n_nbr);
         istart = 1;
         for j = 1:length(idx_sj_starts)
             % This iter of the loop does interaction between target bin i and 
@@ -159,9 +164,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
             % store indices
             source_idx(istart:istart+(idx_sj_end-idx_sj_start)) = idx_sj_start:idx_sj_end;
+            source_idx_dof(opdim(2)*(istart-1)+1:opdim(2)*(istart-1)+1+opdim(2)*(idx_sj_end-idx_sj_start)) = opdim(2)*(idx_sj_start-1)+1:opdim(2)*idx_sj_end;
             istart = istart + (idx_sj_end-idx_sj_start+1);
         end
         source_idx = source_idx(1:istart-1);
+        source_idx_dof = source_idx_dof(1:opdim(2)*istart-1);
 
         % It may be the case that there are no source points in the bins 
         % neighboring target bin i. 
@@ -186,15 +193,15 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
         % Update A_sub with approximated near-field interactions. This is the 
         % "sub" part.
-        A_spread_t_i = A_spread_t(reg_idxs_i, idx_ti_start:idx_ti_end);
-        A_spread_s_j = A_spread_s(nbr_grididxes, source_idx);
+        A_spread_t_i = A_spread_t(reg_idxs_i, opdim(1)*(idx_ti_start-1)+1:opdim(1)*idx_ti_end);
+        A_spread_s_j = A_spread_s(nbr_grididxes, source_idx_dof);
         AKA_chunk = (A_spread_t_i.' * K_nbr2bin) * A_spread_s_j;
 
         Aloc =  K_src_to_targ - AKA_chunk;
 
         % Update COO arrays.
-        is = (idx_ti_start:idx_ti_end);
-        js = source_idx;
+        is = (opdim(1)*(idx_ti_start-1)+1:opdim(1)*idx_ti_end);
+        js = source_idx_dof;
         is = repmat(is(:), 1, size(js,2));
         js = repmat(js(:).', size(is,1), 1);
         n_sparse = numel(Aloc);
@@ -205,11 +212,30 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         id_start = id_start + n_sparse;
 
     end
-    A_addsub = sparse(iid(1:id_start), jid(1:id_start), vals(1:id_start), N_targ, N_src);
+    iid = iid(1:id_start);
+    jid = jid(1:id_start);
+    vals = vals(1:id_start);
 
-    % Reorder the rows to match the original target point ordering
-    A_addsub(sort_info_t.ptid_srt, :) = A_addsub;
+    targ_sort_ids = targ_sort_ids(:);
+    src_sort_ids = src_sort_ids(:);
+    iid = targ_sort_ids(iid);
+    jid = src_sort_ids(jid);
 
-    % % Reorder the columns to match the original source point ordering
-    A_addsub(:, sort_info_s.ptid_srt) = A_addsub; 
+    A_addsub = sparse(iid, jid, vals, opdim(1)*N_targ, opdim(2)*N_src);
+    % [jid,isort] = sort(jid);
+    % iid = iid(isort);
+    % vals = vals(isort);
+    % A_addsub = sparse(iid, jid, vals, opdim(1)*N_targ, opdim(2)*N_src);
+    % [iid,isort] = sort(iid);
+    % jid = jid(isort);
+    % vals = vals(isort);
+    % 
+    % 
+    % A_addsub = sparse(iid, jid, vals, opdim(1)*N_targ, opdim(2)*N_src);
+
+    % % Reorder the rows to match the original target point ordering
+    % A_addsub(targ_sort_ids, :) = A_addsub;
+    % 
+    % % % Reorder the columns to match the original source point ordering
+    % A_addsub(:, src_sort_ids) = A_addsub; 
 end

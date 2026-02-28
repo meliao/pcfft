@@ -23,7 +23,7 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     % Returns
     % -------
     % A_spread : sparse matrix [nreg, nsrc]
-    %   Mapps source strengths to equivalent strengths on the regular grid.
+    %   Maps source strengths to equivalent strengths on the regular grid.
     % sort_info : SortInfo
     %   Object describing the sorting of source points into bins
 
@@ -69,13 +69,12 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     end
     pts_0_centered = pts_0 - center_0;
     K_reg_to_proxy = kern_0(struct('r',pts_0_centered), proxy_info);
+    if any(size(K_reg_to_proxy) ~= [size(proxy_info.r,2), size(pts_0_centered,2)])
+        error('kern_0 must be scalar-valued. Use kern_component for vector-valued free-space kernels.')
+    end
+        
     % K_reg_to_proxy_pinv = pinv(K_reg_to_proxy);
 
-    % A is a sparse matrix with shape (ngrid^2, nsrc)
-    n_grid_pts = size(grid_info.r, 2);
-    A_spread = sparse(n_grid_pts, size(src_info.r(:,:), 2));
-    % disp("get_spread: A_spread shape: ")
-    % disp(size(A_spread))
 
     % First, loop through the bins and construct "local" source
     % points which are (src points) - (bin center)
@@ -116,6 +115,15 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     K_src_to_proxy = kern_der(src_local, proxy_info);
     K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
 
+    % determine dimension of the kernel
+    opdim = size(K_src_to_proxy,2)/size(src_info.r(:,:), 2);
+
+    % A is a sparse matrix with shape (ngrid^2, nsrc)
+    n_grid_pts = size(grid_info.r, 2);
+    A_spread = sparse(n_grid_pts, opdim*size(src_info.r(:,:), 2));
+    % disp("get_spread: A_spread shape: ")
+    % disp(size(A_spread))
+
     % Now, loop through the bins and start to fill in A
     % Remember, we 0-indexed the bin IDs
     for i = 0:size(id_start,2) - 2
@@ -125,8 +133,8 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
             [pts_i, center_i, row_idxes_i] = grid_pts_for_box_3d(i, grid_info);
         end
 
-        idx_start = id_start(i+1);
-        idx_end = id_start(i+2) - 1;
+        idx_start = opdim*(id_start(i+1)-1) + 1;
+        idx_end = opdim*(id_start(i+2)-1);
 
         % Do the logging if there is a nonempty set of src point indices
         % if idx_end >= idx_start
@@ -150,8 +158,8 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
         A_spread(row_idxes_i, idx_start:idx_end) = A_spread(row_idxes_i, idx_start:idx_end) + block_content;
 
     end
-
+    sorted_idxes = opdim*(sorted_idxes-1) + (1:opdim).';
     % Undo the sorting
-    A_spread(:, sorted_idxes) = A_spread;
+    A_spread(:, sorted_idxes(:)) = A_spread;
 
 end

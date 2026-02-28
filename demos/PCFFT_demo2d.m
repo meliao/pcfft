@@ -9,7 +9,6 @@ srcs = [];
 srcs.r = L*2*(rand(2,nsrcs) - 0.5);
 % Specify the normal vector at each source point. 
 srcs.n = randn(2,nsrcs);
-srcs.n = srcs.r; % @Tristan, why are we doing this?
 
 % Define the targets
 targs = [];
