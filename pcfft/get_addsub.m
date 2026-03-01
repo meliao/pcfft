@@ -92,11 +92,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
 
     % Add 1 row of zeros to A_spread_s to handle empty bins
-    A_spread_s = [A_spread_s; sparse(1, N_src)];
+    A_spread_s = [A_spread_s; sparse(1, opdim(2)*N_src)];
     % dummy_idx = n_gridpts + 1;
 
     % TODO: correct formula for number of corrections
-    ncor = grid_info.n_nbr*ceil(mean([N_targ,N_src]));
+    ncor = grid_info.n_nbr*ceil(mean([opdim(1)*N_targ,opdim(2)*N_src]));
 
     % These are the arrays we will use to build the sparse A_addsub
     % in COO format.
@@ -164,11 +164,11 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
             % store indices
             source_idx(istart:istart+(idx_sj_end-idx_sj_start)) = idx_sj_start:idx_sj_end;
-            source_idx_dof(opdim(2)*(istart-1)+1:opdim(2)*(istart-1)+1+opdim(2)*(idx_sj_end-idx_sj_start)) = opdim(2)*(idx_sj_start-1)+1:opdim(2)*idx_sj_end;
+            source_idx_dof(opdim(2)*(istart-1)+1:opdim(2)*(istart+idx_sj_end-idx_sj_start)) = opdim(2)*(idx_sj_start-1)+1:opdim(2)*idx_sj_end;
             istart = istart + (idx_sj_end-idx_sj_start+1);
         end
         source_idx = source_idx(1:istart-1);
-        source_idx_dof = source_idx_dof(1:opdim(2)*istart-1);
+        source_idx_dof = source_idx_dof(1:opdim(2)*(istart-1));
 
         % It may be the case that there are no source points in the bins 
         % neighboring target bin i. 
@@ -189,6 +189,9 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         for k = 1:dim
             r = r + (src_pts_in_j.r(k,:) - targ_info_in_i.r(k,:).').^2;
         end
+        r = reshape(r, 1, size(targ_info_in_i.r,2), 1, size(src_pts_in_j.r,2));
+        r = repmat(r,opdim(1),1,opdim(2),1);
+        r = reshape(r, size(K_src_to_targ));
         K_src_to_targ(r<1e-14) = 0;
 
         % Update A_sub with approximated near-field interactions. This is the 
@@ -221,7 +224,9 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     iid = targ_sort_ids(iid);
     jid = src_sort_ids(jid);
 
+    isort = randperm(id_start);
     A_addsub = sparse(iid, jid, vals, opdim(1)*N_targ, opdim(2)*N_src);
+    % A_addsub = sparse(iid(isort), jid(isort), vals(isort), opdim(1)*N_targ, opdim(2)*N_src);
     % [jid,isort] = sort(jid);
     % iid = iid(isort);
     % vals = vals(isort);
