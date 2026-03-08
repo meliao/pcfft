@@ -6,11 +6,12 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     % Parameters
     % ----------
     % kern_0 : kernel
-    %   Free-space kernel.
+    %   Free-space kernel, which must be scalar-valued
     % kern_st : kernel
     %   Direct interaction kernel, which must be a combination of
     %   derivatives of the free-space kernel. If left empty the free-space
     %   kernel will be used.
+    %   Each pairwise interaction must of shape [opdim(1), opdim(2)]
     % src_info : point_info
     %   Specifies the source points.
     % targ_info : point_info
@@ -23,9 +24,9 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     %   Specifies how source points are sorted into bins.
     % sort_info_t : SortInfo
     %   Specifies how target points are sorted into bins.
-    % A_spread_s : sparse matrix [nreg, nsrc]
+    % A_spread_s : sparse matrix [nreg, opdim(2)*nsrc]
     %   Maps source strengths to equivalent strengths on the regular grid.
-    % A_spread_t : sparse matrix [nreg, ntarg]
+    % A_spread_t : sparse matrix [nreg, opdim(1)*ntarg]
     %   Maps target strengths to equivalent strengths on the regular grid. Its adjoint is used to map regular grid strengths to equivalent strengths on the target points.
     %
     % Returns
@@ -82,6 +83,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     % Cols of A_addsub are ordered according to sorted source points.
     % A_addsub = sparse(N_targ, N_src);
 
+    % size of pairwise interaction
     opdim = [size(A_spread_t,2)/N_targ, size(A_spread_s,2)/N_src];
 
     % Sort the cols of A_spread_s and A_spread_t to match the sorted source points

@@ -6,10 +6,11 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     % Parameters
     % ----------
     % kern_0 : kernel
-    %   The free-space kernel.
+    %   The free-space kernel, which must be scalar-valued
     % kern_der : kernel
     %   Some derivative of the free-space kernel. This can be left empty by 
     %   passing in an empty array, in which case the free-space kernel will be used.
+    %   Each pairwise interaction must of shape [1, opdim]
     % src_info : point_info
     %   Specifies the source points.
     % grid_info : GridInfo
@@ -22,7 +23,7 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     %
     % Returns
     % -------
-    % A_spread : sparse matrix [nreg, nsrc]
+    % A_spread : sparse matrix [nreg, opdim*nsrc]
     %   Maps source strengths to equivalent strengths on the regular grid.
     % sort_info : SortInfo
     %   Object describing the sorting of source points into bins
