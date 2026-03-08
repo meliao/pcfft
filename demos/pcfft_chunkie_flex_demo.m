@@ -30,7 +30,7 @@ L = 8;
 theta = 2*pi*rand();
 ctrs = L*rand()*[cos(theta);sin(theta)];
 n_pts = [];
-nscat = 10;
+nscat = 15;
 for i  = 1:nscat
     % each boundary is rotated starfish with a random number of arms
     phi = 2*pi*rand();
@@ -81,8 +81,8 @@ secondbc = -normalderiv;
 
 rhs = zeros(2*chnkr.npt, 1); rhs(1:2:end) = firstbc ; rhs(2:2:end) = secondbc;
 
-src = []; src.r = [-10;0];
-rhs = -bkern(src,chnkr);
+% src = []; src.r = [-10;0];
+% rhs = -bkern(src,chnkr);
 
 %% Compute example field
 
@@ -100,8 +100,8 @@ targout = [];
 targout.r = targs(:,out);
 % get incoming solution
 uin = zeros(size(xx));
-% uin(out) = planewave(kvec(:),targs(:,out));
-uin(out) =skern(src,targout);
+uin(out) = planewave(kvec(:),targs(:,out));
+% uin(out) =skern(src,targout);
 
 %% Precompuation
 
@@ -185,7 +185,7 @@ utot = uin + uscat;
 umax = max(abs(utot(:))); 
 figure(2);clf
 h = pcolor(xx,yy,imag(utot)); set(h,'EdgeColor','none'); colorbar
-% colormap(redblue); clim([-umax,umax]);
+colormap(redblue); clim([-umax,umax]);
 hold on 
 plot(chnkr,'k')
 axis equal

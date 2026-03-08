@@ -25,11 +25,11 @@ ntry = 1000;
 
 % make interior boundaries with random locations
 chnkr = [];
-L = 8;
+L = 6;
 theta = 2*pi*rand();
 ctrs = L*rand()*[cos(theta);sin(theta)];
 n_pts = [];
-nscat = 25;
+nscat = 15;
 for i  = 1:nscat
     % each boundary is rotated starfish with a random number of arms
     phi = 2*pi*rand();
@@ -125,34 +125,34 @@ tprecom = toc(t1)
 sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_c,cors,skern_hat);
 % return
 %%
-tic;
-% build fast direct solver
-F = chunkerflam(chnkr,dkern,0.5);
-t_build_solver = toc
-
-tic;
-% solve
-sol2 = rskelf_sv(F,rhs);
-tsolve1 = toc
+% tic;
+% % build fast direct solver
+% F = chunkerflam(chnkr,dkern,0.5);
+% t_build_solver = toc
+% 
+% tic;
+% % solve
+% sol2 = rskelf_sv(F,rhs);
+% tsolve1 = toc
 
 tic;
 % solve
 sol = gmres(sys_app,rhs,[],eps,1000);
 tsolve2 = toc
 
-corsfmm = chunkermat(chnkr,dkern,struct('corrections',1));
-corsfmm = corsfmm +  0.5*speye(size(cors));
-sys_app = @(dens) chunkermatapply(chnkr,dkern,dens,corsfmm);
-tic;
-% solve
-sol = gmres(sys_app,rhs,[],eps,1000);
-tsolve3 = toc
+% corsfmm = chunkermat(chnkr,dkern,struct('corrections',1));
+% corsfmm = corsfmm +  0.5*speye(size(cors));
+% sys_app = @(dens) chunkermatapply(chnkr,dkern,dens,corsfmm);
+% tic;
+% % solve
+% sol = gmres(sys_app,rhs,[],eps,1000);
+% tsolve3 = toc
 
 %%
 
 % get solution
 tic;
-uscat = zeros(size(xx));
+uscat = (NaN+NaN*1i)*zeros(size(xx));
 evalmat = chunkerkernevalmat(chnkr,dkern,targout,struct('corrections',1));
 uscat(out) = pcfft_apply(sol, A_spread_s, A_spread_t,evalmat+A_addsub_eval,skern_hat);
 tplot = toc
@@ -163,8 +163,8 @@ utot = uin + uscat;
 umax = max(abs(utot(:))); 
 figure(2);clf
 h = pcolor(xx,yy,imag(utot)); set(h,'EdgeColor','none'); colorbar
-colormap(redblue); clim([-umax,umax]);
+colormap(redblue); clim(0.4*[-umax,umax]);
 hold on 
 plot(chnkr,'k')
 axis equal
-title('$u^{\textrm{tot}}$','Interpreter','latex','FontSize',12)
+% title('$u^{\textrm{tot}}$','Interpreter','latex','FontSize',12)
