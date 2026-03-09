@@ -1,9 +1,9 @@
-function u = pcfft_apply(sigma, A_spread_s, A_spread_t, A_addsub, kern_0hat)
+function u = pcfft_apply(mu, A_spread_s, A_spread_t, A_addsub, kern_0hat)
 % Compute N-body sum using a precorrected FFT.
 %
 % Parameters
 % ----------
-% sigma : matrix [opdim(2)*nsrc, 1]
+% mu : matrix [opdim(2)*nsrc, 1]
 %   Source strengths.
 % A_spread_s : sparse matrix
 %   source spreading matrix (see get_spread).
@@ -20,7 +20,7 @@ function u = pcfft_apply(sigma, A_spread_s, A_spread_t, A_addsub, kern_0hat)
 %   potential.
 
 
-sigma_grid = A_spread_s*sigma;
+sigma_grid = A_spread_s*mu;
 sigma_hat = fftn(reshape(sigma_grid,size(kern_0hat)/2),size(kern_0hat));
 u_hat = kern_0hat .* sigma_hat;
 ugrid = ifftn(u_hat);
@@ -31,5 +31,5 @@ else
 end
 % u = A_spread_t.'*ugrid(:) + A_addsub*sigma;
 u = A_spread_t.'*ugrid(:);
-u = u + A_addsub*sigma;
+u = u + A_addsub*mu;
 end
