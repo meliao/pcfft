@@ -81,6 +81,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 * Option to proxy against normal derivatives
 * Option to default to shells
 * Continuous integration
+* Fourth order test
 
 
 
@@ -97,6 +98,7 @@ cd docs
 make html
 open _build/html/index.html
 ```
+
 
 
 
