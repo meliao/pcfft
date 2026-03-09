@@ -141,11 +141,11 @@ opts = [];
 opts.sing = 'log';
 opts.corrections = 1;
 
-a = fkern(chnkr,chnkr).*wts(:).';
-a(1:2*size(a,1)+2:end) = 0;
-a(2:2*size(a,1)+2:end) = 0;
-a(1+size(a,1):2*size(a,1)+2:end) = 0;
-a(2+size(a,1):2*size(a,1)+2:end) = 0;
+% a = fkern(chnkr,chnkr).*wts(:).';
+% a(1:2*size(a,1)+2:end) = 0;
+% a(2:2*size(a,1)+2:end) = 0;
+% a(1+size(a,1):2*size(a,1)+2:end) = 0;
+% a(2+size(a,1):2*size(a,1)+2:end) = 0;
 
 start = tic;
 cors = chunkermat(chnkr,fkern, opts);

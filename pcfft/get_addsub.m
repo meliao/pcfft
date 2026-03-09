@@ -227,7 +227,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     iid = targ_sort_ids(iid);
     jid = src_sort_ids(jid);
 
-    isort = randperm(id_start);
+    % isort = randperm(id_start);
     A_addsub = sparse(iid, jid, vals, opdim(1)*N_targ, opdim(2)*N_src);
     % A_addsub = sparse(iid(isort), jid(isort), vals(isort), opdim(1)*N_targ, opdim(2)*N_src);
     % [jid,isort] = sort(jid);
