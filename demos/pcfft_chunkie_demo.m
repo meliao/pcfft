@@ -94,9 +94,6 @@ uin(out) = planewave(kvec(:),targs(:,out));
 
 eps = 1e-6;
 
-srcs = [];
-srcs.r = chnkr.r(:,:);
-srcs.n = chnkr.n(:,:);
 
 t1 = tic;
 
