@@ -21,10 +21,10 @@ This package expects points to specified using a struct with field ``r`` contain
    targ_info.n = rand(3, M);
 
 
-The PCFFT package requires the kernel to be specified as a function handle or as an object with an ``eval`` method. We assume a few things about the kernel functionn (or its ``eval`` method):
+The PCFFT package requires the kernel to be specified as a function handle or as an object with an ``eval`` method. We assume a few things about the kernel function (or its ``eval`` method):
 
  * The first argument is the source point structure, and the second argument is the target point structure. The kernel function should not require other arguments.
- * If there are :math:`N` source points and :math:`M` target points, the kernel function should return an array of shape ``[opdim(1)*M, opdim(2)*N]`` containing the kernel evaluations between each target and source point. If the kernel is vector-valued, then the result should be interleaved, i.e. vals(1:opdim(1),1:opdim(2)) should be the interaction between the first source and the first target.
+ * If there are :math:`N` source points and :math:`M` target points, the kernel function should return an array of shape ``[opdim(1)*M, opdim(2)*N]`` containing the kernel evaluations between each target and source point. If the kernel is vector-valued, then the result should be interleaved, i.e. ``vals(1:opdim(1),1:opdim(2))```` should be the interaction between the first source and the first target.
 
 Here is an example of a kernel function which matches these requirements:
 

@@ -1,4 +1,4 @@
-rxample usage 2
+Example usage 2
 ================
 
 Suppose we want to evaluate the following sum:
@@ -68,7 +68,7 @@ We construct the regular grid just as we did before -- we only need to specify t
    tol = 1e-6;
    [grid_info, proxy_info] = get_grid(@kern, src_info, targ_info, tol);
 
-Because we are taking derivatives with respect to the source points, we need to specify the kernel and its gradient when we call :func:`get_spread`: for the sources. The targets are not differentiated, so we can just specify the free-space kernel and don't need to pass a list of required point_info fields.
+Because we are taking derivatives with respect to the source points, we need to specify the kernel and its gradient when we call :func:`get_spread` for the sources. The targets are not differentiated, so we can just specify the free-space kernel and don't need to pass a list of required point_info fields.
 
 .. code:: matlab
 
@@ -77,13 +77,15 @@ Because we are taking derivatives with respect to the source points, we need to 
    [A_spread_targ, srt_info_targ] = get_spread(@kern, [], targ_info, ...
                                                 grid_info, proxy_info);
 
-The precorrected fft algorithm approximates the field due to the dipoles in ``src_info`` by a collection of point charges on the regular grid. The field due to these point charges can be quickly computed using an FFT. We now precompute the Fourier transform of the free-space kerne:
+The precorrected FFT algorithm approximates the field due to the dipoles in ``src_info`` by a collection of point charges on the regular grid. The field due to these point charges can be quickly computed using an FFT. We now precompute the Fourier transform of the free-space kernel:
 
 .. code:: matlab
 
    kern_hat = get_kernhat(@kern, grid_info);
 
-The approximation of each dipole in ``src_info`` by grid charges is only valid away from that dipole. As the final precomputation step, we use :func:`get_addsub` to compute the corrections to fix the errors caused by ignoring this. 
+The approximation of each dipole in ``src_info`` by grid charges is only valid away from that dipole. 
+However, the spreading matrices spread all dipoles to the grid, so immediately using the spreading matrices will approximate nearby interactions with large errors.
+As the final precomputation step, we use :func:`get_addsub` to compute the corrections to fix the errors caused by ignoring this. 
 When we call this function, we need to provide the free-space kernel and the kernel containing the true interaction between the all source and target (including any derivatives):
 
 .. code:: matlab
