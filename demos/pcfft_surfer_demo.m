@@ -97,6 +97,7 @@ skern_hat = get_kernhat(skern,grid_info);
 
 opts = [];
 opts.format = 'sparse';
+% not actually corrections
 cors = helm3d.dirichlet.get_quadrature_correction(S,eps,zk,[0,1],S,opts);
 cors = cors.spmat + A_addsub_c.*S.wts(:).' + 0.5*speye(size(cors.spmat));
 A_spread_s = A_spread_s.*S.wts(:).';
