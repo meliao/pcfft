@@ -73,10 +73,15 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 ## Desired demos
 * Chunkie demo -- separate demos for basic use+plotting and time comparison with FMM.
 * FMM3DBIE demo
-* Vector valued demo
-* Gradient demo
-* Flexural/4th order
-* Matern kernel
+* Matern kernel (3D)
+* Gaussian kernel
+
+## Wishlist
+* Tighter neighboring boxes
+* Option to proxy against normal derivatives
+* Option to default to shells
+* Continuous integration
+* Fourth order test
 
 
 
@@ -93,6 +98,8 @@ cd docs
 make html
 open _build/html/index.html
 ```
+
+
 
 
 
