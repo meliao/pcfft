@@ -25,7 +25,7 @@ kern_st = kern_s;
 % charges
 str = randn(nsrcs,1);
 
-%% Precompuation
+%% Precomputation
 
 eps = 1e-6;
 
@@ -49,7 +49,7 @@ tprecom = toc(t1)
 %% True solution
 tic;
 Atrue = kern_st(srcs,targs);
-true = toc
+t_densecomp = toc
 tic;
 utrue = Atrue*str;
 tdens_app = toc

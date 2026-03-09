@@ -1,7 +1,9 @@
 %Chunkie integration demo2
+% Requires chunkIE: https://github.com/fastalgorithms/chunkie
 %
 % Solve flexural scattering problems with many inclusions
 
+addpath("utils")
 
 % planewave direction
 phi = 0;

@@ -1,7 +1,10 @@
-%Chunkie integration demo
+% Chunkie integration demo
+% Requires chunkIE: https://github.com/fastalgorithms/chunkie
 %
 % Solve Dirichlet scattering problems with many inclusions
 
+% Need to load planewave function
+addpath("utils")
 
 % planewave direction
 phi = 0;
@@ -148,7 +151,7 @@ tsolve2 = toc
 % sol = gmres(sys_app,rhs,[],eps,1000);
 % tsolve3 = toc
 
-%%
+%% compute utot on the 2D domain for plotting
 
 % get solution
 tic;
