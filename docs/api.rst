@@ -20,6 +20,11 @@ This package expects points to specified using a struct with field ``r`` contain
    targ_info.r = rand(3, M);
    targ_info.n = rand(3, M);
 
+Now, suppose we have a kernel function
+
+.. math:: 
+
+   k : \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}^{o_1 \times o_2}
 
 The PCFFT package requires the kernel to be specified as a function handle or as an object with an ``eval`` method. We assume a few things about the kernel function (or its ``eval`` method):
 
