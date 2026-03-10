@@ -3,11 +3,11 @@ Example usage 1
 
 Suppose we want to evaluate the following sum:
 
-.. math:: f(y) = \sum_{j=1}^N k(y - x_j) \mu_j
+.. math:: f(y_i) = \sum_{j=1}^N k(y_i - x_j) \mu_j
 
 where :math:`k` evaluates the kernel for 3D electrostatic interactions:
 
-.. math:: k(y-x_j) = \frac{1}{4\pi \|y-x_j\|}
+.. math:: k(y_i-x_j) = \frac{1}{4\pi \|y_i-x_j\|}
 
 In this setting, we can think of the points :math:`x_j` as sources, each with strength :math:`\mu_j`. The points :math:`y_i` are targets. The goal is to evaluate :math:`f(y_i)` for many target points :math:`y_i` efficiently. We will call the number of target points :math:`M` and the number of source points :math:`N`.
 

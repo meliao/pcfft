@@ -9,7 +9,7 @@ Suppose we want to evaluate the following sum:
 
 where :math:`k` is a 2D logarithmic kernel, which arises as a multiple of the Green's function of the Laplace equation in 2D:
 
-.. math:: k(y-x_j) = \log ( \|y-x_j\| )
+.. math:: k(y_i-x_j) = \log ( \|y_i-x_j\| )
 
 This type of sum arises in when solving a boundary integral equation formulation of an elliptic BVP with Dirichlet boundary conditions.
 :doc:`usage` shows how to evaluate a similar sum without the normal derivatives. First, we have to define the kernel and its gradient. See the note in :doc:`api` for more details on how to specify kernels and points.
@@ -101,4 +101,4 @@ Now that we have finished our precomputations, we can evaluate the sum by callin
    sigma = rand(N, 1); % source strengths
    u = pcfft_apply(sigma, A_spread_src, A_spread_targ, A_addsub, kern_hat);
 
-And that's it!
+And that's it! The `source repository <https://github.com/meliao/pcfft/tree/main/demos>`_ contains other examples, including differentiation of source and target points, and integration with `chunkIE <https://github.com/fastalgorithms/chunkie>`_.

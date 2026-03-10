@@ -1,21 +1,7 @@
 classdef SortInfo
     % Information about sorting of source points into bins.
     %
-    % Sorts points ``src_info.r`` into a number of bins. Imagine a regular grid
-    % with bounds ``[xmin ymin xmax ymax] = Lbd`` and grid spacing ``dx``. There are
-    % ``[nx ny] = ngrid`` points in each dimension.
-    %
-    % We want to sort the points into bins which are ``grid_info.nbinpts`` regular
-    % gridpoints across. There are ``grid_info.nbin(1)`` such bins in the x
-    % dimension, ``grid_info.nbin(2)`` in the y dimension, etc.... This class creates indices for these bins by looping
-    % over x first and then y (and then z).
-    %
-    % Example of bin construction:
-    % Suppose the points in r live on [-1, 1] x [-0.5, 0.5]
-    % dx = 0.25
-    % and if we set nbinpts = 3, we expect
-    % x bins [-1., -0.25], [-0.25, 0.5], [0.5, 1.]
-    % y bins [-0.5, 0.25], [0.25, 0.5]
+    % The source points are sorted into bins, and various sorted arrays and indices are stored to avoid repeated binsort operations.
     %
     % Attributes
     % ----------
@@ -43,12 +29,33 @@ classdef SortInfo
     methods
         function obj = SortInfo(src_info, dx, Lbd, nbin, nbinpts,der_fields)
 
+
             if nargin < 6 || isempty(der_fields), der_fields = {'r'}; end
+            
+            % Sorts points ``src_info.r`` into a number of bins. Imagine a regular grid
+            % with bounds ``[xmin ymin xmax ymax] = Lbd`` and grid spacing ``dx``. There are
+            % ``[nx ny] = ngrid`` points in each dimension.
+            %
+            % We want to sort the points into bins which are ``grid_info.nbinpts`` regular
+            % gridpoints across. There are ``grid_info.nbin(1)`` such bins in the x
+            % dimension, ``grid_info.nbin(2)`` in the y dimension, etc.... This class creates indices for these bins by looping
+            % over x first and then y (and then z).
+            %
+            % Example of bin construction:
+            % Suppose the points in r live on [-1, 1] x [-0.5, 0.5]
+            % dx = 0.25
+            % and if we set nbinpts = 3, we expect
+            % x bins [-1., -0.25], [-0.25, 0.5], [0.5, 1.]
+            % y bins [-0.5, 0.25], [0.25, 0.5]
+
             r = src_info.r(:,:);
 
             nbin = nbin(:);
             N_x_bins = nbin(1);
             N_y_bins = nbin(2);
+
+
+
 
             if size(r,1) == 2
                 N_bins = N_x_bins * N_y_bins;

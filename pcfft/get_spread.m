@@ -19,7 +19,7 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     %   object describing the proxy points
     % der_fields : cell array, optional
     %   Contains field names that must be attached to the source point in
-    %   ``kern_der``, e.g. {'r','n','kappa'}. If omitted or left
+    %   ``kern_der``, e.g. {'r', 'n', 'kappa'}. If omitted or left
     %   empty this argument defaults to {'r'}.
     %
     %
