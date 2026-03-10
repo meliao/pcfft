@@ -89,7 +89,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 
 First set up a python virtual environment and install the following packages:
 ```
-pip install sphinx sphinxcontrib-matlabdomain sphinx_rtd_thetme
+pip install sphinx sphinxcontrib-matlabdomain sphinx_rtd_thetme sphinxcontrib-bibtex
 ```
 
 Then to compile, do
