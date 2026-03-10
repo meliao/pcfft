@@ -48,3 +48,11 @@ The package depends on Kenneth Ho's package FLAM, available at `<https://github.
    usage
    usage_normal_der
    api
+
+Related work
+----------------
+
+Here is a reference to the surface layers paper :cite:t:`Askham_2025_Surface`. Here are some other references :cite:p:`Bruno_2001_Fast,Nie_2002_Fast`.
+
+
+.. bibliography::

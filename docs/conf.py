@@ -13,7 +13,6 @@ author = 'Tristan Goodwill, Owen Melia'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -26,7 +25,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = "sphinx_rtd_theme"
 html_static_path = ['_static']
 
-extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.matlab', "sphinx.ext.napoleon"]
+extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.matlab', "sphinx.ext.napoleon", 'sphinxcontrib.bibtex']
+bibtex_bibfiles = ['refs.bib']
 primary_domain = "mat"
 
 
