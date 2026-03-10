@@ -52,7 +52,9 @@ The package depends on Kenneth Ho's package FLAM, available at `<https://github.
 Related work
 ----------------
 
-Here is a reference to the surface layers paper :cite:t:`Askham_2025_Surface`. Here are some other references :cite:p:`Bruno_2001_Fast,Nie_2002_Fast`.
+The precorrected FFT algorithm was introduces in :cite:t:`phillips2002precorrected` and further developped in ... :cite:p:`Bruno_2001_Fast,Nie_2002_Fast`.
+
+The proxy shell method was used to extend the precorrected FFT algorithm was extended to more generic kernels in :cite:t:`Askham_2025_Surface`. A proof that the proxy shell method gives accurate results for kernels that are derivatives of logarithm in three dimensions is given in :cite:t:`gdwl2026`. 
 
 
 .. bibliography::
