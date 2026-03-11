@@ -1,5 +1,5 @@
 function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
-        tol, n_nbr)
+        tol, n_nbr, multi_shells)
     % Compute the equispaced spreading grid used for the precorrected FFT.
     %
     % Parameters
@@ -16,6 +16,9 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     % n_nbr : int, optional
     %   int specifying the average number of interactions that must be done
     %   directly. Defaults to 1000.
+    % multi_shells : bool, optional
+    %   Whether to use shell-based proxies. Defaults to false. This can be set
+    %   to true to speed up the step of finding a good set of proxy points.
     %
     % Returns
     % -------
@@ -29,6 +32,9 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     % nsrc = size(src_info.r, 2);
     if nargin < 5
         n_nbr = 1000;
+    end
+    if nargin < 6
+        multi_shells = false;
     end
 
     if ~isa(kernel,'function_handle')
@@ -46,7 +52,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     halfside = spread_halfside([src_info.r(:,:), targ_info.r(:,:)], n_nbr, crad);
 
     % get prototype grid for spreading
-    [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad);
+    [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad, multi_shells);
 
 
     grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr);

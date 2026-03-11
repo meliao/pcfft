@@ -42,3 +42,5 @@ colorbar;
 %     at_idx = sorted_bin_ids(idx);
 %     assert(at_idx - before_idx == 1);
 % end
+
+close all;

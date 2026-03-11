@@ -40,3 +40,5 @@ assert(all(size(id_start, 2) == N_bins));
 scatter3(r_srt(1,:), r_srt(2,:), r_srt(3,:), 20, binid_srt, 'filled');
 colormap('parula');
 colorbar;
+
+close all;

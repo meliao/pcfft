@@ -1,4 +1,4 @@
-% addpath(genpath('../../pcfft'));
+addpath(genpath('../../pcfft'));
 % addpath(genpath('~/FLAM'))
 
 nsrc = 1e4;
