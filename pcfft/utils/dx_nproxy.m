@@ -1,10 +1,13 @@
-function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad)
+function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad, use_shells)
     % DX_NPROXY Determines the grid spacing dx, number of spreading points 
     % across the spreading box nspread, number of grid points across the 
     % spreading bin nbinpts, and proxy surface information proxy_info.
     
     if nargin < 5
         crad = 2;
+    end
+    if nargin < 6
+        use_shells = false;
     end
     % We intend to solve least squares problems with a 
     % rank-deficient matrix in this script.
@@ -59,7 +62,12 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
  
     % disp("dx_nproxy: halfside: " + num2str(halfside))
 
-    bool_unconverged = true;
+    % Set bool_unconverged to not use_shells.
+    % If use_shells is false, we run the following while loop, which tries to 
+    % find a proxy surface with 1 shell.
+    % If use_shells is true, we skip this while loop and start searching 
+    % over nspread and nshell together.
+    bool_unconverged = ~use_shells;
 
     % First, increase nspread and nproxy until we meet the error tolerance
     while bool_unconverged
