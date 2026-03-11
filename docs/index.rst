@@ -1,4 +1,4 @@
-.. pcfft documentation master file, created by
+. pcfft documentation master file, created by
    sphinx-quickstart on Mon Feb  9 15:35:42 2026.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -52,9 +52,10 @@ The package depends on Kenneth Ho's package FLAM, available at `<https://github.
 Related work
 ----------------
 
-The precorrected FFT algorithm was introduces in :cite:t:`phillips2002precorrected` and further developped in ... :cite:p:`Bruno_2001_Fast,Nie_2002_Fast`.
+The precorrected FFT algorithm was introduces in :cite:t:`phillips2002precorrected` and further developped in ... :cite:t:`Bruno_2001_Fast,Nie_2002_Fast`.
 
-The proxy shell method was used to extend the precorrected FFT algorithm was extended to more generic kernels in :cite:t:`Askham_2025_Surface`. A proof that the proxy shell method gives accurate results for kernels that are derivatives of logarithm in three dimensions is given in :cite:t:`gdwl2026`. 
+The original version of the precorrected FFT method was only applicable to kernels that are a Green's function in the ambient space. 
+To overcome this difficulty the authors of :cite:t:`Askham_2025_Surface` used the proxy shell method to compute the equivalent grid charges, enabling this application of the precorrected FFT method to a much more generical class of kernels. A proof that the proxy shell method gives accurate results for kernels that are derivatives of logarithm in three dimensions is given in :cite:t:`gdwl2026`. 
 
 
 .. bibliography::
