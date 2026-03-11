@@ -1,28 +1,41 @@
 classdef GridInfo
-    %GRIDINFO Describes the regular grid used for spreading.
+    % Describes the regular grid used for spreading; is created by ``get_grid()``.
     %
-    %   GRIDINFO stores information about the regular grid used by the
-    %   spreading routines. The grid is divided into non-overlapping spreading
-    %   bins, each of which is spread to a larger spreading box independently.
+    % Stores information about the regular grid used by the spreading
+    % routines. The grid is divided into non-overlapping spreading bins, each
+    % of which is spread to a larger spreading box independently.
     %
-    %   Properties
-    %       ngrid    - (dim,1) number of regular grid points per dimension
-    %       Lbd      - (dim,2) array containing the points 
-    %                       (xmin, ymin, zmin) and (xmax, ymax, zmax). Describes
-    %                       the bounding box of the union of source and target
-    %                       points. 
-    %       dx       - grid spacing 
-    %       nspread  - number of spreading points per dimension required
-    %                  for the requested accuracy
-    %       nbinpts  - width in dx's of the spreading bin
-    %       rpad     - TODO
-    %       r        - (dim, npts) array of padded regular grid points
-    %       dim      - problem dimension (integer)
-    %       nbin     - (dim,1) number of spreading bins per dimension
-    %       offset   - (integer) offset used for indexing the padded grid
-    %       rmax     - (dim, 1) maximum coordinate value of the padded grid
-    %       rmin     - (dim, 1) minimum coordinate value of the padded grid
-    %       n_nbr    - average number of near-field neighbours
+    % Attributes
+    % ----------
+    % ngrid : array [dim, 1]
+    %   number of regular grid points per dimension.
+    % Lbd : array [dim, 2]
+    %   containing the points (xmin, ymin, zmin) and
+    %   (xmax, ymax, zmax). Describes the bounding box of the union of source
+    %   and target points.
+    % dx : float
+    %   grid spacing.
+    % nspread : int
+    %   number of spreading points per dimension required for the requested
+    %   accuracy.
+    % nbinpts : int
+    %   width in dx's of the spreading bin.
+    % rpad : int
+    %   Width of the margin between the bounding box specified by Lbd and the regular grid points.
+    % r : array [dim, npts]
+    %   padded regular grid points.
+    % dim : int
+    %   problem dimension.
+    % nbin : array [dim, 1]
+    %   number of spreading bins per dimension.
+    % offset : int
+    %   Number of dx's used to pad the grid.
+    % rmax : array [dim, 1]
+    %   maximum coordinate value of the padded grid.
+    % rmin : array [dim, 1]
+    %   minimum coordinate value of the padded grid.
+    % n_nbr : int
+    %   average number of near-field neighbours.
 
     properties
         ngrid

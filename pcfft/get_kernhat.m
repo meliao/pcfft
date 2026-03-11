@@ -1,5 +1,26 @@
 function kern_hat = get_kernhat(kern_0, grid_info)
-% evaluate Fourier transform of free-space kernel on the grid in grid_info
+% Evaluate Fourier transform of free-space kernel on the grid in ``grid_info``.
+% Ignores the self-interaction.
+%
+% Parameters
+% ----------
+% kern_0 : kernel
+%   Free-space kernel.
+% grid_info : GridInfo
+%   object describing the regular grid.
+%
+% Returns
+% -------
+% kern_hat : matrix [2*ngrid(dim), ..., 2*ngrid(1)]
+%   Fourier transform of the kernel evaluated on the grid.
+
+if ~isa(kern_0,'function_handle')
+    try
+        kern_0 = kern_0.eval;
+    catch
+        error('kern_0 is not a function and does not have an eval property')
+    end
+end
 
  ngrid = grid_info.ngrid;
  Lbd = grid_info.Lbd;

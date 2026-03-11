@@ -1,21 +1,22 @@
-%Chunkie integration demo
+%Chunkie integration demo2
+% Requires chunkIE: https://github.com/fastalgorithms/chunkie
 %
-% Solve Dirichlet scattering problems with many inclusions
-addpath(genpath('../../pcfft'));
-addpath("utils");
+% Solve flexural scattering problems with many inclusions
+
+addpath("utils")
 
 % planewave direction
 phi = 0;
 % ambient wavenumber
-zk = 20;
+zk = 10;
 kvec = zk*[cos(phi);sin(phi)];
 
 %% Make a field of scatters
 
 % geometry preferences
 cparams = [];
-cparams.maxchunklength = min(4.0/max(zk),0.125);
-                              
+% cparams.maxchunklen = min(4.0/max(zk),0.125);
+cparams.maxchunklen = min(4.0/max(zk));
 pref = []; 
 pref.k = 16;
 narms =5;
@@ -27,10 +28,11 @@ ntry = 1000;
 % make interior boundaries with random locations
 chnkr = [];
 L = 8;
+% L = 2;
 theta = 2*pi*rand();
 ctrs = L*rand()*[cos(theta);sin(theta)];
 n_pts = [];
-nscat = 25;
+nscat = 15;
 for i  = 1:nscat
     % each boundary is rotated starfish with a random number of arms
     phi = 2*pi*rand();
@@ -63,17 +65,31 @@ axis equal
 %% Make system
 % define system kernel
 
-dkern = kernel('helm', 'd', zk);
-skern = kernel('helm', 's', zk);
-% spkern = kernel('helm', 'sp', zk);
+skern = @(s,t) chnk.flex2d.kern(zk, s, t, 's');   
+ekern = @(s,t) chnk.flex2d.kern(zk, s, t, 'clamped_plate_eval');   
+bkern = @(s,t) chnk.flex2d.kern(zk, s, t, 'clamped_plate_bcs');   
+fkern =  @(s,t) chnk.flex2d.kern(zk, s, t, 'clamped_plate');
 
 % define boundary data
-rhs = -planewave(kvec,chnkr.r(:,:));
-rhs = rhs(:);
+[r1, grad] = planewave(kvec, chnkr.r);
+
+nx = chnkr.n(1,:); 
+ny = chnkr.n(2,:);
+
+normalderiv = grad(:, 1).*(nx.')+ grad(:, 2).*(ny.');                                % Dirichlet and Neumann BC(Clamped BC)                         
+
+firstbc = -r1;
+secondbc = -normalderiv;
+
+rhs = zeros(2*chnkr.npt, 1); rhs(1:2:end) = firstbc ; rhs(2:2:end) = secondbc;
+
+% src = []; src.r = [-10;0];
+% rhs = -bkern(src,chnkr);
+
 %% Compute example field
 
 L = 1.1*max(vecnorm(chnkr.r(:,:)));
-x1 = linspace(-L,L,500);
+x1 = linspace(-L,L,300);
 [xx,yy] = meshgrid(x1,x1);
 targs = [xx(:).'; yy(:).'];
 ntargs = size(targs,2);
@@ -87,6 +103,7 @@ targout.r = targs(:,out);
 % get incoming solution
 uin = zeros(size(xx));
 uin(out) = planewave(kvec(:),targs(:,out));
+% uin(out) =skern(src,targout);
 
 %% Precompuation
 
@@ -99,63 +116,71 @@ srcs.n = chnkr.n(:,:);
 t1 = tic;
 
 % setup grid
-[grid_info, proxy_info] = get_grid(skern.eval, chnkr, targout, eps);
+[grid_info, proxy_info] = get_grid(skern, chnkr, targout, eps);
 % get spreading operators
-[A_spread_s, ~, sort_info_c]= get_spread(skern.eval, dkern.eval, chnkr, ...
-    grid_info, proxy_info, {'r','n'});
-[A_spread_c, ~, ~]= get_spread(skern.eval, skern.eval, chnkr, ...
-    grid_info, proxy_info);
-[A_spread_t, ~, sort_info_t] = get_spread(skern.eval, skern.eval, targout, ...
+[A_spread_s, sort_info_c]= get_spread(skern, ekern, chnkr, ...
+    grid_info, proxy_info, {'r','n','d'});
+[A_spread_c, ~]= get_spread(skern, @(s,t) bkern(t,s).', chnkr, ...
+    grid_info, proxy_info, {'r','n','d'});
+[A_spread_t, sort_info_t] = get_spread(skern, skern, targout, ...
     grid_info, proxy_info);
 % build corrections
-[A_addsub_c] = get_addsub(skern.eval, dkern.eval, chnkr, chnkr, ...
+A_addsub_c = get_addsub(skern, fkern, chnkr, chnkr, ...
     grid_info, proxy_info, sort_info_c, sort_info_c, A_spread_s, A_spread_c);
-[A_addsub_eval] = get_addsub(skern.eval, dkern.eval, chnkr, targout, ...
+A_addsub_eval = get_addsub(skern, ekern, chnkr, targout, ...
     grid_info, proxy_info, sort_info_c, sort_info_t, A_spread_s, A_spread_t);
 % get DFT of kernel
-skern_hat = get_kernhat(skern.eval,grid_info);
+skern_hat = get_kernhat(skern,grid_info);
 
-cors = chunkermat(chnkr,dkern,struct('corrections',1));
-cors = cors + A_addsub_c.*chnkr.wts(:).' + 0.5*speye(size(cors));
-A_spread_s = A_spread_s.*chnkr.wts(:).';
-A_addsub_eval = A_addsub_eval.*chnkr.wts(:).';
+
+kappa = signed_curvature(chnkr);
+kappa = kappa(:);
+wts = repmat(chnkr.wts(:).',2,1);
+
+opts = [];
+opts.sing = 'log';
+opts.corrections = 1;
+
+% a = fkern(chnkr,chnkr).*wts(:).';
+% a(1:2*size(a,1)+2:end) = 0;
+% a(2:2*size(a,1)+2:end) = 0;
+% a(1+size(a,1):2*size(a,1)+2:end) = 0;
+% a(2+size(a,1):2*size(a,1)+2:end) = 0;
+
+start = tic;
+cors = chunkermat(chnkr,fkern, opts);
+cors = cors - 0.5*speye(2*chnkr.npt) + A_addsub_c.*wts(:).';
+% cors = cors - 0.5*speye(2*chnkr.npt) + a;
+cors(2:2:end,1:2:end) = cors(2:2:end,1:2:end) + kappa.*speye(chnkr.npt);
+
+A_spread_s = A_spread_s.*wts(:).';
+A_addsub_eval = A_addsub_eval.*wts(:).';
 tprecom = toc(t1)
 
 sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_c,cors,skern_hat);
-% return
-%%
-tic;
-% build fast direct solver
-F = chunkerflam(chnkr,dkern,0.5);
-t_build_solver = toc
-
-tic;
-% solve
-sol2 = rskelf_sv(F,rhs);
-tsolve1 = toc
 
 tic;
 % solve
 sol = gmres(sys_app,rhs,[],eps,1000);
 tsolve2 = toc
 
-corsfmm = chunkermat(chnkr,dkern,struct('corrections',1));
-corsfmm = corsfmm +  0.5*speye(size(cors));
-sys_app = @(dens) chunkermatapply(chnkr,dkern,dens,corsfmm);
-tic;
-% solve
-sol = gmres(sys_app,rhs,[],eps,1000);
-tsolve3 = toc
+% opts.corrections = 0;
+% start = tic;
+% sys = chunkermat(chnkr,fkern, opts);
+% sys = sys - 0.5*eye(2*chnkr.npt);
+% sys(2:2:end,1:2:end) = sys(2:2:end,1:2:end) + kappa.*eye(chnkr.npt);
+% sol2 = sys\rhs;
 
 %%
 
 % get solution
 tic;
 uscat = zeros(size(xx));
-evalmat = chunkerkernevalmat(chnkr,dkern,targout,struct('corrections',1));
+evalmat = chunkerkernevalmat(chnkr,ekern,targout,struct('corrections',1));
 uscat(out) = pcfft_apply(sol, A_spread_s, A_spread_t,evalmat+A_addsub_eval,skern_hat);
 tplot = toc
 
+% uscat(out) = chunkerkerneval(chnkr,ekern,sol2,targout);
 utot = uin + uscat;
 
 %% make plots

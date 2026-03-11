@@ -4,9 +4,9 @@ clear;
 
 % Set up many random source and target points
 rng(4);
-n_src = 2e4;
-n_targ = 3e4;
-n_nbr = 1000;
+n_src = 2e3;
+n_targ = 3e3;
+n_nbr = 100;
 kern_0 = @(s,t) one_over_r_kernel(s,t);
 src_info = struct;
 % Source and target points are random in [-0.5, 0.5] x [-0.5, 0.5]
@@ -38,13 +38,13 @@ for i = 1:n_tol_vals
     [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
 
 
-    [A_spread_s, K_src_to_reg_s, sort_info_s ]= get_spread(kern_0, kern_0, src_info, ...
+    [A_spread_s, sort_info_s ]= get_spread(kern_0, kern_0, src_info, ...
     grid_info, proxy_info);
-    [A_spread_t, K_src_to_reg_t, sort_info_t ]= get_spread(kern_0, kern_0, targ_info, ...
+    [A_spread_t, sort_info_t ]= get_spread(kern_0, kern_0, targ_info, ...
     grid_info, proxy_info);
 
 
-    [A_addsub] = get_addsub(kern_0, kern_0, src_info, targ_info, ...
+    A_addsub = get_addsub(kern_0, kern_0, src_info, targ_info, ...
     grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 
     kern_0hat = get_kernhat(kern_0,grid_info);

@@ -1,19 +1,13 @@
-function u = planewave(kvec, pts)
-% Evaluate a plane wave exp(i * kvec @ pts).
-%
-% Parameters
-% ----------
-% kvec : matrix
-%   TODO
-% pts : matrix
-%   TODO
-%
-% Returns
-% -------
-% u : matrix
-%   TODO
+function [u, grad] = planewave(kvec, r)
+%PLANEWAVE Evaluate a 2D plane wave and its gradient.
+%   [u, grad] = planewave(kvec, r) returns u = exp(i*kvec·r) and
+%   grad = grad(u)
 
-kvec = kvec(:);
-u = exp(1i * (kvec.' * pts));
+rflat = r(:,:);
+phase = kvec.' * rflat;
+u = exp(1i * phase).';
 
+if nargout > 1
+    grad = (1i * u) .* (kvec.');
+end
 end

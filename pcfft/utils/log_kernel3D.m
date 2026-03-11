@@ -1,6 +1,6 @@
 function k_evals = log_kernel3D(src_pts, target_pts)
-% src_pts has shape (3, M)
-% target_pts has shape (3, N)
+% src_pts.r has shape (3, M)
+% target_pts.r has shape (3, N)
 % Computes log{|| src - target||}
 % Output shape is (N, M)
 

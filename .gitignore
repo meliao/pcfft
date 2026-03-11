@@ -8,3 +8,7 @@
 *.blg
 *.log
 *.out
+
+docs/_build/
+venv/
+*.swp
