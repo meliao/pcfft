@@ -53,3 +53,5 @@ assert(id_start(end) == n_src + 1);
 
 max_bin_idx = grid_info.nbin(2) * grid_info.nbin(1) - 1;
 assert(all(binid_srt <= max_bin_idx));
+
+close all;

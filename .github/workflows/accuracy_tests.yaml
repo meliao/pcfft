@@ -1,4 +1,4 @@
-name: runtests
+name: accuracytests
 on: [push]
 jobs:
   my-job:
@@ -14,4 +14,4 @@ jobs:
       - name: Run tests
         uses: matlab-actions/run-command@v2
         with:
-          command: cd('./devtools/test'); res = runtests; assert(all([res.Passed]))
+          command: cd('./devtools/accuracy_tests'); res = runtests; assert(all([res.Passed]))

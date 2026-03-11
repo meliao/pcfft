@@ -130,3 +130,4 @@ disp("test case 3: expected_id_start3:")
 disp(expected_id_start3)
 assert(all(id_start3 == expected_id_start3));
 
+close all;
