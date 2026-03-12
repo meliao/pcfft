@@ -1,5 +1,5 @@
 function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
-        tol, n_nbr, multi_shells)
+        tol, n_nbr, opts)
     % Compute the equispaced spreading grid used for the precorrected FFT.
     %
     % Parameters
@@ -16,9 +16,13 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     % n_nbr : int, optional
     %   int specifying the average number of interactions that must be done
     %   directly. Defaults to 1000.
-    % multi_shells : bool, optional
-    %   Whether to use shell-based proxies. Defaults to false. This can be set
-    %   to true to speed up the step of finding a good set of proxy points.
+    % opts : struct, optional
+    %   options to manipulate the choice of proxy points. Available
+    %   options:
+    %
+    %   opts.multi_shells - Whether to default to shell-based proxies. 
+    %   Defaults to false. Accelerates the precomputation for kernels that
+    %   are known to not satisfy Green's identity
     %
     % Returns
     % -------
@@ -34,7 +38,11 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
         n_nbr = 1000;
     end
     if nargin < 6
-        multi_shells = false;
+        opts = false;
+    end
+    multi_shells = false;
+    if isfield(opts,'multi_shells')
+        multi_shells = opts.multi_shells;
     end
 
     if ~isa(kernel,'function_handle')

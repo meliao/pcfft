@@ -22,7 +22,7 @@ target_vals = K_exact * mu;
 
 tol = 1e-10;
 n_nbr = 100;
-[grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
+[grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr, struct('multi_shells',true));
 
 [A_spread_s, sort_info_s ]= get_spread(kern_0, [], src_info, ...
     grid_info, proxy_info);
