@@ -25,6 +25,8 @@ classdef ProxyInfo
     %   Radius of the innermost proxy shell. Used for determining near-field neighbors. = ``sqrt(dim)`` * ``halfside`` * ``crad``.
     % r : array [dim, n_points_total]
     %   array of proxy point coords for a spreading box  centered at the origin.
+    % proxy_der : int
+    %   number of derivatives used in proxy compression. See wrap_kern_der.
 
     properties
         dim
@@ -36,9 +38,10 @@ classdef ProxyInfo
         tol
         radius
         r
+        proxy_der
     end
     methods
-        function obj = ProxyInfo(dim, n_points_total, nproxy, nshell, halfside, crad, tol, radius, r)
+        function obj = ProxyInfo(dim, n_points_total, nproxy, nshell, halfside, crad, tol, radius, r, proxy_der)
             obj.dim = dim;
             obj.n_points_total = n_points_total;
             obj.nproxy = nproxy;
@@ -48,6 +51,7 @@ classdef ProxyInfo
             obj.tol = tol;
             obj.radius = radius;
             obj.r = r;
+            obj.proxy_der = proxy_der;
         end
     end
 end

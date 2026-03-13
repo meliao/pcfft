@@ -20,9 +20,14 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %   options to manipulate the choice of proxy points. Available
     %   options:
     %
-    %   opts.multi_shells - Whether to default to shell-based proxies. 
-    %   Defaults to false. Accelerates the precomputation for kernels that
-    %   are known to not satisfy Green's identity
+    %   - opts.multi_shells - Whether to default to shell-based proxies. 
+    %           Defaults to false. Accelerates the precomputation for
+    %           kernels that are known to not satisfy Green's identity
+    %   - opts.proxy_der - Number of radial derivatives to use in the proxy 
+    %           Can be a number between 0 and 2. Defaults to 0. This option
+    %           can avoid invoking shells for kernels that are derived from
+    %           high order equation. (see wrap_kern_der)
+
     %
     % Returns
     % -------
@@ -34,7 +39,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
 
     dim = size(src_info.r(:,:), 1);
     % nsrc = size(src_info.r, 2);
-    if nargin < 5
+    if nargin < 5 || isempty(n_nbr)
         n_nbr = 1000;
     end
     if nargin < 6
@@ -43,6 +48,10 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     multi_shells = false;
     if isfield(opts,'multi_shells')
         multi_shells = opts.multi_shells;
+    end
+    proxy_der = 0;
+    if isfield(opts,'proxy_der')
+        proxy_der = opts.proxy_der;
     end
 
     if ~isa(kernel,'function_handle')
@@ -60,7 +69,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     halfside = spread_halfside([src_info.r(:,:), targ_info.r(:,:)], n_nbr, crad);
 
     % get prototype grid for spreading
-    [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad, multi_shells);
+    [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad, multi_shells, proxy_der);
 
 
     grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr);

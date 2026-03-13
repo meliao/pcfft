@@ -1,4 +1,4 @@
-function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad, multi_shells)
+function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad, multi_shells, proxy_der)
     % DX_NPROXY Determines the grid spacing dx, number of spreading points 
     % across the spreading box nspread, number of grid points across the 
     % spreading bin nbinpts, and proxy surface information proxy_info.
@@ -9,11 +9,15 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
     if nargin < 6
         multi_shells = false;
     end
+    if nargin < 7
+        proxy_der = 0;
+    end
     % We intend to solve least squares problems with a 
     % rank-deficient matrix in this script.
     % warning('off', 'MATLAB:rankDeficientMatrix')
 
 
+    kernel_pxy = @(s,t) wrap_kern_der(kernel, s, t, proxy_der);
     % Initialize a collection of 100 random source points and weights inside a
     % box/cube specified by size halfside
     nsrc = 117;
@@ -116,9 +120,9 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
 
 
             % Compute the kernel evals from source to proxy pts
-            K_source_to_proxy = kernel(struct('r',src_pts), struct('r',proxy_pts));
+            K_source_to_proxy = kernel_pxy(struct('r',src_pts), struct('r',proxy_pts));
             % Kernel regular -> proxy pts
-            K_reg_to_proxy = kernel(struct('r',reg_pts), struct('r',proxy_pts));
+            K_reg_to_proxy = kernel_pxy(struct('r',reg_pts), struct('r',proxy_pts));
 
             % Solve the least squares problem to find weights
             evals_at_proxy = K_source_to_proxy * src_weights;
@@ -202,9 +206,9 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
 
 
         % Compute the kernel evals from source to proxy pts
-        K_source_to_proxy = kernel(struct('r',src_pts), struct('r',proxy_pts));
+        K_source_to_proxy = kernel_pxy(struct('r',src_pts), struct('r',proxy_pts));
         % Kernel regular -> proxy pts
-        K_reg_to_proxy = kernel(struct('r',reg_pts), struct('r',proxy_pts));
+        K_reg_to_proxy = kernel_pxy(struct('r',reg_pts), struct('r',proxy_pts));
 
         % Solve the least squares problem to find weights
         evals_at_proxy = K_source_to_proxy * src_weights;
@@ -271,9 +275,9 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
 
 
         % Compute the kernel evals from source to proxy pts
-        K_source_to_proxy = kernel(struct('r',src_pts), struct('r',proxy_pts));
+        K_source_to_proxy = kernel_pxy(struct('r',src_pts), struct('r',proxy_pts));
         % Kernel regular -> proxy pts
-        K_reg_to_proxy = kernel(struct('r',reg_pts), struct('r',proxy_pts));
+        K_reg_to_proxy = kernel_pxy(struct('r',reg_pts), struct('r',proxy_pts));
 
         % Solve the least squares problem to find weights
         evals_at_proxy = K_source_to_proxy * src_weights;
@@ -316,7 +320,7 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
 
     % Compute the kernel evals from source to proxy pts
     % We don't really need this inside this loop since proxy_pts are fixed.
-    K_source_to_proxy = kernel(struct('r',src_pts), struct('r',proxy_pts));
+    K_source_to_proxy = kernel_pxy(struct('r',src_pts), struct('r',proxy_pts));
     % Solve the least squares problem to find weights
     evals_at_proxy = K_source_to_proxy * src_weights;
     % Keep nproxy fixed and reduced nspread while keeping accuracy
@@ -347,7 +351,7 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
 
 
         % Kernel regular -> proxy pts
-        K_reg_to_proxy = kernel(struct('r',reg_pts), struct('r',proxy_pts));
+        K_reg_to_proxy = kernel_pxy(struct('r',reg_pts), struct('r',proxy_pts));
 
         % spread_weights = K_reg_to_proxy \ evals_at_proxy;
         spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
@@ -402,7 +406,7 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
 
     % If nspread // 2 == 0, we can exit early because the bin size is 
     % the same as half the spreading box size.
-    proxy_info = ProxyInfo(dim, nproxy*nshell, nproxy, nshell, halfside, crad, tol, radius, proxy_pts);
+    proxy_info = ProxyInfo(dim, nproxy*nshell, nproxy, nshell, halfside, crad, tol, radius, proxy_pts, proxy_der);
     
 
 end

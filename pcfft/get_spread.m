@@ -51,6 +51,9 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
         end
     end
 
+    proxy_der = proxy_info.proxy_der;
+    kern_0_pxy = @(s,t) wrap_kern_der(kern_0, s, t, proxy_der);
+    kern_der_pxy = @(s,t) wrap_kern_der(kern_der, s, t, proxy_der);
     % First, sort the points into bins
     sort_info = SortInfo(src_info, grid_info.dx, grid_info.Lbd, ...
                         grid_info.nbin, grid_info.nbinpts,der_fields);
@@ -71,8 +74,8 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
         [pts_0, center_0] = grid_pts_for_box_3d(0, grid_info);
     end
     pts_0_centered = pts_0 - center_0;
-    K_reg_to_proxy = kern_0(struct('r',pts_0_centered), proxy_info);
-    if any(size(K_reg_to_proxy) ~= [size(proxy_info.r,2), size(pts_0_centered,2)])
+    K_reg_to_proxy = kern_0_pxy(struct('r',pts_0_centered), proxy_info);
+    if any(size(K_reg_to_proxy) ~= [(proxy_der+1)*size(proxy_info.r,2), size(pts_0_centered,2)])
         error('kern_0 must be scalar-valued. Use kern_component for vector-valued free-space kernels.')
     end
         
@@ -115,7 +118,7 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
 
     % Compute one whole big K_src_to_proxy, and later we'll 
     % index its rows. K_src_to_proxy has shape (n_proxy, n_src)
-    K_src_to_proxy = kern_der(src_local, proxy_info);
+    K_src_to_proxy = kern_der_pxy(src_local, proxy_info);
     K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
 
     % determine dimension of the kernel

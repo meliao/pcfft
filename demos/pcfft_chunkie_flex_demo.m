@@ -115,8 +115,13 @@ srcs.n = chnkr.n(:,:);
 
 t1 = tic;
 
+proxy_opts = [];
+% as this is a fourth order problem, we proxy against values and first
+% derivatives
+proxy_opts.proxy_der = 1;
+
 % setup grid
-[grid_info, proxy_info] = get_grid(skern, chnkr, targout, eps);
+[grid_info, proxy_info] = get_grid(skern, chnkr, targout, eps,[],proxy_opts);
 % get spreading operators
 [A_spread_s, sort_info_c]= get_spread(skern, ekern, chnkr, ...
     grid_info, proxy_info, {'r','n','d'});
