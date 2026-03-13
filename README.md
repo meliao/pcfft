@@ -56,11 +56,6 @@ Compute the N-body sum using a precorrected FFT.
 See the `demos/` directory for a variety of examples, including demonstrating pairing this package with some popular repositories.
 
 
-## wishlist:
-* vector valued kernels <- after profiling
-* Profiling, particularly on an old computer
-
-
 ## proposed parameter plan:
 
 * Determine spreading box half side length
@@ -78,10 +73,8 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 
 ## Wishlist
 * Tighter neighboring boxes
-* Option to proxy against normal derivatives
-* Option to default to shells
 * Continuous integration
-* Fourth order test
+* Profiling, particularly on an old computer
 
 
 
