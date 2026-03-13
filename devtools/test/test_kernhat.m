@@ -32,7 +32,7 @@ ipt = (1:prod(ngrid)).';
 
 str(ipt) = 1;
 kerns = log_kernel(struct('r',rgrid(:,ipt)), struct('r',rgrid));
-
+kerns(1:size(kerns,1)+1:end) = 0;
 u = kerns*str(ipt);
 
 % compute u using fft
@@ -99,7 +99,7 @@ ipt =i +  ngrid(3) *(j-1 + ngrid(2)*(k-1));
 % ipt = 1;
 str(ipt) = 1;
 kerns = one_over_r_kernel(struct('r',rgrid(:,ipt)), struct('r',rgrid));
-
+kerns(ipt) = 0;
 u = kerns*str(ipt);
 % %%
 % compute u using fft
