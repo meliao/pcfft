@@ -1,3 +1,5 @@
+% Demonstrate application of the PCFFT method to the log kernel in 2D
+
 %% setup problem
 nsrcs = 2e4;
 ntargs = 2e4;
@@ -44,23 +46,26 @@ A_addsub = get_addsub(kern_0, kern_st, srcs, targs, ...
 % get DFT of kernel
 kern_0hat = get_kernhat(kern_0,grid_info);
 
-tprecom = toc(t1)
+tprecom = toc(t1);
 
 %% True solution
 tic;
 Atrue = kern_st(srcs,targs);
-t_densecomp = toc
+t_densecomp = toc;
 tic;
 utrue = Atrue*str;
-tdens_app = toc
+tdens_app = toc;
 
 %% Apply
 
 
 tic;
 u = pcfft_apply(str,A_spread_s,A_spread_t,A_addsub,kern_0hat);
-tapply = toc
-err = norm(u - utrue) / norm(utrue)
+tapply = toc;
+err = norm(u - utrue) / norm(utrue);
+fprintf('compression error = %e, tol = %.2e\n', err,eps)
+fprintf('pcfft precomputation time = %.2e, apply time = %.2e\n', tprecom,tapply)
+fprintf('Dense precomputation time = %.2e, apply time = %.2e\n', t_densecomp,tdens_app)
 
 function val = wrap_d(kern0,s,t)
 

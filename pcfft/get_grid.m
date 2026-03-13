@@ -26,8 +26,8 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %   - opts.proxy_der - Number of radial derivatives to use in the proxy 
     %           Can be a number between 0 and 2. Defaults to 0. This option
     %           can avoid invoking shells for kernels that are derived from
-    %           high order equation. (see wrap_kern_der)
-
+    %           high order PDEs. (see wrap_kern_der)
+    %
     %
     % Returns
     % -------

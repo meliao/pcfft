@@ -68,8 +68,7 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 ## Desired demos
 * Chunkie demo -- separate demos for basic use+plotting and time comparison with FMM.
 * FMM3DBIE demo
-* Matern kernel (3D)
-* Gaussian kernel
+* Matern kernel (3D) (The direct is too fast, but we win in memory?)
 
 ## Wishlist
 * Tighter neighboring boxes

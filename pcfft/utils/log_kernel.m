@@ -12,8 +12,6 @@ dist = sqrt(rx.^2 + ry.^2);
 
 k_evals = log(dist);
 
-k_evals(dist < 1e-14) = 0;
-
 if nargout > 1
     grad = zeros(size(rx,1),size(rx,2),2);
     grad(:,:,1) = -rx ./ dist.^2;
