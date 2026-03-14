@@ -59,7 +59,6 @@ This package involves solving many poorly conditioned least squares problems. Th
 
 ## Wishlist
 * Tighter neighboring boxes
-* Continuous integration
 * Profiling, particularly on an old computer
 * FMM3DBIE demo
 * Matern kernel (3D) (The dense is too fast, but we win in memory?)

@@ -119,9 +119,13 @@ disp(bin_0_intersecting_x);
 % expected_bin_0_intersecting_y = [-1, 0, 1];
 disp("test_intersecting_bins_2d: For bin_idx 0, intersecting bins y: ");
 disp(bin_0_intersecting_y);
+% In reality, we expect the unique sorted values of bin_0_intersecting_x 
+% to be [-1, 0, 1]
 expected_bin_0_intersecting = [-1 0 1];
-assert(all(bin_0_intersecting_x == expected_bin_0_intersecting));
-assert(all(bin_0_intersecting_y == expected_bin_0_intersecting));
+unique_bin_0_intersecting_x = unique(bin_0_intersecting_x);
+unique_bin_0_intersecting_y = unique(bin_0_intersecting_y);
+assert(all(unique_bin_0_intersecting_x == expected_bin_0_intersecting));
+assert(all(unique_bin_0_intersecting_y == expected_bin_0_intersecting));
 
 % Figure shows that bin idx 5 intersects with 2, 4, 5, 8.
 % bin_idx 5 corresponds to (id_x, id_y) = (1, 2)
@@ -135,8 +139,8 @@ disp(bin_5_intersecting_y);
 expected_bin_5_intersecting_x = [0 1 2];
 expected_bin_5_intersecting_y = [1 2 3];
 
-assert(all(bin_5_intersecting_x == expected_bin_5_intersecting_x));
-assert(all(bin_5_intersecting_y == expected_bin_5_intersecting_y));
+assert(all(unique(bin_5_intersecting_x) == expected_bin_5_intersecting_x));
+assert(all(unique(bin_5_intersecting_y) == expected_bin_5_intersecting_y));
 
 close all;
 

@@ -30,16 +30,20 @@ N_bin = grid_info.nbin(1) * grid_info.nbin(2);
 
 assert( bin_idx == 8);
 
-n_x = sqrt(length(nbr_binids));
-expected_n_pts = n_x * grid_info.nbinpts + 2 * grid_info.rpad;
-disp("test_neighbor_template_2d: expected_n_pts: ");
-disp(expected_n_pts^2);
-disp("test_neighbor_template_2d: nbr_gridpts size: ");
-disp(size(nbr_gridpts));
-disp("test_neighbor_template_2d: nbr_grididxes size: ");
-disp(size(nbr_grididxes));
-assert(size(nbr_gridpts, 2) == expected_n_pts^2);
-assert(size(nbr_grididxes, 2) == expected_n_pts^2);
+% OJM: deleting this assert statement because it was written when we computed 
+% the neighbor template as a rectangle, now we use a circle.
+
+
+% n_x = sqrt(length(nbr_binids));
+% expected_n_pts = n_x * grid_info.nbinpts + 2 * grid_info.rpad;
+% disp("test_neighbor_template_2d: expected_n_pts: ");
+% disp(expected_n_pts^2);
+% disp("test_neighbor_template_2d: nbr_gridpts size: ");
+% disp(size(nbr_gridpts));
+% disp("test_neighbor_template_2d: nbr_grididxes size: ");
+% disp(size(nbr_grididxes));
+% assert(size(nbr_gridpts, 2) == expected_n_pts^2);
+% assert(size(nbr_grididxes, 2) == expected_n_pts^2);
 
 
 

@@ -19,26 +19,41 @@ function [id_xs, id_ys, binids] = intersecting_bins_2d(bin_idx, grid_info, ...
     id_x_min = id_x - ceil(2 * proxy_info.radius / (grid_info.nspread * grid_info.dx));
     id_x_max = id_x + ceil(2 * proxy_info.radius / (grid_info.nspread * grid_info.dx));
 
-    id_y_min =  id_y - ceil(2 * proxy_info.radius / (grid_info.nspread * grid_info.dx));
-    id_y_max =  id_y + ceil(2 * proxy_info.radius / (grid_info.nspread * grid_info.dx));
 
-    id_xs = id_x_min:id_x_max;
-    id_ys = id_y_min:id_y_max;
+    % id_y_min =  id_y - ceil(2 * proxy_info.radius / (grid_info.nspread * grid_info.dx));
+    % id_y_max =  id_y + ceil(2 * proxy_info.radius / (grid_info.nspread * grid_info.dx));
+
+
+    % Radius in index space is 2 * radius / (nspread * dx).
+    rad = ceil(2 * proxy_info.radius / (grid_info.nspread * grid_info.dx));
+    id_xs = [];
+    id_ys = [];
+    % Loop over idx_x
+    for idx_x = id_x_min:id_x_max
+        
+        % Compute max idx_y for this idx_x
+        dx_offset = idx_x - id_x;
+        idx_y_max = id_y + floor(rad^2 - dx_offset^2 );
+        idx_y_min = id_y - floor(rad^2 - dx_offset^2 );
+
+        ny = idx_y_max - idx_y_min + 1;
+        id_xs = [id_xs, repmat(idx_x, 1, ny)];
+        id_ys = [id_ys, idx_y_min:idx_y_max];
+    end
 
     % Compute the binids
-    binids = zeros(length(id_xs) * length(id_ys), 1 );
-    for i = 1:length(id_xs)
-        for j = 1:length(id_ys)
-            % If it's an invalid binid, set it to -1
-            if id_xs(i) < 0 || id_xs(i) >= grid_info.nbin(1) || ...
-               id_ys(j) < 0 || id_ys(j) >= grid_info.nbin(2)
-                
-               binids((i-1)*length(id_ys) + j) = -1;
-            else
-                binids((i-1)*length(id_ys) + j) = ...
-                id_xs(i) * N_y_bins + id_ys(j);
-            end
-        end
-    end
+    binids = id_ys(:) + id_xs(:) * N_y_bins;
+    binids(id_xs < 0 | id_xs >= grid_info.nbin(1) | ...
+           id_ys < 0 | id_ys >= grid_info.nbin(2)) = -1;
+    % for i = 1:length(id_xs)
+    %     % If it's an invalid binid, set it to -1
+    %     if id_xs(i) < 0 || id_xs(i) >= grid_info.nbin(1) || ...
+    %        id_ys(i) < 0 || id_ys(i) >= grid_info.nbin(2)
+    %            binids(i) = -1;
+    %         else
+    %             binids(i) = ...
+    %             id_xs(i) * N_y_bins + id_ys(i);
+    %         end
+    % end
     binids = binids.';
 end
