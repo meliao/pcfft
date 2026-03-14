@@ -17,6 +17,7 @@ kvec = zk*[cos(phi);sin(phi)];
 
 nscats = 5:5:30;
 times = zeros(3,length(nscats));
+solvetimes = zeros(3,length(nscats));
 npts = zeros(1,length(nscats));
 for k = 1:length(nscats)
 
@@ -162,6 +163,10 @@ fprintf('PCFFT total: %.2e s. FLAM total: %.2e s. FMM total: %.2e s.\n',tpcfftpr
 times(1,k) = tpcfftprecom+tpcfftsolve;
 times(2,k) = tFLAMprecom+tflamsolve;
 times(3,k) = tfmmprecom+tfmmsolve;
+
+solvetimes(1,k) = tpcfftsolve;
+solvetimes(2,k) = tflamsolve;
+solvetimes(3,k) = tfmmsolve;
 npts(k) = chnkr.npt;
 
 end
@@ -202,3 +207,17 @@ legend('PCFFT', 'FLAM', 'FMM', '$O(n)$', '$O(n^{3/2})$','interpreter','latex','L
 set(gca,'ticklabelinterpreter','latex')
 set(gca,'fontsize',16)
 % exportgraphics(gcf,'chunkie_scatterer_timings_tol1e-6.pdf')
+
+figure(5);
+% plot(npts,times,'o-')
+plot(log10(npts),log10(solvetimes),'o-','LineWidth',2)
+hold on
+plot(log10(npts),log10(npts/600),'k--','LineWidth',2)
+plot(log10(npts),log10(npts/400).^(3/2),'k:','LineWidth',2)
+hold off
+xlabel('$\log_{10} n_{pts}$','interpreter','latex')
+ylabel('$\log_{10} $ solve time (s)','interpreter','latex')
+legend('PCFFT', 'FLAM', 'FMM', '$O(n)$', '$O(n^{3/2})$','interpreter','latex','Location','northwest')
+set(gca,'ticklabelinterpreter','latex')
+set(gca,'fontsize',16)
+% exportgraphics(gcf,'chunkie_scatterer_solvetimings_tol1e-6.pdf')

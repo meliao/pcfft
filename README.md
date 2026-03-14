@@ -16,7 +16,7 @@ PCFFT can be installed from source
 git clone https://github.com/meliao/pcfft.git --recurse-submodules
 ```
 
-The `--recurse-submodules` flag ensures the [FLAM](https://github.com/fastalgorithms/FLAM) package is available.
+The `--recurse-submodules` flag ensures that the [FLAM](https://github.com/fastalgorithms/FLAM) package is available.
 
 ## User-callable routines
 
@@ -57,25 +57,12 @@ See the `demos/` directory for a variety of examples, including demonstrating pa
 
 This package involves solving many poorly conditioned least squares problems. The warnings that this generates can be suppresed by running `warning('off','MATLAB:rankDeficientMatrix');`.
 
-## proposed parameter plan:
-
-* Determine spreading box half side length
-* Sweep up to determine number of proxy points and shells - do this with source points in a box half the size of the spreading box
-* Sweep down to determine nspread
-* Determine bin side that is an integer multiple of dx closest to half the box size
-* Sweep up proxy points to bring the error back down to tolerance
-
-
-## Desired demos
-* Chunkie demo -- separate demos for basic use+plotting and time comparison with FMM.
-* FMM3DBIE demo
-* Matern kernel (3D) (The direct is too fast, but we win in memory?)
-
 ## Wishlist
 * Tighter neighboring boxes
 * Continuous integration
 * Profiling, particularly on an old computer
-
+* FMM3DBIE demo
+* Matern kernel (3D) (The dense is too fast, but we win in memory?)
 
 
 ## Compiling docs
