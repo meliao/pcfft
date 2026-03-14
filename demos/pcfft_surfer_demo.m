@@ -56,7 +56,7 @@ rhs = rhs(:);
 %% Compute example field
 
 L = 1.1*max(vecnorm(S.r(:,:)));
-L = 2;
+% L = 2;
 x1 = linspace(-L,L,100);
 [xx,yy] = meshgrid(x1,x1);
 targs = [xx(:).'; yy(:).';0*xx(:).'];
@@ -101,21 +101,16 @@ A_addsub_eval = get_addsub(skern, dkern, S, targout, ...
 skern_hat = get_kernhat(skern,grid_info);
 
 %%
-% opts = [];
-% opts.format = 'sparse';
-% not actually corrections
+
 Q = helm3d.dirichlet.get_quadrature_correction(S,eps,zk,[0,1],S);
-
 cors = d_cor_mat(S, zk, Q);
-%%
-tic;
-Q = helm3d.dirichlet.get_quadrature_correction(S,eps,zk,[0,1],S,struct('format','sparse'));
 % %%
-P = zeros(S.npts,1);
-Amat = helm3d.dirichlet.matgen(1:S.npts,1:S.npts,S,[zk,0,1],P,Q);
-tdens = toc
-
-%%
+% tic;
+% Q = helm3d.dirichlet.get_quadrature_correction(S,eps,zk,[0,1],S,struct('format','sparse'));
+% % %%
+% P = zeros(S.npts,1);
+% Amat = helm3d.dirichlet.matgen(1:S.npts,1:S.npts,S,[zk,0,1],P,Q);
+% tdens = toc
 % submat = helm3d.kern(zk, S, S, 'd').*S.wts.';
 % submat(isnan(submat)) = 0;
 % Bmat = cors + submat + 0.5*eye(size(cors));
@@ -132,16 +127,11 @@ tprecom = toc(t1)
 
 %%
 sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_surf,cors,skern_hat);
-% return
+
 tic;
 % solve
 sol = gmres(sys_app,rhs,[],eps,1000);
 tsolve = toc
-%%
-tic;
-soldens = helm3d.dirichlet.solver(S,rhs,eps,zk,[0,1]);
-tsolve2 = toc
-%%
 
 %% compute utot on the 2D domain for plotting
 
@@ -194,8 +184,6 @@ Q2.wnear = Q.wnear;
         submat(isnan(submat)) = 0;
         Q2.wnear(Q.iquad(istarts(i)):Q.iquad(iends(i)+1)-1) = Q2.wnear(Q.iquad(istarts(i)):Q.iquad(iends(i)+1)-1) - submat.'.*S.wts(iinds);
     end
-
-    % u = u + Q.spmat*sig;
 
 cormat = conv_rsc_to_spmat(S, Q2.row_ptr, Q2.col_ind, Q2.wnear);
 
