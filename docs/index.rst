@@ -1,4 +1,4 @@
-. pcfft documentation master file, created by
+.. pcfft documentation master file, created by
    sphinx-quickstart on Mon Feb  9 15:35:42 2026.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -25,6 +25,9 @@ and more at a large number of source points :math:`x_j` and target points :math:
 The precorrected FFT method is ideal for when the sources and targets  with a quasi-uniform distribution and will slow down if points are adaptively clustered.
 
 :doc:`usage` provides a brief introduction to using the package to evaluate sums of the form :math:`(1)`, and :doc:`usage_normal_der` shows how to evaluate sums of the form :math:`(2)`. More examples are being built at `<https://github.com/meliao/pcfft/tree/main/demos>`_.
+
+
+This package involves solving many poorly conditioned least squares problems. The warnings that this generates can be suppressed by running `warning('off','MATLAB:rankDeficientMatrix');`.
 
 Source repository
 ------------------

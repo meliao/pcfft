@@ -55,6 +55,7 @@ Compute the N-body sum using a precorrected FFT.
 
 See the `demos/` directory for a variety of examples, including demonstrating pairing this package with some popular repositories.
 
+This package involves solving many poorly conditioned least squares problems. The warnings that this generates can be suppresed by running `warning('off','MATLAB:rankDeficientMatrix');`.
 
 ## proposed parameter plan:
 
