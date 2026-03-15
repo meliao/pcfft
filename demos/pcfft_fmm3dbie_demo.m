@@ -11,32 +11,32 @@ addpath("utils")
 zk = 10;
 kvec = zk*[1;0;0];
 
-%% Make a field of scatters
-
-ntry = 1000;
-rad = 1;
-% make interior boundaries with random locations
-surfs = [];
-L = 4;
-ctrs = zeros(3,1);
-nscat = 5;
-for i  = 1:nscat
-    % each boundary is sphere
-    surfi_i = geometries.sphere(rad,3,ctrs(:,i),6);
-    surfs = [surfs,surfi_i];
-
-    % try to find location for next chunker
-    for j = 1:ntry
-        tmp = L*(2*rand(3,1)-1);
-        rmin = min(vecnorm(tmp - ctrs));
-        if (rmin > rad * 3); break; end
-    end
-    if j == ntry; error('Could not place next boundary'); end
-    ctrs = [ctrs,tmp];
-end
-ctrs = ctrs(:,1:end-1);
-S = merge(surfs);
-npt_int = S.npts;
+% %% Make a field of scatters
+% 
+% ntry = 1000;
+% rad = 1;
+% % make interior boundaries with random locations
+% surfs = [];
+% L = 4;
+% ctrs = zeros(3,1);
+% nscat = 10;
+% for i  = 1:nscat
+%     % each boundary is sphere
+%     surfi_i = geometries.sphere(rad,3,ctrs(:,i),6);
+%     surfs = [surfs,surfi_i];
+% 
+%     % try to find location for next chunker
+%     for j = 1:ntry
+%         tmp = L*(2*rand(3,1)-1);
+%         rmin = min(vecnorm(tmp - ctrs));
+%         if (rmin > rad * 3); break; end
+%     end
+%     if j == ntry; error('Could not place next boundary'); end
+%     ctrs = [ctrs,tmp];
+% end
+% ctrs = ctrs(:,1:end-1);
+% S = merge(surfs);
+% npt_int = S.npts;
 
 fprintf('Geometry generated\n')
 
@@ -65,7 +65,7 @@ drawnow()
 %% Compute example field
 
 L = 1.1*max(vecnorm(S.r(:,:)));
-x1 = linspace(-L,L,100);
+x1 = linspace(-L,L,200);
 [xx,yy] = meshgrid(x1,x1);
 targs = [xx(:).'; yy(:).';0*xx(:).'];
 ntargs = size(targs,2);
@@ -142,7 +142,7 @@ sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_surf,cors,skern_hat);
 
 tic;
 % solve
-sol = gmres(sys_app,rhs,[],eps,1000);
+sol = gmres(sys_app,rhs,[],2*eps,1000);
 tsolve = toc
 
 %% compute utot on slice of the 2D domain for plotting
@@ -166,6 +166,15 @@ hold on
 h = plot(S);
 h.FaceColor = '#999';
 axis equal
+
+figure(3);clf
+h = pcolor(xx,yy,abs(utot)); set(h,'EdgeColor','none'); colorbar
+colormap(redblue); %clim(0.4*[-umax,umax]);
+hold on 
+h = plot(S);
+h.FaceColor = '#999';
+axis equal
+
 
 
 function cormat = d_cor_mat(S, S_over, interp_mat, zk, Q)

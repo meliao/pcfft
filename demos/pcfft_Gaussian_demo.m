@@ -15,15 +15,16 @@ srcs.r = L*2*(rand(dim,nsrcs) - 0.5);
 targs = [];
 targs.r = L*2*(rand(dim,ntargs) - 0.5);
 
-sigma = 0.3;
-kern_0 = @(s,t) Gaussian_kern(s, t, sigma);
+covar = [2,1;1,3];
+
+kern_0 = @(s,t) Gaussian_kern(s, t, covar);
 
 % charges
 str = randn(nsrcs,1);
 
 %% Precomputation
 
-eps = 1e-6;
+eps = 1e-7;
 
 t1 = tic;
 
@@ -65,7 +66,18 @@ fprintf('compression error = %e, tol = %.2e\n', err,eps)
 fprintf('pcfft precomputation time = %.2e, apply time = %.2e\n', tprecom,tapply)
 fprintf('Dense precomputation time = %.2e, apply time = %.2e\n', t_densecomp,tdens_app)
 
-function val = Gaussian_kern(src_pts,target_pts,sigma)
+%% Plot kernel
+xx = linspace(-L,L);
+[X,Y] = meshgrid(xx,xx);
+targs = []; targs.r = [X(:).';Y(:).'];
+src = []; src.r = [0;0];
+u = kern_0(src,targs);
+figure(1);
+h = pcolor(X,Y,reshape(u,size(X))); h.EdgeColor = 'none'; colorbar
+title('$K(0,\cdot)$','Interpreter','latex')
+set(gca,'FontSize',16)
+
+function val = Gaussian_kern(src_pts,target_pts,covar)
 % src_pts has shape (2, M)
 % target_pts has shape (2, N)
 % Computes log{|| src - target||}
@@ -74,10 +86,10 @@ function val = Gaussian_kern(src_pts,target_pts,sigma)
 % Shape (N, M)
 dist = 0;
 for i = 1:size(src_pts.r(:,:),1)
-    dist = dist + (src_pts.r(i, :) - target_pts.r(i, :).').^2;
+    for j = 1:size(src_pts.r(:,:),1)
+    dist = dist + covar(i,j)*(src_pts.r(i, :) - target_pts.r(i, :).').*(src_pts.r(j, :) - target_pts.r(j, :).');
+    end
 end
 
-dist = sqrt(dist);
-
-val = exp(-dist.^2/(2*sigma^2));
+val = exp(-dist/2);
 end

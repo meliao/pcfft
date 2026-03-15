@@ -4,7 +4,11 @@ function half_side = spread_halfside(rs, n_nbr, crad)
 % interactions between points within radius 2*crad*half_side
 
 dim = size(rs,1);
-T = hypoct(rs,n_nbr/2^dim);
+try
+    T = hypoct(rs,n_nbr/2^dim);
+catch
+    error('Error: FLAM not detected. Please install FLAM or manually specify spreading bin halfside (not recommended).')
+end
 r = 0;
 ileaf = 0;
 for i = 1:T.nlvl
