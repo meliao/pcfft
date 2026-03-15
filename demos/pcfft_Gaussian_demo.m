@@ -1,4 +1,7 @@
 % Demonstrate application of the PCFFT method to a Gaussian kernel
+
+addpath(genpath("../pcfft"));
+
 %% setup problem
 nsrcs = 2e4;
 ntargs = 2e4;

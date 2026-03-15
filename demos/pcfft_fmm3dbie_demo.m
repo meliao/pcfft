@@ -1,11 +1,18 @@
 % fmm3dbie integration demo
 % Requires fmm3dbie: https://github.com/fastalgorithms/fmm3dbie
+% and chunkie: https://github.com/fastalgorithms/chunkie
+%
 %
 % Solve Dirichlet scattering problems with several inclusions
 % Takes about 10 minutes
 
 % Need to load planewave function
-addpath("utils")
+addpath("demo_utils")
+addpath(genpath("../pcfft"))
+
+% Need to load fmm3dbie AND chunkie
+addpath(genpath("~/software/fmm3dbie"))
+addpath(genpath("~/software/chunkie"))
 
 % ambient wavenumber
 zk = 10;
@@ -13,30 +20,30 @@ kvec = zk*[1;0;0];
 
 % %% Make a field of scatters
 % 
-% ntry = 1000;
-% rad = 1;
-% % make interior boundaries with random locations
-% surfs = [];
-% L = 4;
-% ctrs = zeros(3,1);
-% nscat = 10;
-% for i  = 1:nscat
-%     % each boundary is sphere
-%     surfi_i = geometries.sphere(rad,3,ctrs(:,i),6);
-%     surfs = [surfs,surfi_i];
-% 
-%     % try to find location for next chunker
-%     for j = 1:ntry
-%         tmp = L*(2*rand(3,1)-1);
-%         rmin = min(vecnorm(tmp - ctrs));
-%         if (rmin > rad * 3); break; end
-%     end
-%     if j == ntry; error('Could not place next boundary'); end
-%     ctrs = [ctrs,tmp];
-% end
-% ctrs = ctrs(:,1:end-1);
-% S = merge(surfs);
-% npt_int = S.npts;
+ntry = 1000;
+rad = 1;
+% make interior boundaries with random locations
+surfs = [];
+L = 4;
+ctrs = zeros(3,1);
+nscat = 10;
+for i  = 1:nscat
+    % each boundary is sphere
+    surfi_i = geometries.sphere(rad,3,ctrs(:,i),6);
+    surfs = [surfs,surfi_i];
+
+    % try to find location for next chunker
+    for j = 1:ntry
+        tmp = L*(2*rand(3,1)-1);
+        rmin = min(vecnorm(tmp - ctrs));
+        if (rmin > rad * 3); break; end
+    end
+    if j == ntry; error('Could not place next boundary'); end
+    ctrs = [ctrs,tmp];
+end
+ctrs = ctrs(:,1:end-1);
+S = merge(surfs);
+npt_int = S.npts;
 
 fprintf('Geometry generated\n')
 
@@ -47,6 +54,7 @@ skern = @(s,t) helm3d.kern(zk, s, t, 's');
 dkern = @(s,t) helm3d.kern(zk, s, t, 'd');
 
 % whether to run the accuracy test
+% @TRISTAN: where are we evaluating the accuracy?
 ifacc = 0;
 
 % define boundary data
@@ -116,6 +124,9 @@ A_addsub_eval = get_addsub(skern, dkern, S_over, targout, ...
     grid_info, proxy_info, sort_info_S_over, sort_info_t, A_spread_s, A_spread_t);
 % get DFT of kernel
 skern_hat = get_kernhat(skern,grid_info);
+
+
+% @TRISTAN: Is this commented out code the FMM3DBIE solve that we compare against? 
 
 % %% compare with dense
 % tic;
