@@ -62,12 +62,15 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     % Build a spreading template matrix for adjacent source points.
     % Then build a list of regular gridpoints that are in the intersecting bins
     if dim == 2
-        [~, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_2d(grid_info, proxy_info);
+        [nbr_binids, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_2d(grid_info, proxy_info);
         [pts0, ctr_0, ~] = grid_pts_for_box_2d(nbr_bin_idx, grid_info);
     else
         [~, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_3d(grid_info, proxy_info);
         [pts0, ctr_0, ~] = grid_pts_for_box_3d(nbr_bin_idx, grid_info);
     end
+    disp("get_addsub: nbr_binids size: " + int2str(size(nbr_binids)));
+    disp("get_addsub: nbr_binids: ");
+    disp(nbr_binids);
     % pts0_centered = pts0 - ctr_0;
     nbr_info = struct('r', reg_neighbor_template_pts);
 

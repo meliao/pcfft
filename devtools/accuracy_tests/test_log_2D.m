@@ -23,15 +23,17 @@ target_vals = K_exact * mu;
 tol = 1e-10;
 n_nbr = 100;
 [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
-
+disp("test_log_2D: grid_info:");
+disp(grid_info);
 [A_spread_s, sort_info_s ]= get_spread(kern_0, [], src_info, ...
     grid_info, proxy_info);
+disp("test_log_2D: A_spread_s size: " + int2str(size(A_spread_s)));
 [A_spread_t, sort_info_t ]= get_spread(kern_0, [], targ_info, ...
     grid_info, proxy_info);
-
+disp("test_log_2D: A_spread_t size: " + int2str(size(A_spread_t)));
 A_addsub = get_addsub(kern_0, [], src_info, targ_info, ...
     grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
-
+disp("test_log_2D: A_addsub size: " + int2str(size(A_addsub)));
 k0hat = get_kernhat(kern_0,grid_info);
 evals_approx = pcfft_apply(mu,A_spread_s,A_spread_t,A_addsub,k0hat);
 
