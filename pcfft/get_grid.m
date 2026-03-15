@@ -28,7 +28,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %           can avoid invoking shells for kernels that are derived from
     %           high order PDEs. (see wrap_kern_der)
     %   - opts.halfside - Manually set box size (and implicitly n_nbr).
-    %           Only recommended for expert users. (See pcff_surfer_demo.m)
+    %           Only recommended for expert users. (See pcff_fmm3dbie_demo.m)
     %           Useful for plotting BIE solutions without overly small boxes.
     %
     %
@@ -41,7 +41,6 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
 
 
     dim = size(src_info.r(:,:), 1);
-    % nsrc = size(src_info.r, 2);
     if nargin < 5 || isempty(n_nbr)
         n_nbr = 1000;
     end
