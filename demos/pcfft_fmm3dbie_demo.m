@@ -34,6 +34,7 @@ for i  = 1:nscat
     if j == ntry; error('Could not place next boundary'); end
     ctrs = [ctrs,tmp];
 end
+ctrs = ctrs(:,1:end-1);
 S = merge(surfs);
 npt_int = S.npts;
 
@@ -116,8 +117,6 @@ A_addsub_eval = get_addsub(skern, dkern, S_over, targout, ...
 % get DFT of kernel
 skern_hat = get_kernhat(skern,grid_info);
 
-%%
-
 % %% compare with dense
 % tic;
 % Q = helm3d.dirichlet.get_quadrature_correction(S,eps,zk,[0,1],S,struct('format','sparse'));
@@ -164,7 +163,8 @@ figure(2);clf
 h = pcolor(xx,yy,imag(utot)); set(h,'EdgeColor','none'); colorbar
 colormap(redblue); %clim(0.4*[-umax,umax]);
 hold on 
-plot(S,zeros(S.npatches,1))
+h = plot(S);
+h.FaceColor = '#999';
 axis equal
 
 
