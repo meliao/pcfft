@@ -1,3 +1,3 @@
 sphinxcontrib-matlabdomain 
-sphinx_rtd_thetme 
+sphinx_rtd_theme
 sphinxcontrib-bibtex
