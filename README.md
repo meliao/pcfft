@@ -1,5 +1,5 @@
 # pcfft
-This repository provides routines for quickly computing N-Body calculations in 2D and 3D and is designed to work with generic translation invariant kernels
+This repository provides MATLAB routines for quickly computing N-Body calculations in 2D and 3D and is designed to work with generic translation invariant kernels
 
 $$u_i = \sum_{j\neq i} K(\mathbf{x}_i - \mathbf{y}_j)\mu_j.$$
 
@@ -11,7 +11,7 @@ $$w_i = \sum_{j\neq i} \partial_{\mathbf{n}_i}\partial_{\mathbf{n}_j} K(\mathbf{
 
 ## Documentation
 
-Available at [https://pcfft.readthedocs.io/en/latest/](https://pcfft.readthedocs.io/en/latest/).
+The documentation is available at [https://pcfft.readthedocs.io/en/latest/](https://pcfft.readthedocs.io/en/latest/).
 
 ## Installation instructions
 
@@ -59,32 +59,7 @@ Compute the N-body sum using a precorrected FFT.
 
 See the `demos/` directory for a variety of examples, including demonstrating pairing this package with some popular repositories.
 
-This package involves solving many poorly conditioned least squares problems. The warnings that this generates can be suppresed by running `warning('off','MATLAB:rankDeficientMatrix');`.
-
-## Wishlist
-* Tighter neighboring boxes
-* Continuous integration
-* Profiling, particularly on an old computer
-* FMM3DBIE demo
-* Matern kernel (3D) (The dense is too fast, but we win in memory?)
-
-
-## Compiling docs
-
-First set up a python virtual environment and install the following packages:
-```
-pip install sphinx sphinxcontrib-matlabdomain sphinx_rtd_thetme sphinxcontrib-bibtex
-```
-
-Then to compile, do
-```
-cd docs
-make html
-open _build/html/index.html
-```
-
-
-
+This method in this package requires solving many poorly conditioned least squares problems. The numerous warnings that this generates can be suppresed by running `warning('off','MATLAB:rankDeficientMatrix');`.
 
 
 
