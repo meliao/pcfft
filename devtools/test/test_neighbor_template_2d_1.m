@@ -113,8 +113,37 @@ for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2)-1
 
     a_1 = A_spread_s(:, source_idx);
     a_2 = A_spread_s(nbr_grididxes, source_idx);
-    disp("test_neighbor_template_2d: For bin_idx " + int2str(bin_idx) + ", norm of A_spread_s(:, source_idx): " + num2str(norm(a_1, "fro")) + ", norm of A_spread_s(nbr_grididxes, source_idx): " + num2str(norm(a_2, "fro")));
+    % disp("test_neighbor_template_2d: For bin_idx " + int2str(bin_idx) + ", norm of A_spread_s(:, source_idx): " + num2str(norm(a_1, "fro")) + ", norm of A_spread_s(nbr_grididxes, source_idx): " + num2str(norm(a_2, "fro")));
 
     % Assert norms are close.
     assert(norm(a_1, "fro") - norm(a_2, "fro") < 1e-12);
+end
+
+%% Part 2: many pts
+
+n_src = 10000;
+n_targ = 5017;
+dim = 2;
+
+kern_0 = @(s,t) log_kernel(s,t);
+src_info = struct;
+% Source and target points are random in [-0.5, 0.5] x [-0.5, 0.5]
+src_info.r = (rand(dim, n_src) - 0.5);
+targ_info = struct;
+targ_info.r = (rand(dim, n_targ) - 0.5);
+
+tol = 1e-10;
+n_nbr = 100;
+[grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
+
+% Loop through all of the boxes
+for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2)-1
+    [nbr_binids, nbr_gridpts, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+    
+    % Assert that # binids returned = # grid pts returned = # grid idxes returned
+    assert(length(nbr_grididxes) == size(nbr_gridpts, 2));
+
+    % Assert that the grid points are within the valid range unless marked 
+    % with a dummy idx.
+
 end

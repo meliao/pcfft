@@ -75,15 +75,7 @@ nspread = 2 * nbinpts ;
 
 % Create a GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx, ngrid
 grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, -1);
-% grid_info = struct;
-% grid_info.nbin = nbin;
-% grid_info.dx = dx;
-% grid_info.Lbd = Lbd;
-% grid_info.nspread = 2*nbinpts + 1;
-% grid_info.nbinpts = nbinpts;
-% pad = ceil((grid_info.nspread - nbinpts)/2);
-% grid_info.offset = pad * dx - dx/2;
-% grid_info.dx = dx;
+
 
 % spoof the ProxyInfo object. Need radius
 proxy_info = struct;
@@ -117,8 +109,10 @@ assert(all(size(r, 2) == size(binid_srt, 2)));
 %     plot(proxypts(1,:), proxypts(2,:), 'k-');
 % end
 
+BOX_IDX = 2;
+
 % Figure shows that bin idx 0 only intersects with 0, 1, 3. 
-[nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_2d(grid_info, proxy_info, 0);
+[nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_2d(grid_info, proxy_info, BOX_IDX);
 
 % Now center at the center of bin idx 0.
 ctr = bin_center(bin_idx, grid_info);
@@ -127,11 +121,13 @@ disp(ctr);
 temp_at_4 = nbr_gridpts;
 
 % Plot the regular grid points and plot the template points overtop them.
+% blue circles
 scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
 
 % Plot the template points
 hold on;
-scatter(temp_at_4(1,:), temp_at_4(2,:), 5, 'r', 'filled');
+% red dots are the template points before filtering out the invalid ones
+% scatter(temp_at_4(1,:), temp_at_4(2,:), 5, 'r', 'filled');
 
 
 % Plot text lables for the valid nbr idxes
@@ -143,12 +139,18 @@ oob_idxes = nbr_grididxes > grid_info.ngrid(1) * grid_info.ngrid(2);
 valid_temp_pts = temp_at_4(:, ~oob_idxes);
 
 % Plot the valid template points in green
+% green dots are the valid template points after filtering out the invalid ones
 scatter(valid_temp_pts(1,:), valid_temp_pts(2,:), 20, 'g', 'filled');
 % close all;
 
 for i = 1:size(valid_temp_pts, 2)
     pt = valid_temp_pts(:, i);
     diffs = grid_info.r - pt;
+    % disp("test_neighbor_template_2d: Checking pt " + int2str(i) + " at idx " + int2str(nbr_grididxes(i)));
+    % disp("pt: ");
+    % disp(pt);
+    % disp("diffs: ");
+    % disp(diffs);
     dists = sqrt(sum(diffs.^2, 1));
     min_dist = min(dists);
     assert(min_dist < 1e-12);
@@ -162,7 +164,7 @@ valid_nbr_idxes = nbr_grididxes(~oob_idxes);
 text(valid_temp_pts(1,:), valid_temp_pts(2,:), string(valid_nbr_idxes), 'Color', 'k');
 
 % Plot the spreading box for bin idx 0
-[boxpts, boxctr, boxidxes] = grid_pts_for_box_2d(0, grid_info);
+[boxpts, boxctr, boxidxes] = grid_pts_for_box_2d(BOX_IDX, grid_info);
 disp("test_neighbor_template_2d: boxidxes: ");
 disp(boxidxes);
 boxpts2 = grid_info.r(:, boxidxes);
@@ -170,6 +172,8 @@ boxpts2 = grid_info.r(:, boxidxes);
 diffs = boxpts - boxpts2;
 dists = sqrt(sum(diffs.^2, 1));
 assert(max(dists) < 1e-12);
+
+% magenta dots are the boxpts for bin idx 0
 scatter(boxpts2(1,:), boxpts2(2,:), 20, 'm', 'filled');
 
 
@@ -245,13 +249,13 @@ for bin_idx = 0:(n_bins - 1)
     valid_nbr_gridpts = nbr_gridpts(:, ~oob_idxes);
     
     % Make a new figure with the grid points and the template points for this bin idx
-    figure;
-    scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
-    hold on;
-    scatter(valid_nbr_gridpts(1,:), valid_nbr_gridpts(2,:), 20, 'rx');
+    % figure;
+    % scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
+    % hold on;
+    % scatter(valid_nbr_gridpts(1,:), valid_nbr_gridpts(2,:), 20, 'rx');
     title("Bin idx " + int2str(bin_idx));
     xlabel("x");
     ylabel("y");
 end
 
-close all;
+% close all;

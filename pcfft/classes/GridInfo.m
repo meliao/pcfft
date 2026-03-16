@@ -36,6 +36,8 @@ classdef GridInfo
     %   minimum coordinate value of the padded grid.
     % n_nbr : int
     %   average number of near-field neighbours.
+    % zero_bin : array [dim, nbinpts^dim]
+    %   Grid points of a spreading bin centered at the origin.
 
     properties
         ngrid
@@ -51,6 +53,7 @@ classdef GridInfo
         rmax
         rmin
         n_nbr
+        zero_bin
     end
     methods
         function obj = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr)
@@ -71,7 +74,7 @@ classdef GridInfo
 
             if dim == 2
                 % Create a regular grid with spacing dx starting at the xmin, ymin point
-                % specified by Lbd. 
+                % specified by Lbd.
                 xx = Lbd(1, 1) - offset + (0: ngrid(1) - 1) * dx;
                 yy = Lbd(2, 1) - offset + (0: ngrid(2) - 1) * dx;
                 [X, Y] = meshgrid(xx, yy);
@@ -90,6 +93,19 @@ classdef GridInfo
             rmax = max(rgrid, [], 2);
             rmin = min(rgrid, [], 2);
 
+            if dim == 2
+                zero_pts = dx * (0:nbinpts-1) - (nbinpts-1)/2 * dx;
+                [X, Y] = meshgrid(zero_pts, zero_pts);
+                zero_bin = [X(:).'; Y(:).'];
+            elseif dim == 3
+                zero_pts = dx * (0:nbinpts-1) - (nbinpts-1)/2 * dx;
+                [X, Y, Z] = meshgrid(zero_pts, zero_pts, zero_pts);
+                X = permute(X,[3,1,2]);
+                Y = permute(Y,[3,1,2]);
+                Z = permute(Z,[3,1,2]);
+                zero_bin = [X(:).'; Y(:).'; Z(:).'];
+            end
+
             obj.ngrid = ngrid;
             obj.Lbd = Lbd;
             obj.dx = dx;
@@ -103,6 +119,7 @@ classdef GridInfo
             obj.rmax = rmax;
             obj.rmin = rmin;
             obj.n_nbr = n_nbr;
+            obj.zero_bin = zero_bin;
         end
     end
 end

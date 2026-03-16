@@ -28,11 +28,11 @@ N_bin = grid_info.nbin(1) * grid_info.nbin(2);
 
 % valid bin_idxes should be between 0 and N_bin - 1
 for bin_idx = 0:(N_bin - 1)
-    [idx_x, idx_y] = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
-    % disp("test_intersecting_bins_2d: For bin_idx " + int2str(bin_idx) + ...
-    %     ", intersecting bins: ");
-    % disp(bin_idxes);
+    [idx_x, idx_y, binids] = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
 
+    % Once we remove invalid binids, there should be no repeats.
+    valid_binids = binids(binids >= 0);
+    assert(length(valid_binids) == length(unique(valid_binids)));
 
 end
 
@@ -40,7 +40,7 @@ end
 % Larger test case with visualization. Same setup as test_SortInfo_2d_1
 
 
-n_pts = 100000;
+n_pts = 10000;
 L = 2.0;
 Lbd = [-1 1; 
         -1 1];
@@ -145,4 +145,51 @@ assert(all(unique(bin_5_intersecting_y) == expected_bin_5_intersecting_y));
 close all;
 
 %% test_0c
+% Test that the returned bins for each query bin satisfy the proxy-circle
+% intersection condition
+
+rng(42);
+n_src = 200;
+n_targ = 150;
+tol_0c = 1e-6;
+
+src_info_0c = struct;
+src_info_0c.r = rand(2, n_src) - 0.5;
+src_info_0c.weights = rand(n_src, 1);
+
+targ_info_0c = struct;
+targ_info_0c.r = rand(2, n_targ) - 0.5;
+
+[grid_info_0c, proxy_info_0c] = get_grid(@log_kernel, src_info_0c, targ_info_0c, tol_0c);
+
+N_bin_0c = grid_info_0c.nbin(1) * grid_info_0c.nbin(2);
+all_bins = 0:(N_bin_0c - 1);
+tol_dist = 1e-10;
+
+for bin_idx = 0:(N_bin_0c - 1)
+    [~, ~, binids] = intersecting_bins_2d(bin_idx, grid_info_0c, proxy_info_0c);
+    c1 = bin_center(bin_idx, grid_info_0c);
+    valid_returned = binids(binids >= 0);
+    assert(length(valid_returned) == length(unique(valid_returned)), ...
+        sprintf('bin_idx %d: returned bins have repeats', bin_idx));
+
+    % First returned bins must intersect
+    for k = 1:length(valid_returned)
+        c2 = bin_center(valid_returned(k), grid_info_0c);
+        d = norm(c1 - c2);
+        assert(d <= 2 * proxy_info_0c.radius + tol_dist, ...
+            sprintf('bin %d -> bin %d dist=%.6f > 2*r=%.6f', ...
+                    bin_idx, valid_returned(k), d, 2*proxy_info_0c.radius));
+    end
+
+    %  non-returned valid bins must not intersect
+    non_returned = setdiff(all_bins, valid_returned);
+    for k = 1:length(non_returned)
+        c2 = bin_center(non_returned(k), grid_info_0c);
+        d = norm(c1 - c2);
+        assert(d > 2 * proxy_info_0c.radius - tol_dist, ...
+            sprintf('bin %d -> bin %d dist=%.6f <= 2*r=%.6f but not returned', ...
+                    bin_idx, non_returned(k), d, 2*proxy_info_0c.radius));
+    end
+end
 

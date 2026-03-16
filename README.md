@@ -78,7 +78,11 @@ make html
 open _build/html/index.html
 ```
 
+## How to trim the neighborhoods
 
+1. In `grid_info`, make a member called `zero_bin` which has the binpts for a bin centered at 0.
+2. Inside `neighbor_template_2d()`, generate `nbr_gridpts` by shifting `zero_bin` by `bin_center_2d(idx)`.
+3. 
 
 
 
