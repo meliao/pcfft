@@ -9,6 +9,10 @@ $$w_i = \sum_{j\neq i} \partial_{\mathbf{n}_i}\partial_{\mathbf{n}_j} K(\mathbf{
 
 **NOTE:** The routines always skip terms with $x_i=y_j$.
 
+## Documentation
+
+Available at [https://pcfft.readthedocs.io/en/latest/](https://pcfft.readthedocs.io/en/latest/).
+
 ## Installation instructions
 
 PCFFT can be installed from source
