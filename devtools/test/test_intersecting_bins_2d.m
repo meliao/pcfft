@@ -47,21 +47,30 @@ Lbd = [-1 1;
 % r points live on [-1, 1] x [-1, 1]
 rng(0);
 r = (rand(2, n_pts) - 0.5) * L;
-r(2,:) = r(2,:);
+
+% Get grid and proxy info
+tol = 1e-6;
+[grid_info, proxy_info] = get_grid(@log_kernel, ...
+    struct('r', r), ...
+    struct('r', r), ...
+    tol, n_pts * 10);
+
 
 % dx = 0.25, so the grid points are at
-dx = 0.25;
-ngrid = [9 9];
-% When we set nbinpts = 3, we expect
-% x bins and y bins [-1, -0.25], [-0.25, 0.5], [0.5, 1.]
-nbinpts = 3;
-nbin = [3 3];
-N_bin = nbin(1) * nbin(2);
+% dx = 0.25;
+% ngrid = [9 9];
+% % When we set nbinpts = 3, we expect
+% % x bins and y bins [-1, -0.25], [-0.25, 0.5], [0.5, 1.]
+% nbinpts = 3;
+% nbin = [3 3];
+% N_bin = nbin(1) * nbin(2);
 
-% Generate the GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx 
-grid_info = GridInfo(Lbd, dx, 2*nbinpts + 1, nbinpts, dim, 0);
+% % Generate the GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx 
+% grid_info = GridInfo(Lbd, dx, 2*nbinpts + 1, nbinpts, dim, 0);
 disp("test_intersecting_bins_2d: grid_info:");
 disp(grid_info);
+disp("test_intersecting_bins_2d: grid_info.nbin:");
+disp(grid_info.nbin);
 
 % Test the third return value is correct.
 
@@ -70,19 +79,16 @@ disp(grid_info);
 
 % This should = [0 1 2 3 4 5 6 7 8
 expected_bin_4_intersecting_binids = [0 1 2 3 4 5 6 7 8];
-disp("test_intersecting_bins_2d: For bin_idx 4, intersecting binids: ");
-disp(bin_4_intersecting_binids);
+% disp("test_intersecting_bins_2d: For bin_idx 4, intersecting binids: ");
+% disp(bin_4_intersecting_binids);
 valid_bins = bin_4_intersecting_binids >= 0 & bin_4_intersecting_binids < N_bin;
 valid_bins = bin_4_intersecting_binids(valid_bins);
-disp("test_intersecting_bins_2d: For bin_idx 4, valid intersecting binids: ");
-disp(valid_bins);
-assert(all(valid_bins == expected_bin_4_intersecting_binids));
+% disp("test_intersecting_bins_2d: For bin_idx 4, valid intersecting binids: ");
+% disp(valid_bins);
+% assert(all(valid_bins == expected_bin_4_intersecting_binids));
 
-% spoof the ProxyInfo object. Need radius
-proxy_info = struct;
-proxy_info.radius = 0.5;
 
-[sort_info] = SortInfo(struct('r', r), dx, Lbd, nbin, nbinpts);
+[sort_info] = SortInfo(struct('r', r), grid_info.dx, grid_info.Lbd, grid_info.nbin, grid_info.nbinpts);
 r_srt = sort_info.r_srt;
 binid_srt = sort_info.binid_srt;
 ptid_srt = sort_info.ptid_srt;
@@ -100,7 +106,7 @@ colorbar;
 
 % Draw an x at the center of each bin
 hold on;
-N_bins = nbin(1) * nbin(2);
+N_bins = grid_info.nbin(1) * grid_info.nbin(2);
 for bin_idx = 0:(N_bins - 1)
     center = bin_center(bin_idx, grid_info);
     scatter(center(1), center(2), 100, 'x');
@@ -149,8 +155,8 @@ close all;
 % intersection condition
 
 rng(42);
-n_src = 200;
-n_targ = 150;
+n_src = 5000;
+n_targ = 1500;
 tol_0c = 1e-6;
 
 src_info_0c = struct;

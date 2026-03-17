@@ -43,24 +43,6 @@ end
 assert(size(spreading_template_pts, 2) >= nspread^2, ...
     'spreading_template_pts must have at least nspread^2 points');
 
-% Spacing between adjacent points must be dx everywhere
-% (all points lie on the same dx-spaced grid as box_pts)
-% x_vals = unique(round(spreading_template_pts(1, :) / dx));
-% y_vals = unique(round(spreading_template_pts(2, :) / dx));
-% x_spacings = diff(sort(x_vals));
-% y_spacings = diff(sort(y_vals));
-% disp("x_vals: ");
-% disp(x_vals);
-% disp("y_vals: ");
-% disp(y_vals);
-% disp("x_spacings: ");
-% disp(x_spacings);
-% disp("y_spacings: ");
-% disp(y_spacings);
-% assert(all(abs(x_spacings - 1) < 1e-10), ...
-%     'x-coordinates of spreading_template_pts must be evenly spaced by dx');
-% assert(all(abs(y_spacings - 1) < 1e-10), ...
-%     'y-coordinates of spreading_template_pts must be evenly spaced by dx');
 
 %% test_1: 
 % Template size matches an interior bin from neighbor_template_2d.
@@ -93,11 +75,24 @@ disp(grid_info_1.nbin);
 
 % Radius in index space
 rad = ceil(2 * proxy_info_1.radius / (grid_info_1.nspread * grid_info_1.dx));
-
 disp("test_1: Radius in index space: " + int2str(rad));
+
 % Size check
 assert(all(size(box_pts_1) == [2, grid_info_1.nspread^2]), ...
     'box_pts must be [2, nspread^2] for get_grid output');
+
+% Plot the points
+figure;
+subplot(1, 2, 1);
+scatter(src_info.r(1, :), src_info.r(2, :), 'b.');
+hold on;
+scatter(targ_info.r(1, :), targ_info.r(2, :), 'r.');
+title('Sources and Targets');
+axis equal;
+subplot(1, 2, 2);
+scatter(tmpl_pts_1(1, :), tmpl_pts_1(2, :), 'k.');
+title('Spreading Template Points');
+axis equal;
 
 % For every bin, count the number of in-bounds points that neighbor_template_2d
 % returns. For interior bins this should equal size(tmpl_pts_1, 2).
@@ -109,7 +104,7 @@ found_interior = false;
 for bin_idx = 0:(n_bins - 1)
     [~, ~, nbr_grididxes, ~] = neighbor_template_2d(grid_info_1, proxy_info_1, bin_idx);
     n_valid = sum(nbr_grididxes <= ngridpts);
-    % disp("test_1: For bin_idx " + int2str(bin_idx) + ", n_valid: " + int2str(n_valid) + ", n_template: " + int2str(n_template));
+    disp("test_1: For bin_idx " + int2str(bin_idx) + ", nbr_grididxes: " + int2str(size(nbr_grididxes)) + ", n_valid: " + int2str(n_valid) + ", n_template: " + int2str(n_template));
     if n_valid == n_template
         found_interior = true;
         break;
