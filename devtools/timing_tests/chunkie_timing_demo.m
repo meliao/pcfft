@@ -16,6 +16,7 @@ zk = 10;
 kvec = zk*[cos(phi);sin(phi)];
 
 nscats = 5:5:30;
+nscats = 450;
 times = zeros(3,length(nscats));
 solvetimes = zeros(3,length(nscats));
 npts = zeros(1,length(nscats));
@@ -37,7 +38,7 @@ ntry = 1000;
 
 % make interior boundaries with random locations
 chnkr = [];
-L = 9;
+L = 9;L = 35;
 theta = 2*pi*rand();
 ctrs = L*rand()*[cos(theta);sin(theta)];
 n_pts = [];
