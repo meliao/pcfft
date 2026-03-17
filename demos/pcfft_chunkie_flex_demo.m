@@ -3,7 +3,7 @@
 %
 % Solve flexural scattering problems with many inclusions
 
-addpath("utils")
+addpath("demo_utils")
 
 % planewave direction
 phi = 0;

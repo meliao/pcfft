@@ -1,5 +1,7 @@
 % Demonstrate application of the PCFFT method to the log kernel in 2D
 
+addpath(genpath("../pcfft"));
+
 %% setup problem
 nsrcs = 2e4;
 ntargs = 2e4;
