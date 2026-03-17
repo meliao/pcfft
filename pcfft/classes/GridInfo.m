@@ -38,6 +38,9 @@ classdef GridInfo
     %   average number of near-field neighbours.
     % zero_bin : array [dim, nbinpts^dim]
     %   Grid points of a spreading bin centered at the origin.
+    % center_bin : int
+    %   Linear index of a bin approximately at the center of the grid.
+    %   Computed as floor(nbin(1)/2) * nbin(2) + floor(nbin(2)/2).
 
     properties
         ngrid
@@ -54,6 +57,7 @@ classdef GridInfo
         rmin
         n_nbr
         zero_bin
+        center_bin
     end
     methods
         function obj = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr)
@@ -120,6 +124,7 @@ classdef GridInfo
             obj.rmin = rmin;
             obj.n_nbr = n_nbr;
             obj.zero_bin = zero_bin;
+            obj.center_bin = floor(n_bin(1)/2) * n_bin(2) + floor(n_bin(2)/2);
         end
     end
 end

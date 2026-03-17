@@ -28,7 +28,7 @@ k = @(s,t) log_kernel(s,t);
 K_src_to_target = log_kernel(struct('r',source_pts), struct('r',target_pts));
 
 target_vals = K_src_to_target * src_weights;
-n_nbr = 3; % 10000 points / 500 is approximately 20 boxes
+n_nbr = 5; % 10000 points / 500 is approximately 20 boxes
 
 src_info = struct;
 src_info.r = source_pts;
@@ -65,6 +65,10 @@ tol = 1e-08;
 [A_spread_t, sort_info_t] = get_spread(k, k, targ_info, ...
     grid_info, proxy_info);
 
+assert(all(~isnan(A_spread_s(:))));
+assert(all(~isinf(A_spread_s(:))));
+assert(all(~isnan(A_spread_t(:))));
+assert(all(~isinf(A_spread_t(:))));
 
 A_addsub = get_addsub(k, k, src_info, targ_info, grid_info, ...
     proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
@@ -72,6 +76,10 @@ A_addsub = get_addsub(k, k, src_info, targ_info, grid_info, ...
 % A_addsub = A_add - A_sub;
 
 K_grid2grid = log_kernel(grid_info, grid_info);
+% Put zeros on the diagonal of K_grid2grid
+for i = 1:size(K_grid2grid, 1)
+    K_grid2grid(i, i) = 0;
+end
 
 term1 = A_addsub * src_weights;
 disp("main: term1: ")

@@ -65,6 +65,8 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         % [nbr_binids, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_2d(grid_info, proxy_info);
         % [pts0, ctr_0, ~] = grid_pts_for_box_2d(nbr_bin_idx, grid_info);
         [pts0, reg_neighbor_template_pts] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+        box_center = bin_center(grid_info.center_bin, grid_info);
+        reg_neighbor_template_pts = reg_neighbor_template_pts - box_center;
     else
         [~, reg_neighbor_template_pts, ~, nbr_bin_idx] = neighbor_template_3d(grid_info, proxy_info);
         [pts0, ctr_0, ~] = grid_pts_for_box_3d(nbr_bin_idx, grid_info);
@@ -75,8 +77,8 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     % pts0_centered = pts0 - ctr_0;
     nbr_info = struct('r', reg_neighbor_template_pts);
 
-    bin_info = struct('r', pts0);
-    K_nbr2bin = kern_0(nbr_info, bin_info);
+    box_info = struct('r', pts0);
+    K_nbr2bin = kern_0(nbr_info, box_info);
     r = 0;
     for i = 1:dim
         r = r + (reg_neighbor_template_pts(i,:) - pts0(i,:).').^2;
@@ -141,7 +143,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
 
         % Build the spreading template
         if dim == 2
-            [nbr_binids, ~, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+            [nbr_binids, ~, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
             nbr_binids(nbr_binids==-1) =[];
         else
              [nbr_binids, nbr_grididxes] = neighbor_bins_3d(grid_info, proxy_info, bin_idx);
@@ -206,9 +208,9 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
         A_spread_t_i = A_spread_t(reg_idxs_i, opdim(1)*(idx_ti_start-1)+1:opdim(1)*idx_ti_end);
         A_spread_s_j = A_spread_s(nbr_grididxes, source_idx_dof);
         % AKA_chunk = (A_spread_t_i.' * K_nbr2bin) * A_spread_s_j;
-        disp("get_addsub: size(A_spread_t_i): " + int2str(size(A_spread_t_i)));
-        disp("get_addsub: size(K_nbr2bin): " + int2str(size(K_nbr2bin)));
-        disp("get_addsub: size(A_spread_s_j): " + int2str(size(A_spread_s_j)));
+        % disp("get_addsub: size(A_spread_t_i): " + int2str(size(A_spread_t_i)));
+        % disp("get_addsub: size(K_nbr2bin): " + int2str(size(K_nbr2bin)));
+        % disp("get_addsub: size(A_spread_s_j): " + int2str(size(A_spread_s_j)));
 
         AKA_chunk = A_spread_t_i.' * (K_nbr2bin * A_spread_s_j);
 

@@ -26,9 +26,27 @@ N_bin = grid_info.nbin(1) * grid_info.nbin(2);
 
 % disp("test_intersecting_bins_2d: N_bin = " + int2str(N_bin));
 
-[nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_2d(grid_info, proxy_info, 8);
+[nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, 8);
 
-assert( bin_idx == 8);
+
+% nbr_gridpts should be the same size as nbr_grididxes
+assert(size(nbr_gridpts, 2) == size(nbr_grididxes, 2));
+
+% nbr_grididxes should either be in the range [1, ngrid(1)*ngrid(2)] or be equal to dummy_idx = ngrid(1)*ngrid(2) + 1
+dummy_idx = grid_info.ngrid(1) * grid_info.ngrid(2) + 1;
+assert(all(nbr_grididxes >= 1 & nbr_grididxes <= dummy_idx));
+
+% valid nbr_grididxes should correctly index nbr_gridpts
+keep_bool = nbr_grididxes ~= dummy_idx;
+valid_grididxes = nbr_grididxes(keep_bool);
+valid_gridpts = nbr_gridpts(:, keep_bool);
+for i = 1:size(valid_grididxes, 2)
+    idx = valid_grididxes(i);
+    pt = valid_gridpts(:, i);
+    grid_pt = grid_info.r(:, idx);
+    dist = norm(pt - grid_pt);
+    assert(dist < 1e-12);
+end
 
 % OJM: deleting this assert statement because it was written when we computed 
 % the neighbor template as a rectangle, now we use a circle.
@@ -112,10 +130,10 @@ assert(all(size(r, 2) == size(binid_srt, 2)));
 BOX_IDX = 2;
 
 % Figure shows that bin idx 0 only intersects with 0, 1, 3. 
-[nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_2d(grid_info, proxy_info, BOX_IDX);
+[nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, BOX_IDX);
 
 % Now center at the center of bin idx 0.
-ctr = bin_center(bin_idx, grid_info);
+ctr = bin_center(BOX_IDX, grid_info);
 disp("test_neighbor_template_2d: Centering template at bin idx 4, ctr: ");
 disp(ctr);
 temp_at_4 = nbr_gridpts;
@@ -238,7 +256,7 @@ tol = 1e-08;
 n_bins = grid_info.nbin(1) * grid_info.nbin(2);
 
 for bin_idx = 0:(n_bins - 1)
-    [nbr_binids, nbr_gridpts, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
     % disp("test_neighbor_template_2d: Checking bin idx " + int2str(bin_idx));
     % disp("nbr_grididxes: ");
     % disp(nbr_grididxes);

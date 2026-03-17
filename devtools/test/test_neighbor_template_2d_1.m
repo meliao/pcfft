@@ -90,7 +90,7 @@ dummy_idxes = n_gridpts + 1: n_gridpts + n_dummy;
 % indexing the rows of A_spread_s with the nbr_grididxes gets all of the relevant entries for a given bin_idx.
 
 for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2)-1
-    [nbr_binids, nbr_gridpts, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
     
     % Get the source points in the neighbor bins
     source_idx = [];
@@ -138,8 +138,21 @@ n_nbr = 100;
 
 % Loop through all of the boxes
 for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2)-1
-    [nbr_binids, nbr_gridpts, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
-    
+    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+
+    valid_idxes = nbr_grididxes <= grid_info.ngrid(1) * grid_info.ngrid(2);
+    valid_nbr_gridpts = nbr_gridpts(:, valid_idxes);
+    valid_nbr_grididxes = nbr_grididxes(valid_idxes);
+
+    % Assert that the valid grid points match the expected grid points
+    for i = 1:size(valid_nbr_grididxes, 2)
+        idx = valid_nbr_grididxes(i);
+        pt = valid_nbr_gridpts(:, i);
+        grid_pt = grid_info.r(:, idx);
+        dist = norm(pt - grid_pt);
+        assert(dist < 1e-12);
+    end
+
     % Assert that # binids returned = # grid pts returned = # grid idxes returned
     assert(length(nbr_grididxes) == size(nbr_gridpts, 2));
 
