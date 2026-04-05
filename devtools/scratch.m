@@ -83,8 +83,11 @@
 %    k_evals = k_evals ./ dist.^2;
 % end
 
-Arsc = rscMat(A_addsub_c);
+% Arsc = rscMat(A_addsub_c);
+b = randn(size(A_addsub_c,1),1);
 tic;c = A_addsub_c*b; toc;
 
 
-tic;d = Arsc*b; toc;
+% tic;d = Arsc*b; toc;
+
+tic; sys_app(b);toc;

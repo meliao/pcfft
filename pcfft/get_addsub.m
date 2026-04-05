@@ -1,6 +1,5 @@
-function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
-    targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
-    A_spread_s, A_spread_t)
+function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
+    sort_info_s, sort_info_t, A_spread_s, A_spread_t)
     % Compute the correction for near-field interactions.
     %
     % Parameters
@@ -12,10 +11,6 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     %   derivatives of the free-space kernel. If left empty the free-space
     %   kernel will be used.
     %   Each pairwise interaction must of shape [opdim(1), opdim(2)]
-    % src_info : point_info
-    %   Specifies the source points.
-    % targ_info : point_info
-    %   Specifies the target points.
     % grid_info : GridInfo
     %   GridInfo object describing the regular grid.
     % proxy_info : ProxyInfo
@@ -37,10 +32,10 @@ function [A_addsub] = get_addsub(kern_0, kern_st, src_info, ...
     der_fields_s = fieldnames(sort_info_s.data_srt)';
     der_fields_t = fieldnames(sort_info_t.data_srt)';
 
-    N_src = size(src_info.r(:,:), 2);
-    N_targ = size(targ_info.r(:,:), 2);
+    N_src = size(sort_info_s.r_srt(:,:), 2);
+    N_targ = size(sort_info_t.r_srt(:,:), 2);
 
-    dim = size(src_info.r, 1);
+    dim = size(sort_info_s.r_srt, 1);
     if isempty(kern_st), kern_st = kern_0; end
 
     if ~isa(kern_0,'function_handle')

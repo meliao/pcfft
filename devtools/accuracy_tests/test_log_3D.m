@@ -29,8 +29,8 @@ n_nbr = 50;
 [A_spread_t, sort_info_t ]= get_spread(kern_0, [], targ_info, ...
     grid_info, proxy_info);
 
-A_addsub = get_addsub(kern_0, [], src_info, targ_info, ...
-    grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+A_addsub = get_addsub(kern_0, [], grid_info, proxy_info, sort_info_s, ...
+    sort_info_t, A_spread_s, A_spread_t);
 
 k0hat = get_kernhat(kern_0,grid_info);
 evals_approx = pcfft_apply(mu,A_spread_s,A_spread_t,A_addsub,k0hat);

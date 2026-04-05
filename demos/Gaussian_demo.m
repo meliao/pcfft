@@ -43,8 +43,8 @@ proxy_opts.multi_shells = true;
 [A_spread_t, sort_info_t]= get_spread(kern_0, [], targs, ...
     grid_info, proxy_info);
 % build corrections
-A_addsub = get_addsub(kern_0, [], srcs, targs, ...
-    grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+A_addsub = get_addsub(kern_0, [], grid_info, proxy_info, sort_info_s, ...
+    sort_info_t, A_spread_s, A_spread_t);
 % get DFT of kernel
 kern_0hat = get_kernhat(kern_0,grid_info);
 

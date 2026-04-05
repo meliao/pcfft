@@ -66,8 +66,8 @@ tol = 1e-08;
     grid_info, proxy_info);
 
 
-A_addsub = get_addsub(k, k, src_info, targ_info, grid_info, ...
-    proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+A_addsub = get_addsub(k, k, grid_info, proxy_info, sort_info_s, ...
+    sort_info_t, A_spread_s, A_spread_t);
 
 % A_addsub = A_add - A_sub;
 
