@@ -45,15 +45,13 @@ targ_info.r = target_pts;
 % In this test, there are 2 source points and 3 target points. 
 % Here are the dense interactions:
 % s(1) -> t(1) : both in box 0
-% s(2) -> t(2) : both in box 5
-% s(1) -> t(3) : s(1) in box 0, t(3) in box 7. These are near.
+% s(2) -> t(2) : both in box 119
+% s(1) -> t(3) : s(1) in box 0, t(3) in box 307. These are near.
 
 % So here are the interactions which are NOT dense:
 % s(1) -> t(2) % 0 and 5 are not near
 % s(2) -> t(1) % 5 and 0 are not near
 % s(2) -> t(3) % 5 and 7 are not near
-
-
 
 tol = 1e-08;
 
@@ -90,6 +88,8 @@ disp(term1)
 % disp(term2)
 
 AKA = A_spread_t.' * K_grid2grid * A_spread_s;
+disp("main: AKA: ")
+disp( AKA)
 
 term3 = AKA * src_weights;
 disp("main: term3: ")
@@ -113,6 +113,24 @@ disp(full(A_addsub))
 % disp(full(A_sub))
 % disp("main: AKA: ")
 % disp(full(AKA))
+
+% Plot the source points with blue dots
+figure(1);
+scatter(source_pts(1,:), source_pts(2,:), 100, 'b.');
+hold on;
+% Plot the target points with red dots
+scatter(target_pts(1,:), target_pts(2,:), 100, 'r.');
+
+% Plot the index of each bin at its center
+for i = 0:grid_info.nbin(1) * grid_info.nbin(2) - 1
+    bin_ctr = bin_center(i, grid_info);
+    text(bin_ctr(1), bin_ctr(2), num2str(i), 'HorizontalAlignment', 'center');
+end
+
+% Draw a circle of radius 2 * proxy rad around center of box 0
+box0_ctr = bin_center(0, grid_info);
+ring = get_ring_points(100, 2 * proxy_info.radius, box0_ctr);
+plot(ring(1,:), ring(2,:), 'k--');
 
 assert(errors_at_target < tol);
 

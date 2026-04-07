@@ -16,7 +16,7 @@ grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, -1);
 proxy_info = struct;
 proxy_info.radius = 0.5;
 
-[box_pts, spreading_template_pts] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+[box_pts, spreading_template_pts, spreading_template_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
 
 % box_pts must be [2, nspread^2]
 assert(all(size(box_pts) == [2, nspread^2]), ...
@@ -51,6 +51,12 @@ min_dist = min(dists);
 assert(min_dist + 1e-12 >= dx, ...
     sprintf('Minimum distance between spreading_template_pts is %g, less than dx=%g', min_dist, dx));
 
+
+
+% All indices must be unique
+[~, uid] = unique(spreading_template_idxes.', 'rows');
+assert(length(uid) == size(spreading_template_idxes, 2), ...
+    'spreading_template_idxes must have no duplicate indices');
 
 %% test_1: 
 % Template size matches an interior bin from neighbor_template_2d.

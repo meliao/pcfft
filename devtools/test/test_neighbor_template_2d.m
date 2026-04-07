@@ -36,14 +36,33 @@ assert(size(nbr_gridpts, 2) == size(nbr_grididxes, 2));
 dummy_idx = grid_info.ngrid(1) * grid_info.ngrid(2) + 1;
 assert(all(nbr_grididxes >= 1 & nbr_grididxes <= dummy_idx));
 
+% Make a figure with the grid points labeled by their index.
+scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
+hold on;
+text(grid_info.r(1,:), grid_info.r(2,:), string(1:size(grid_info.r, 2)), 'Color', 'k');
+% Plot nbr_gridpts in red
+scatter(nbr_gridpts(1,:), nbr_gridpts(2,:), 20, 'r', 'filled');
+title("Grid points with their linear indices");
+
 % valid nbr_grididxes should correctly index nbr_gridpts
 keep_bool = nbr_grididxes ~= dummy_idx;
 valid_grididxes = nbr_grididxes(keep_bool);
 valid_gridpts = nbr_gridpts(:, keep_bool);
+
+
+% Plot the text of valid_grididxes over the valid_gridpts
+text(valid_gridpts(1,:), valid_gridpts(2,:), string(valid_grididxes), 'Color', 'g');
+
+
 for i = 1:size(valid_grididxes, 2)
     idx = valid_grididxes(i);
     pt = valid_gridpts(:, i);
     grid_pt = grid_info.r(:, idx);
+    disp("test_neighbor_template_2d: Checking pt " + int2str(i) + " at idx " + int2str(idx));
+    disp("test_neighbor_template_2d: pt: ");
+    disp(pt);
+    disp("test_neighbor_template_2d: grid_pt: ");
+    disp(grid_pt);
     dist = norm(pt - grid_pt);
     assert(dist < 1e-12);
 end
@@ -127,7 +146,7 @@ assert(all(size(r, 2) == size(binid_srt, 2)));
 %     plot(proxypts(1,:), proxypts(2,:), 'k-');
 % end
 
-BOX_IDX = 2;
+BOX_IDX = 1;
 
 % Figure shows that bin idx 0 only intersects with 0, 1, 3. 
 [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, BOX_IDX);
@@ -209,7 +228,7 @@ for i = 1:size(valid_temp_pts, 2)
 end
 
 
-% close all;
+close all;
 %% test_0c
 
 % Check that for a given A_spread_s matrix, indexing it with the 

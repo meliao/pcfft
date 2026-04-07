@@ -26,18 +26,27 @@ function [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_in
   %   are assigned dummy_idx = ngrid(1)*ngrid(2) + 1.
 
     % Get the abstract spreading template built for center_bin.
+    % These are centered at the center of center_bin.
     [~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
 
-    % Get neighboring bin IDs (needed by callers such as get_addsub).
     [~, ~, nbr_binids] = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
 
     % Compute the grid-index shift from center_bin to bin_idx.
-    cx = floor(grid_info.center_bin / grid_info.nbin(2));
+    % cx, xy are the 2D bin coordinates of center_bin
     cy = mod(grid_info.center_bin, grid_info.nbin(2));
-    bx = floor(bin_idx / grid_info.nbin(2));
+    cx = floor((grid_info.center_bin - cy) / grid_info.nbin(2));
+
+    % bx, by are the 2D bin coordinates of bin_idx
     by = mod(bin_idx, grid_info.nbin(2));
+    bx = floor((bin_idx - by )/ grid_info.nbin(2));
+    
     delta_ix = (bx - cx) * grid_info.nbinpts;
     delta_iy = (by - cy) * grid_info.nbinpts;
+
+    % disp("neighbor_template_2d: bin_idx: " + int2str(bin_idx) + ...
+    %      ", center_bin: " + int2str(grid_info.center_bin) + ...
+    %      ", delta_ix: " + int2str(delta_ix) + ...
+    %      ", delta_iy: " + int2str(delta_iy));
 
     % Shift template indices to the target bin.
     shifted_idxes = tmpl_idxes + [delta_ix; delta_iy];
@@ -50,8 +59,7 @@ function [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_in
     nbr_grididxes = (shifted_idxes(1,:) - 1) * ngrid(2) + shifted_idxes(2,:);
     nbr_grididxes(~in_bounds) = dummy_idx;
 
-    % Compute physical coordinates: tmpl_pts are offsets from center_bin's box
-    % center, so adding bin_idx's box center gives absolute coordinates.
-    [~, bin_center] = grid_pts_for_box_2d(bin_idx, grid_info);
-    nbr_gridpts = tmpl_pts + bin_center;
+    % Compute physical coordinates
+    ctr = bin_center(bin_idx, grid_info);
+    nbr_gridpts = tmpl_pts + ctr;
 end

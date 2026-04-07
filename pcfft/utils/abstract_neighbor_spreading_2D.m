@@ -40,8 +40,9 @@ function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_
     end
 
     % Deduplicate
-    [~, uid] = unique(all_pts.', 'rows');
-    all_unique_pts = all_pts(:, uid);
+    % [~, uid] = unique(all_pts.', 'rows');
+    % all_unique_pts = all_pts(:, uid);
+    all_unique_pts = all_pts;
 
     % Step 2b: center relative to box_center
     spreading_template_pts = all_unique_pts - box_center;
@@ -50,4 +51,9 @@ function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_
     x_idxes = round((all_unique_pts(1,:) - (grid_info.rmin(1))) / grid_info.dx)+1;
     y_idxes = round((all_unique_pts(2,:) - (grid_info.rmin(2))) / grid_info.dx)+1;
     spreading_template_idxes = [x_idxes; y_idxes];
+
+    % Step 2d: De-duplicate indices
+    [~, uid] = unique(spreading_template_idxes.', 'rows');
+    spreading_template_pts = spreading_template_pts(:, uid);
+    spreading_template_idxes = spreading_template_idxes(:, uid);
 end
