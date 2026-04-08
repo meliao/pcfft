@@ -46,4 +46,5 @@ evals_approx = pcfft_apply(mu,A_spread_s,A_spread_t,A_addsub,k0hat);
 diffs = abs(evals_approx - target_vals);
 rel_linf_error = max(diffs) / max(abs(target_vals));
 
+disp("test_log_2D: tol: " + num2str(tol) + ", rel linf error: " + num2str(rel_linf_error));
 assert(rel_linf_error < tol);
