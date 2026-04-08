@@ -89,9 +89,10 @@ dummy_idxes = n_gridpts + 1: n_gridpts + n_dummy;
 % For each bin, get the neighbor bin idxes and assert that 
 % indexing the rows of A_spread_s with the nbr_grididxes gets all of the relevant entries for a given bin_idx.
 
+[~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
 for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2)-1
-    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
-    
+    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx, tmpl_pts, tmpl_idxes);
+
     % Get the source points in the neighbor bins
     source_idx = [];
     for j = 1:length(nbr_binids)
@@ -137,8 +138,9 @@ n_nbr = 100;
 [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
 
 % Loop through all of the boxes
+[~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
 for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2)-1
-    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx, tmpl_pts, tmpl_idxes);
 
     valid_idxes = nbr_grididxes <= grid_info.ngrid(1) * grid_info.ngrid(2);
     valid_nbr_gridpts = nbr_gridpts(:, valid_idxes);

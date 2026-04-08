@@ -1,4 +1,4 @@
-function [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx)
+function [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx, template_pts, template_idxes)
   % neighbor_template_2d  Neighbor bin template for 2D spreading.
   %
   % Computes the set of neighboring bins and their spreading grid points for a
@@ -27,7 +27,9 @@ function [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_in
 
     % Get the abstract spreading template built for center_bin.
     % These are centered at the center of center_bin.
-    [~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+    % [~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+    tmpl_pts = template_pts;
+    tmpl_idxes = template_idxes;
 
     [~, ~, nbr_binids] = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
 

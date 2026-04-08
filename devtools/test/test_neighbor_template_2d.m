@@ -26,7 +26,8 @@ N_bin = grid_info.nbin(1) * grid_info.nbin(2);
 
 % disp("test_intersecting_bins_2d: N_bin = " + int2str(N_bin));
 
-[nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, 8);
+[~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+[nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, 8, tmpl_pts, tmpl_idxes);
 
 
 % nbr_gridpts should be the same size as nbr_grididxes
@@ -149,7 +150,8 @@ assert(all(size(r, 2) == size(binid_srt, 2)));
 BOX_IDX = 1;
 
 % Figure shows that bin idx 0 only intersects with 0, 1, 3. 
-[nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, BOX_IDX);
+[~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+[nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, BOX_IDX, tmpl_pts, tmpl_idxes);
 
 % Now center at the center of bin idx 0.
 ctr = bin_center(BOX_IDX, grid_info);
@@ -274,8 +276,10 @@ tol = 1e-08;
 
 n_bins = grid_info.nbin(1) * grid_info.nbin(2);
 
+[~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+
 for bin_idx = 0:(n_bins - 1)
-    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx, tmpl_pts, tmpl_idxes);
     % disp("test_neighbor_template_2d: Checking bin idx " + int2str(bin_idx));
     % disp("nbr_grididxes: ");
     % disp(nbr_grididxes);

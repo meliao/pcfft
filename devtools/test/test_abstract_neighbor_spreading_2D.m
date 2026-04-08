@@ -77,11 +77,12 @@ src_info.r = (rand(2, n_src) - 0.5) * scale;
 
 [grid_info_1, proxy_info_1] = get_grid(@log_kernel, src_info, src_info, tol);
 
-[box_pts_1, tmpl_pts_1, tmpl_idxes_1] = abstract_neighbor_spreading_2D(grid_info_1, proxy_info_1);
+[box_pts_1, tmpl_pts_1_original, tmpl_idxes_1_original] = abstract_neighbor_spreading_2D(grid_info_1, proxy_info_1);
 box_ctr = bin_center(grid_info_1.center_bin, grid_info_1);
 disp("test_1: box center: ");
 disp(box_ctr);
-tmpl_pts_1 = tmpl_pts_1 + box_ctr;  % Shift template points to be centered at the box center
+tmpl_pts_1 = tmpl_pts_1_original + box_ctr;  % Shift template points to be centered at the box center
+tmpl_idxes_1 = tmpl_idxes_1_original; 
 
 % check the number of interior bins
 disp("test_1: grid_info_1.nbin: ");
@@ -143,7 +144,7 @@ axis equal;
 
 % Also the neighborhood returned by neighbor_template_2d for bin 0. Plot the 
 % nbr_grididxes as text on the figure.
-[nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info_1, proxy_info_1, 0);
+[nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info_1, proxy_info_1, 0, tmpl_pts_1_original, tmpl_idxes_1_original);
 nbr_gridpts = nbr_gridpts(:, nbr_grididxes <= grid_info_1.ngrid(1) * grid_info_1.ngrid(2) & nbr_grididxes > 0);
 % text(nbr_gridpts(1, :), nbr_gridpts(2, :), arrayfun(@(idx) int2str(idx), nbr_grididxes(nbr_grididxes <= grid_info_1.ngrid(1) * grid_info_1.ngrid(2) & nbr_grididxes > 0), 'UniformOutput', false), 'FontSize', 8);
 

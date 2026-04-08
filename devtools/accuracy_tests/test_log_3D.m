@@ -2,6 +2,9 @@ addpath(genpath("../../pcfft"));
 close all;
 clear;
 
+% Raise an error. This test is not implemented yet.
+error("Test not implemented");
+
 % Set up random source and target points
 rng(1);
 n_src = 500;

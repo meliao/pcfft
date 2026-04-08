@@ -16,9 +16,9 @@ function [id_xs, id_ys, binids] = intersecting_bins_2d(bin_idx, grid_info, ...
     %     ", id_x: " + int2str(id_x) + ", id_y: " + int2str(id_y));
 
     % Radius in index space 
-    rad = ceil(2 * proxy_info.radius / (grid_info.nbinpts * grid_info.dx));
+    rad = ceil(2 *proxy_info.radius / (grid_info.nspread * grid_info.dx));
 
-    % Which bins are within 2 * radius / (nspread * dx) ?
+    % Which bins are within 2 * radius / (bin_width) ?
     id_x_min = id_x - rad;
     id_x_max = id_x + rad;
 

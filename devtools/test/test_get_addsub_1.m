@@ -7,7 +7,7 @@ rng(0);
 src_info.r = rand(2,50) - 0.5;
 [grid_info, proxy_info] = get_grid(k, src_info, src_info, tol);
 
-[pts0, reg_neighbor_template_pts] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+[pts0, reg_neighbor_template_pts, reg_neighbor_template_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
 box_center = bin_center(grid_info.center_bin, grid_info);
 pts0_abs = pts0; % pts0 is already absolute (before subtraction in get_addsub)
 
@@ -24,7 +24,7 @@ K_nbr2bin(K_nbr2bin_r < 1e-14) = 0;
 % and compare to K_nbr2bin
 for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2) - 1
     [~, ~, reg_idxs_i]    = grid_pts_for_box_2d(bin_idx, grid_info);
-    [~, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+    [~, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx, reg_neighbor_template_pts, reg_neighbor_template_idxes);
 
     % Only consider in-bounds template points
     dummy = grid_info.ngrid(1)*grid_info.ngrid(2) + 1;
@@ -52,11 +52,11 @@ end
 %% test_2
 
 bin_idx = grid_info.center_bin;
-[~, tmpl_pts_abs, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+[~, tmpl_pts_abs_1, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
 box_ctr = bin_center(grid_info.center_bin, grid_info);
-tmpl_pts_abs = tmpl_pts_abs + box_ctr; % shift from relative to absolute
+tmpl_pts_abs = tmpl_pts_abs_1 + box_ctr; % shift from relative to absolute
 
-[~, ~, nbr_grididxes_c] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
+[~, ~, nbr_grididxes_c] = neighbor_template_2d(grid_info, proxy_info, bin_idx, tmpl_pts_abs_1, tmpl_idxes);
 
 % For valid points, check that nbr_grididxes index the same physical points
 % as tmpl_idxes
