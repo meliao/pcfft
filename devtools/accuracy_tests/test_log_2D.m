@@ -33,11 +33,8 @@ disp("test_log_2D: A_spread_s size: " + int2str(size(A_spread_s)));
     grid_info, proxy_info);
 disp("test_log_2D: A_spread_t size: " + int2str(size(A_spread_t)));
 
-tic;
-A_addsub = get_addsub(kern_0, [], src_info, targ_info, ...
-    grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
-t_addsub = toc
-disp("test_log_2D: A_addsub size: " + int2str(size(A_addsub)));
+A_addsub = get_addsub(kern_0, [], grid_info, proxy_info, sort_info_s, ...
+    sort_info_t, A_spread_s, A_spread_t);
 
 k0hat = get_kernhat(kern_0,grid_info);
 evals_approx = pcfft_apply(mu,A_spread_s,A_spread_t,A_addsub,k0hat);

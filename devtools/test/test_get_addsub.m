@@ -45,8 +45,8 @@ grid_info, proxy_info);
 
 
 
-A_addsub = get_addsub(kern_0, kern, src_info_2d, targ_info_2d, ...
-    grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+A_addsub = get_addsub(kern_0, kern, grid_info, proxy_info, sort_info_s, ...
+    sort_info_t, A_spread_s, A_spread_t);
 
 % Check that A_adsub has the correct size.
 assert(all(size(A_addsub) == [ntarg n_src]));
@@ -100,8 +100,8 @@ grid_info_3d, proxy_info_3d);
 [A_spread_t, sort_info_t ]= get_spread(kern_0, kern, targ_info_3d, ...
 grid_info_3d, proxy_info_3d);
 
-A_addsub = get_addsub(kern_0, kern, src_info_3d, targ_info_3d, ...
-    grid_info_3d, proxy_info_3d, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+A_addsub = get_addsub(kern_0, kern, grid_info_3d, proxy_info_3d, ...
+    sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 
 % Check that A_adsub has the correct size.
 assert(all(size(A_addsub) == [ntarg n_src]));

@@ -63,7 +63,7 @@ if ifacc
     rhs = -skern(src,S);
 else
     rhs = -planewave(kvec,S.r(:,:));
-    rhs = rhs(:);
+    rhs = rhs(:);ad
 end
 
 figure(3); clf;
@@ -118,10 +118,10 @@ proxy_opts.halfside = grid_info.dx*grid_info.nbinpts;
 [A_spread_t, sort_info_t] = get_spread(skern, skern, targout, ...
     grid_info, proxy_info);
 % build corrections
-A_addsub_self = get_addsub(skern, dkern, S_over, S, ...
-    grid_info, proxy_info, sort_info_S_over, sort_info_S, A_spread_s, A_spread_surf);
-A_addsub_eval = get_addsub(skern, dkern, S_over, targout, ...
-    grid_info, proxy_info, sort_info_S_over, sort_info_t, A_spread_s, A_spread_t);
+A_addsub_self = get_addsub(skern, dkern, grid_info, proxy_info, ...
+    sort_info_S_over, sort_info_S, A_spread_s, A_spread_surf);
+A_addsub_eval = get_addsub(skern, dkern, grid_info, proxy_info, ...
+    sort_info_S_over, sort_info_t, A_spread_s, A_spread_t);
 % get DFT of kernel
 skern_hat = get_kernhat(skern,grid_info);
 

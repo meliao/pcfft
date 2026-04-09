@@ -16,6 +16,7 @@ zk = 10;
 kvec = zk*[cos(phi);sin(phi)];
 
 nscats = 5:5:30;
+% nscats = 450;
 times = zeros(3,length(nscats));
 solvetimes = zeros(3,length(nscats));
 npts = zeros(1,length(nscats));
@@ -37,7 +38,7 @@ ntry = 1000;
 
 % make interior boundaries with random locations
 chnkr = [];
-L = 9;
+L = 9;L = 35;
 theta = 2*pi*rand();
 ctrs = L*rand()*[cos(theta);sin(theta)];
 n_pts = [];
@@ -103,7 +104,7 @@ uin(out) = planewave(kvec(:),targs(:,out));
 t1 = tic;
 
 % setup grid
-[grid_info, proxy_info] = get_grid(skern, chnkr, targout, eps);
+[grid_info, proxy_info] = get_grid(skern, chnkr, targout, eps,200);
 % get spreading operators
 [A_spread_s, sort_info_c]= get_spread(skern, dkern, chnkr, ...
     grid_info, proxy_info, {'r','n'});
@@ -112,10 +113,10 @@ t1 = tic;
 [A_spread_t, sort_info_t] = get_spread(skern, skern, targout, ...
     grid_info, proxy_info);
 % build corrections
-A_addsub_c = get_addsub(skern, dkern, chnkr, chnkr, ...
-    grid_info, proxy_info, sort_info_c, sort_info_c, A_spread_s, A_spread_c);
-A_addsub_eval = get_addsub(skern, dkern, chnkr, targout, ...
-    grid_info, proxy_info, sort_info_c, sort_info_t, A_spread_s, A_spread_t);
+A_addsub_c = get_addsub(skern, dkern, grid_info, proxy_info, ...
+    sort_info_c, sort_info_c, A_spread_s, A_spread_c);
+A_addsub_eval = get_addsub(skern, dkern, grid_info, proxy_info, ...
+    sort_info_c, sort_info_t, A_spread_s, A_spread_t);
 % get DFT of kernel
 skern_hat = get_kernhat(skern,grid_info);
 
@@ -126,6 +127,7 @@ A_addsub_eval = A_addsub_eval.*chnkr.wts(:).';
 tpcfftprecom = toc(t1);
 
 sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_c,cors,skern_hat);
+% return
 tic;
 % solve
 sol = gmres(sys_app,rhs,[],eps,1000);
@@ -134,7 +136,8 @@ tpcfftsolve = toc;
 %%
 tic;
 % build fast direct solver
-F = chunkerflam(chnkr,dkern,0.5);
+flam_opts = [];flam_opts.rank_or_tol = eps;
+F = chunkerflam(chnkr,dkern,0.5,flam_opts);
 tFLAMprecom = toc;
 
 tic;

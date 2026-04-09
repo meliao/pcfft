@@ -68,8 +68,8 @@ assert(all(~isinf(A_spread_s(:))));
 assert(all(~isnan(A_spread_t(:))));
 assert(all(~isinf(A_spread_t(:))));
 
-A_addsub = get_addsub(k, k, src_info, targ_info, grid_info, ...
-    proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+A_addsub = get_addsub(k, k, grid_info, proxy_info, sort_info_s, ...
+    sort_info_t, A_spread_s, A_spread_t);
 
 % A_addsub = A_add - A_sub;
 
