@@ -26,18 +26,15 @@ function center = bin_center(bin_idx, grid_info)
     end
 
     % Compute the first and last gridpoints and find their average
-    x_first = Lbd(1) - offset + id_x * dx * nbinpts + 0 * dx;
-    x_last  = Lbd(1) - offset + id_x * dx * nbinpts + (nspread-1) * dx;
 
-    y_first = Lbd(2) - offset + id_y * dx * nbinpts + 0 * dx;
-    y_last  = Lbd(2) - offset + id_y * dx * nbinpts + (nspread-1) * dx;
+    x_center = Lbd(1) - offset + id_x * dx * nbinpts + (nspread-1)/2 * dx;
+    y_center = Lbd(2) - offset + id_y * dx * nbinpts + (nspread-1)/2 * dx;
 
     if grid_info.dim == 2
-        center = [(x_first + x_last) / 2; (y_first + y_last) / 2];
+        center = [x_center; y_center];
     else
-        z_first = Lbd(3) - offset + id_z * dx * nbinpts + 0 * dx;
-        z_last  = Lbd(3) - offset + id_z * dx * nbinpts + (nspread-1) * dx;
+        z_center = Lbd(3) - offset + id_z * dx * nbinpts + (nspread-1)/2 * dx;
 
-        center = [(x_first + x_last) / 2; (y_first + y_last) / 2; (z_first + z_last) / 2];
+        center = [x_center; y_center; z_center];
     end
 end

@@ -5,17 +5,16 @@ clear;
 
 % Set up random source and target points
 rng(1);
-n_src = 500;
-n_targ = 517;
+n_src = 5000;
+n_targ = 5017;
 dim = 3;
 
 kern_0 = @(s,t) one_over_r_kernel(s,t);
 src_info = struct;
-% Source and target points are random in [-0.5, 0.5] x [-0.5, 0.5] x [-0.5, 0.5]
+% Source and target points are random in [-0.5, 0.5] x [-0.5, 0.5] x [-0.5, 0run.5]
 src_info.r = (rand(dim, n_src) - 0.5);
 targ_info = struct;
 targ_info.r = (rand(dim, n_targ) - 0.5);
-
 % Source weights are random uniform in [0, 1]
 mu = rand(n_src, 1);
 K_exact = kern_0(src_info, targ_info);

@@ -38,6 +38,8 @@ classdef GridInfo
     %   average number of near-field neighbours.
     % zero_bin : array [dim, nbinpts^dim]
     %   Grid points of a spreading bin centered at the origin.
+    % zero_box : array [dim, nspread^dim]
+    %   Grid points of a spreading box centered at the origin.
     % center_bin : int
     %   Linear index of a bin approximately at the center of the grid.
     %   Computed as floor(nbin(1)/2) * nbin(2) + floor(nbin(2)/2).
@@ -57,6 +59,7 @@ classdef GridInfo
         rmin
         n_nbr
         zero_bin
+        zero_box
         center_bin
     end
     methods
@@ -101,6 +104,10 @@ classdef GridInfo
                 zero_pts = dx * (0:nbinpts-1) - (nbinpts-1)/2 * dx;
                 [X, Y] = meshgrid(zero_pts, zero_pts);
                 zero_bin = [X(:).'; Y(:).'];
+
+                zero_pts_box = dx * (0:nspread-1) - (nspread-1)/2 * dx;
+                [X, Y] = meshgrid(zero_pts_box, zero_pts_box);
+                zero_box = [X(:).'; Y(:).'];
             elseif dim == 3
                 zero_pts = dx * (0:nbinpts-1) - (nbinpts-1)/2 * dx;
                 [X, Y, Z] = meshgrid(zero_pts, zero_pts, zero_pts);
@@ -108,6 +115,13 @@ classdef GridInfo
                 Y = permute(Y,[3,1,2]);
                 Z = permute(Z,[3,1,2]);
                 zero_bin = [X(:).'; Y(:).'; Z(:).'];
+
+                zero_pts_box = dx * (0:nspread-1) - (nspread-1)/2 * dx;
+                [X, Y, Z] = meshgrid(zero_pts_box, zero_pts_box, zero_pts_box);
+                X = permute(X,[3,1,2]);
+                Y = permute(Y,[3,1,2]);
+                Z = permute(Z,[3,1,2]);
+                zero_box = [X(:).'; Y(:).'; Z(:).'];
             end
 
             obj.ngrid = ngrid;
@@ -124,6 +138,7 @@ classdef GridInfo
             obj.rmin = rmin;
             obj.n_nbr = n_nbr;
             obj.zero_bin = zero_bin;
+            obj.zero_box = zero_box;
             obj.center_bin = floor(n_bin(1)/2) * n_bin(2) + floor(n_bin(2)/2);
         end
     end

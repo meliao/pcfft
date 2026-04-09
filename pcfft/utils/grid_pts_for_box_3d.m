@@ -17,36 +17,24 @@ function [pts, center, row_idxes] = grid_pts_for_box_3d(bin_idx, grid_info)
     % bin_idx = id_x * N_y_bins * N_z_bins + id_y * N_z_bins + id_z;
 
 
-    dx = grid_info.dx;
-    Lbd = grid_info.Lbd;
     ngrid = grid_info.ngrid;
 
     N_y_bins = grid_info.nbin(2);
     N_z_bins = grid_info.nbin(3);
     nspread = grid_info.nspread;
     nbinpts = grid_info.nbinpts;
-    offset = grid_info.offset;
 
     id_z = mod(bin_idx, N_z_bins);
     id_y = mod(floor(bin_idx / N_z_bins), N_y_bins);
     id_x = floor(bin_idx / (N_y_bins * N_z_bins));
 
-    % Find the grid points corresponding to id_x, id_y, and id_z
-    xpts = Lbd(1) - offset + id_x * dx * nbinpts + dx * (0:nspread-1);
-    ypts = Lbd(2) - offset + id_y * dx * nbinpts + dx * (0:nspread-1);
-    zpts = Lbd(3) - offset + id_z * dx * nbinpts + dx * (0:nspread-1);
-    [X,Y,Z] = meshgrid(xpts, ypts, zpts);
-    X = permute(X,[3,1,2]);
-    Y = permute(Y,[3,1,2]);
-    Z = permute(Z,[3,1,2]);
-    pts = [X(:).'; Y(:).'; Z(:).'];
+    center = bin_center(bin_idx, grid_info);
+    pts = grid_info.zero_box + center;
 
-    center = [(xpts(1) + xpts(end)) / 2; (ypts(1) + ypts(end)) / 2; (zpts(1) + zpts(end)) / 2];
-
-    % Compute the row indices. 
-    % First, we know that the xpts are in position 
+    % Compute the row indices.
+    % First, we know that the xpts are in position
     % (id_x - 1) * nbinpts + 1: id_x * nbinpts
-    % and the ypts are in position 
+    % and the ypts are in position
     % (id_y - 1) * nbinpts + 1: id_y * nbinpts
     % and the zpts are in position
     % (id_z - 1) * nbinpts + 1: id_z * nbinpts

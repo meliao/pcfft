@@ -17,8 +17,7 @@ function offsets = neighbor_offsets_2d(rad)
     offsets = zeros(2, 0);
     for delta_x = -rad : rad
         delta_y_max = ceil(sqrt(rad^2 - delta_x^2));
-        for delta_y = -delta_y_max : delta_y_max
-            offsets = [offsets, [delta_x; delta_y]];
-        end
+        delta_ys = -delta_y_max : delta_y_max;
+        offsets = [offsets, [delta_x * ones(1, numel(delta_ys)); delta_ys]];
     end
 end

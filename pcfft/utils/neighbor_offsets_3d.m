@@ -21,9 +21,8 @@ function offsets = neighbor_offsets_3d(rad)
             r2 = rad^2 - delta_x^2 - delta_y^2;
             if r2 < 0; continue; end
             delta_z_max = ceil(sqrt(r2));
-            for delta_z = -delta_z_max : delta_z_max
-                offsets = [offsets, [delta_x; delta_y; delta_z]];
-            end
+            delta_zs = -delta_z_max : delta_z_max;
+            offsets = [offsets, [delta_x * ones(1, numel(delta_zs)); delta_y * ones(1, numel(delta_zs)); delta_zs]];
         end
     end
 end
