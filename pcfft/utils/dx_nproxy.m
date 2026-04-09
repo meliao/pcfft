@@ -168,6 +168,7 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
             nspread = nspread + 1;
             if mod(nspread,4) == 0
             nshell = nshell + 1;
+            % disp("dx_nproxy: Increasing nshell to " + int2str(nshell) + ", nspread is " + int2str(nspread));
             end
             nproxy = nspread^2;
             proxy_pts0 = get_sphere_points(nproxy, 1);
