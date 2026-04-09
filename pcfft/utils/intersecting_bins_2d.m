@@ -18,25 +18,9 @@ function [id_xs, id_ys, binids] = intersecting_bins_2d(bin_idx, grid_info, ...
     % Radius in index space 
     rad = interaction_radius(proxy_info, grid_info);
 
-    % Which bins are within 2 * radius / (bin_width) ?
-    id_x_min = id_x - rad;
-    id_x_max = id_x + rad;
-
-
-    id_xs = [];
-    id_ys = [];
-    % Loop over idx_x
-    for idx_x = id_x_min:id_x_max
-        
-        % Compute max idx_y for this idx_x
-        dx_offset = idx_x - id_x;
-        idx_y_max = id_y + ceil(sqrt(rad^2 - dx_offset^2));
-        idx_y_min = id_y - ceil(sqrt(rad^2 - dx_offset^2));
-
-        ny = idx_y_max - idx_y_min + 1;
-        id_xs = [id_xs, repmat(idx_x, 1, ny)];
-        id_ys = [id_ys, idx_y_min:idx_y_max];
-    end
+    offsets = neighbor_offsets_2d(rad);
+    id_xs = id_x + offsets(1, :);
+    id_ys = id_y + offsets(2, :);
 
     % Compute the binids
     binids = id_ys(:) + id_xs(:) * N_y_bins;

@@ -31,12 +31,10 @@ function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_
 
     % Collect spreading box points for every neighboring bin offset.
     all_pts = zeros(2, 0);
-    for delta_x = -rad : rad
-        delta_y_max = ceil(sqrt(rad^2 - delta_x^2));
-        for delta_y = -delta_y_max : delta_y_max
-            shift = [delta_x; delta_y] * grid_info.nbinpts * grid_info.dx;
-            all_pts = [all_pts, box_pts + shift];
-        end
+    offsets = neighbor_offsets_2d(rad);
+    for k = 1 : size(offsets, 2)
+        shift = offsets(:, k) * grid_info.nbinpts * grid_info.dx;
+        all_pts = [all_pts, box_pts + shift];
     end
 
     % Deduplicate
