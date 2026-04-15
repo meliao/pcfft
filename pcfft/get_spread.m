@@ -126,21 +126,31 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
 
     % A is a sparse matrix with shape (ngrid^2, nsrc)
     n_grid_pts = size(grid_info.r, 2);
-    A_spread = sparse(n_grid_pts, opdim*size(src_info.r(:,:), 2));
+    % A_spread = sparse(n_grid_pts, opdim*size(src_info.r(:,:), 2));
     % disp("get_spread: A_spread shape: ")
     % disp(size(A_spread))
+
+    num_spread = size(K_src_to_reg,1)*opdim*size(src_info.r(:,:), 2);
+    iid = zeros(1,num_spread);
+    jid = zeros(1,num_spread);
+    vals = zeros(1,num_spread);
+    id_id = 0;
+    
 
     % Now, loop through the bins and start to fill in A
     % Remember, we 0-indexed the bin IDs
     for i = 0:size(id_start,2) - 2
+        idx_start = opdim*(id_start(i+1)-1) + 1;
+        idx_end = opdim*(id_start(i+2)-1);
+        if idx_end<idx_start, continue, end
+
         if dim == 2
             [pts_i, center_i, row_idxes_i] = grid_pts_for_box_2d(i, grid_info);
         else
             [pts_i, center_i, row_idxes_i] = grid_pts_for_box_3d(i, grid_info);
         end
 
-        idx_start = opdim*(id_start(i+1)-1) + 1;
-        idx_end = opdim*(id_start(i+2)-1);
+
 
         % Do the logging if there is a nonempty set of src point indices
         % if idx_end >= idx_start
@@ -161,9 +171,28 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
         % block_content = K_reg_to_proxy \ K_src_to_proxy_i;
         block_content = K_src_to_reg(:,idx_start:idx_end);
 
-        A_spread(row_idxes_i, idx_start:idx_end) = A_spread(row_idxes_i, idx_start:idx_end) + block_content;
+        % A_spread(row_idxes_i, idx_start:idx_end) = A_spread(row_idxes_i, idx_start:idx_end) + block_content;
+        % A_spread(row_idxes_i, idx_start:idx_end) = block_content;
+
+        % Update COO arrays.
+        is = (row_idxes_i);
+        js = idx_start:idx_end;
+        is = repmat(is(:), 1, size(js,2));
+        js = repmat(js(:).', size(is,1), 1);
+        n_sparse = numel(block_content);
+
+        iid(id_id + (1:n_sparse)) = is(:).';
+        jid(id_id + (1:n_sparse)) = js(:).';
+        vals(id_id + (1:n_sparse)) = block_content(:).';
+        id_id = id_id + n_sparse;
 
     end
+    iid = iid(1:id_id);
+    jid = jid(1:id_id);
+    vals = vals(1:id_id);
+
+    A_spread = sparse(iid, jid, vals, n_grid_pts, opdim*size(src_info.r(:,:), 2));
+
     sorted_idxes = opdim*(sorted_idxes-1) + (1:opdim).';
     % Undo the sorting
     A_spread(:, sorted_idxes(:)) = A_spread;
