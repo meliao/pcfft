@@ -1,6 +1,6 @@
-function [nbr_binids, nbr_grididxes] = neighbor_bins_3d(grid_info, proxy_info, bin_idx)
+function [nbr_binids, nbr_grididxes] = neighbor_bins_3d(grid_info, bin_idx)
 
-    [int_idx_x, int_idx_y, int_idx_z, nbr_binids] = intersecting_bins_3d(bin_idx, grid_info, proxy_info);
+    [int_idx_x, int_idx_y, int_idx_z, nbr_binids] = intersecting_bins_3d(bin_idx, grid_info);
     
 
     % disp("neighbor_template_2d: For bin_idx " + int2str(bin_idx) + ...

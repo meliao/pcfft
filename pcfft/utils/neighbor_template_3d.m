@@ -1,68 +1,48 @@
-function [nbr_binids, nbr_gridpts, nbr_grididxes, bin_idx] = neighbor_template_3d(grid_info, proxy_info, bin_idx)
+function [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_3d(grid_info, proxy_info, bin_idx, template_pts, template_idxes)
 
-    if nargin == 2
-        % First, find how many bins are intersecting.
-        [int_idx_x, int_idx_y, int_idx_z] = intersecting_bins_3d(0, grid_info, proxy_info);
-        % Now find a bin s.t. all of the intersecting bins have idx >= 0.
-        offset_x = ceil((length(int_idx_x) - 1) / 2);
-        offset_y = ceil((length(int_idx_y) - 1) / 2);
-        offset_z = ceil((length(int_idx_z) - 1) / 2);
-        bin_idx = offset_x * grid_info.nbin(2) * grid_info.nbin(3) + offset_y * grid_info.nbin(3) + offset_z;
-    end
 
-    [int_idx_x, int_idx_y, int_idx_z, nbr_binids] = intersecting_bins_3d(bin_idx, grid_info, proxy_info);
+
+    [~, ~, ~,nbr_binids] = intersecting_bins_3d(bin_idx, grid_info);
+    % Compute the grid-index shift from center_bin to bin_idx.
+    % cx, cy, cz are the 3D bin coordinates of center_bin
+    cz = mod(grid_info.center_bin, grid_info.nbin(3));
+    cy = mod(floor(grid_info.center_bin / grid_info.nbin(3)), grid_info.nbin(2));
+    cx = floor(grid_info.center_bin / (grid_info.nbin(2) * grid_info.nbin(3)));
+
+
+    % bz, by, bx are the 3D bin coordinates of bin_idx
+    bz = mod(bin_idx, grid_info.nbin(3));
+    by = mod(floor(bin_idx / grid_info.nbin(3)), grid_info.nbin(2));
+    bx = floor(bin_idx / (grid_info.nbin(2) * grid_info.nbin(3)));
+
+    delta_ix = (bx - cx) * grid_info.nbinpts;
+    delta_iy = (by - cy) * grid_info.nbinpts;
+    delta_iz = (bz - cz) * grid_info.nbinpts;
+
+    shift = [delta_ix; delta_iy; delta_iz];
+    shifted_idxes = (template_idxes.' + shift);
+    % disp("neighbor_template_3d: size(template_idxes): " + int2str(size(template_idxes)) + ...
+    %      ", size(shift): " + int2str(size(shift)) + ...
+    %      ", size(shifted_idxes): " + int2str(size(shifted_idxes)));
     
-
-    % disp("neighbor_template_2d: For bin_idx " + int2str(bin_idx) + ...
-    %     ", ind_idx_x: ");
-    % disp(ind_idx_x);
-
-    % Info from grid_info that will be used later
-    rpad = grid_info.rpad;
-    nbinpts = grid_info.nbinpts;
-    Lbd = grid_info.Lbd;
-    dx = grid_info.dx;
-    offset = grid_info.offset;
+    % Only keep in-bounds grid points.
     ngrid = grid_info.ngrid;
-    rmax = grid_info.rmax;
-    rmin = grid_info.rmin;
+    in_bounds = shifted_idxes(1,:) >= 1 & shifted_idxes(1,:) <= ngrid(1) & ...
+                shifted_idxes(2,:) >= 1 & shifted_idxes(2,:) <= ngrid(2) & ...
+                shifted_idxes(3,:) >= 1 & shifted_idxes(3,:) <= ngrid(3);
+    nbr_grididxes = (shifted_idxes(1,:) - 1) * ngrid(2) * ngrid(3) + (shifted_idxes(2,:) - 1) * ngrid(3) + shifted_idxes(3,:);
+    % disp("neighbor_template_3d: size(nbr_grididxes): " + int2str(size(nbr_grididxes)) + ...
+    %      ", size(in_bounds): " + int2str(size(in_bounds)));
+    % Set out-of-bounds grid points to a dummy index.
+    dummy_idx = ngrid(1) * ngrid(2) * ngrid(3) + 1;
+    nbr_grididxes(~in_bounds) = dummy_idx;
 
-    % % Build the nbr_gridpts
-    nx = size(int_idx_x, 2);
-    npts = nx * nbinpts + 2 * rpad; 
-    minxnbr = min(int_idx_x); % Minimum x bin index of the neighbor bins
-    minynbr = min(int_idx_y); % Minimum y bin index of the neighbor bins
-    minznbr = min(int_idx_z); % Minimum z bin index of the neighbor bins
+    % Compute physical coordinates
+    ctr = bin_center(bin_idx, grid_info);
+    nbr_gridpts = template_pts + ctr;
 
-    nbr_xpts = Lbd(1) - offset + minxnbr * nbinpts * dx + dx * (0:npts-1);
-    nbr_ypts = Lbd(2) - offset + minynbr * nbinpts * dx + dx * (0:npts-1);
-    nbr_zpts = Lbd(3) - offset + minznbr * nbinpts * dx + dx * (0:npts-1);
-    [X, Y, Z] = meshgrid(nbr_xpts, nbr_ypts, nbr_zpts);
-    X = permute(X,[3,1,2]);
-    Y = permute(Y,[3,1,2]);
-    Z = permute(Z,[3,1,2]);
-    nbr_gridpts = [X(:).'; Y(:).'; Z(:).'];
-
-    % % Build the nbr_grididxes. This logic is copied from grid_pts_for_box_3d
-    % and npts is used instead of nspread.
-    x_positions =  minxnbr * nbinpts +1 : minxnbr * nbinpts + npts ;
-    y_positions =  minynbr * nbinpts +1  : minynbr * nbinpts + npts ;
-    z_positions =  minznbr * nbinpts +1  : minznbr * nbinpts + npts ;
-
-    % Mark out-of-bounds grid points with a dummy index
-    ngridpts = grid_info.ngrid(1) * grid_info.ngrid(2) * grid_info.ngrid(3);
-    dummy_idx =  ngridpts + 1;
-
-    nbr_grididxes = (z_positions(:)) + (y_positions(:)-1).'*ngrid(3) + reshape(x_positions-1,1,1,[]) * ngrid(2) * ngrid(3);
-
-    % Mark the row_idxes corresponding to out-of-bounds grid points with a dummy
-    % Might need a tiny bit of margin here
-    margin = 0.1 * dx;
-
-    nbr_grididxes(nbr_zpts<rmin(3) - margin | nbr_zpts > rmax(3) + margin,:,:) = dummy_idx;
-    nbr_grididxes(:,nbr_ypts<rmin(2) - margin | nbr_ypts > rmax(2) + margin,:) = dummy_idx;
-    nbr_grididxes(:,:,nbr_xpts<rmin(1) - margin | nbr_xpts > rmax(1) + margin) = dummy_idx;
-
-    nbr_grididxes = nbr_grididxes(:).';
+    % disp("neighbor_template_3d: size(nbr_grididxes): " + int2str(size(nbr_grididxes)) + ...
+        %  ", size(nbr_gridpts): " + int2str(size(nbr_gridpts)) + ...
+        %  ", size(nbr_binids): " + int2str(size(nbr_binids)));
 
 end

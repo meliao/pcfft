@@ -8,3 +8,8 @@ spread-notes:
 	pdflatex main.tex
 	pdflatex main.tex
 	open main.pdf
+
+quick:
+	cd ${NOTES_DIR}
+	pdflatex main.tex
+	open main.pdf

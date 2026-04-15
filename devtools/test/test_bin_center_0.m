@@ -26,6 +26,7 @@ grid_info.nbinpts = nbinpts;
 pad = ceil((grid_info.nspread - nbinpts)/2);
 grid_info.offset = pad * dx - dx/2;
 grid_info.dx = dx;
+grid_info.dim = 2;
 
 % [a, b, c] = grid_pts_for_box_2d(0, grid_info);
 

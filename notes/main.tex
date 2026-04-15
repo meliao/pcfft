@@ -249,50 +249,132 @@ There are $ \texttt{pad} = \lceil (\texttt{nspread} - \texttt{nbinpts}) / 2 \rce
 \label{fig:padding}
 \end{figure}
 
-\subsection{Computing the spreading matrix}
+\section{Computing the spreading matrix}
 The spreading matrix $\boldsymbol{A}$ maps from weights on the source points to equivalent weights on the regular grid. This matrix is constructed in \texttt{get\_spread()}.
 
-\subsection{Computing the addsub matrix}
+\todo{Describe the indexing of the spreading bins.}
+
+\todo{Describe the \texttt{SortInfo} object and data it contains.}
+
+\section{Computing the addsub matrix}
+
+
+
+\subsection{Defining the neighborhood}
+
+For a spreading bin $j$, the neighboring bins are all such bins whose associated spreading boxes intersect the ball bounded by the proxy radius.
+
+If we wanted to just include all bins which intersect the ball bounded by the proxy radius, we would use this cutoff in bin index space:
+\begin{align*}
+  \texttt{idx\_rad} = \lceil \frac{\texttt{proxy\_rad}}{\texttt{dx} \times \texttt{nbinpts}} \rceil.
+\end{align*}
+To make sure we are accounting for the overlap of the spreading boxes, we will inflate by the max size of the margin:
+\begin{align*}
+  \texttt{idx\_rad} = \lceil \frac{\texttt{proxy\_rad} + \sqrt{d} \times \texttt{pad} \times \texttt{dx}}{\texttt{dx} \times \texttt{nbinpts}} \rceil.
+\end{align*}
+
+
 \newcommand{\A}{\boldsymbol{A}}
 \newcommand{\K}{\boldsymbol{K}}
 \newcommand{\bmu}{\boldsymbol{\mu}}
-Let's look at an N-body sum that we are trying to approximate. Suppose there are target points $\{x_i\}_{i=1,...}$ and source points $\{y_i\}_{j=1,...}$.
-\begin{align}
-  u_i &= \sum_{j=1}^N K(x_i - y_j) \mu_j \label{eq:full_sum} \\
-  &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j + \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j.
-\end{align}
-Ideally, we'd want to use the source point spreading matrix $\A^{(\text{src})}$ computed in the previous step to approximate the far interactions as 
-\begin{align*}
-  \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j \approx \sum_{k}  K(x_i - z_k)\A^{(\text{src})}_{k, :} \bmu,
-\end{align*}
-where $z_k$ are the grid points. Let $\tilde{\boldsymbol{K}}$ be the kernel matrix from regular grid points to themselves and let $\A^{(\text{targ})}$ be the spreading matrix for the target points. We would then compute
-\begin{align}
-  \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j  = \left( \A^{(\text{targ})}\right)^\top \tilde{\boldsymbol{K}} \A^{(\text{src})} \boldsymbol{\mu}.
-\end{align}
+% Let's look at an N-body sum that we are trying to approximate. Suppose there are target points $\{x_i\}_{i=1,...}$ and source points $\{y_i\}_{j=1,...}$.
+% \begin{align}
+%   u_i &= \sum_{j=1}^N K(x_i - y_j) \mu_j \label{eq:full_sum} \\
+%   &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j + \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j.
+% \end{align}
+% Ideally, we'd want to use the source point spreading matrix $\A^{(\text{src})}$ computed in the previous step to approximate the far interactions as 
+% \begin{align*}
+%   \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j \approx \sum_{k}  K(x_i - z_k)\A^{(\text{src})}_{k, :} \bmu,
+% \end{align*}
+% where $z_k$ are the grid points. Let $\tilde{\boldsymbol{K}}$ be the kernel matrix from regular grid points to themselves and let $\A^{(\text{targ})}$ be the spreading matrix for the target points. We would then compute
+% \begin{align}
+%   \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j  = \left( \A^{(\text{targ})}\right)^\top \tilde{\boldsymbol{K}} \A^{(\text{src})} \boldsymbol{\mu}.
+% \end{align}
 
 
 
-However, the right hand sum contains all of the interactions, not just far interactions. So we need to compute a matrix $\boldsymbol{B}$ which approximates:
-\begin{align*}
-  \boldsymbol{B}_{i,:} \boldsymbol{\mu} &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \boldsymbol{\mu}_j -  \sum_{k} \left( \A^{(\text{targ})}_{k, \text{Near}(i)} \right)^\top K(x_i - z_k)\A^{(\text{src})}_{k, \text{Near}(i)} \boldsymbol{\mu}_{\text{Near}(i)} \\
-  % &= \boldsymbol{A}^{(\text{add})}_{i,:} \boldsymbol{\mu} - \boldsymbol{A}^{(\text{sub})}_{i,:}\boldsymbol{\mu}  
-\end{align*}
-where $\boldsymbol{A}^{(\text{add})}$ maps from source points to target points, and 
-$\boldsymbol{B}_{i,j}$ is equal to $K(x_i - y_j) - \left( \left( \A^{(\text{targ})} \right)^\top \tilde{\K} \A^{(\text{src})} \right)_{i,j}$ if $j\in \text{Near}(x_i)$ and zero otherwise. 
-Then we can evaluate \eqref{eq:full_sum} as:
-\begin{align*}
-  u_i &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j + \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j \\
-  &= \boldsymbol{B}_{i,:} \boldsymbol{\mu}  + \left( \A^{(\text{targ})}\right)^\top \tilde{\boldsymbol{K}} \A^{(\text{src})} \boldsymbol{\mu}
-\end{align*}
-where $\tilde{\boldsymbol{K}}$ is the kernel matrix from regular grid points to themselves.
-Steps for computing this matrix:
+% However, the right hand sum contains all of the interactions, not just far interactions. So we need to compute a matrix $\boldsymbol{B}$ which approximates:
+% \begin{align*}
+%   \boldsymbol{B}_{i,:} \boldsymbol{\mu} &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \boldsymbol{\mu}_j -  \sum_{k} \left( \A^{(\text{targ})}_{k, \text{Near}(i)} \right)^\top K(x_i - z_k)\A^{(\text{src})}_{k, \text{Near}(i)} \boldsymbol{\mu}_{\text{Near}(i)} \\
+%   % &= \boldsymbol{A}^{(\text{add})}_{i,:} \boldsymbol{\mu} - \boldsymbol{A}^{(\text{sub})}_{i,:}\boldsymbol{\mu}  
+% \end{align*}
+% where $\boldsymbol{A}^{(\text{add})}$ maps from source points to target points, and 
+% $\boldsymbol{B}_{i,j}$ is equal to $K(x_i - y_j) - \left( \left( \A^{(\text{targ})} \right)^\top \tilde{\K} \A^{(\text{src})} \right)_{i,j}$ if $j\in \text{Near}(x_i)$ and zero otherwise. 
+% Then we can evaluate \eqref{eq:full_sum} as:
+% \begin{align*}
+%   u_i &= \sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j + \sum_{j \not \in \text{Near}(x_i)} K(x_i - y_j) \mu_j \\
+%   &= \boldsymbol{B}_{i,:} \boldsymbol{\mu}  + \left( \A^{(\text{targ})}\right)^\top \tilde{\boldsymbol{K}} \A^{(\text{src})} \boldsymbol{\mu}
+% \end{align*}
+% where $\tilde{\boldsymbol{K}}$ is the kernel matrix from regular grid points to themselves.
+
+\subsection{Constructing the matrix}
+
+See the paper draft for the definition of the mathematical object we are trying to construct. 
+
+The algorithm takes these steps \todo{Update this}
 \begin{itemize}
+  \item Form a "spreading template", centered at bin $i$, which is a list of bins $j$ such that $j \in \text{Near}(i)$. 
+  \item Use this "spreading template" to form a kernel matrix $K_{\text{bin2temp}}$, which has columns indexing the regular gridpoints of spreading bin $i$ and rows indexing the regular gridpoints of the spreading template bins.
   \item For each bin $i$, return a list of each bin $j$ where the proxy circle of $i$ intersects with the proxy circle of $j$.
   \item Compute the exact near-field interactions $\sum_{j \in \text{Near}(x_i)} K(x_i - y_j) \mu_j$.
   \item Compute the contribution of the $\left( \A^{(\text{targ})}\right)^\top \tilde{\boldsymbol{K}} \A^{(\text{src})} \boldsymbol{\mu}$ term via indexing.
 \end{itemize}
 
-\subsection{Derivatives}
+\begin{figure}
+\centering
+% Parameters: change these two to adjust the drawing easily
+\begin{tikzpicture}
+  % Simpler approach: set x and y to binSize (with units) so all coordinates
+  % in the picture can be integers. proxyRadius remains a simple numeric
+  % multiplier (in units of bins).
+  \def\binSize{2cm}   % side length of one bin
+  \def\proxyRadius{1.1} % radius in multiples of binSize
+  \def\ibin{3} % 0-based column index of highlighted bin
+  \def\jbin{4} % 0-based row index of highlighted bin
+
+  % Use scaled coordinate axes so that (1,1) is one bin.
+  \begin{scope}[x=\binSize,y=\binSize]
+    % Draw 7 x 8 grid of unit squares (each square is one bin)
+    \foreach \i in {0,...,6} {
+      \foreach \j in {0,...,7} {
+        \draw[black!50] (\i,\j) rectangle ++(1,1);
+      }
+    }
+
+  % Center coordinate of bin i in scaled units
+  \coordinate (binCenter) at ({\ibin+0.5},{\jbin+0.5});
+
+  % Highlight bin i and label it (label slightly below center)
+  \filldraw[fill=orange!20, draw=black] (\ibin,\jbin) rectangle ++(1,1);
+  \node[font=\small] at ({\ibin+0.5},{\jbin+0.35}) {\textbf{bin} $(i_x, i_y)$};
+
+  % Green 5x5 box around bin i (now a 5x5 neighborhood)
+  \draw[green!60!black, very thick, rounded corners] (\ibin-2,\jbin-2) rectangle ++(5,5);
+
+  % Dotted proxy circle around bin center. Radius is proxyRadius (in bins)
+  \draw[blue!70, dotted, thick] (binCenter) circle (\proxyRadius);
+
+  % Proxy circles at bottom-center and bottom-right bins inside the 5x5 neighborhood
+  % Bottom row of the 5x5 neighborhood is at jbin-2. Bottom-center bin center:
+  \coordinate (bottomCenter) at ({\ibin+0.5},{\jbin-1.5});
+  % Bottom-right bin center is at ibin+2.5, jbin-1.5
+  \coordinate (bottomRight) at ({\ibin+2.5},{\jbin-1.5});
+  \draw[blue!70, dotted, thick] (bottomCenter) circle (\proxyRadius);
+  \draw[blue!70, dotted, thick] (bottomRight) circle (\proxyRadius);
+
+  \node[font=\small] at (bottomCenter) {\textbf{bin} $(i_x, i_y-2)$};
+  \node[font=\small] at (bottomRight) {\textbf{bin} $(i_x-2, i_y-2)$};
+
+  % Arrow showing radius (in scaled units so text is easy)
+  \draw[<->, thin] (binCenter) -- ++(\proxyRadius,0) node[midway, above, font=\footnotesize] {Proxy radius};
+  \end{scope}
+\end{tikzpicture}
+
+\caption{A schematic of the spreading template. The spreading template is always a square, found by taking the $x$ and $y$ bin indices which are within $2 \frac{\texttt{proxy\_rad}}{\texttt{bin\_width}}$ of $(i_x, i_y)$.}
+\label{fig:spreading_template}
+\end{figure}
+
+\section{Derivatives}
 
 If we want to dipoles instead of point charges, we change the spreading matrix
 \begin{align*}

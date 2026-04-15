@@ -15,8 +15,6 @@ function [row_idxes] = grid_ids_for_box_3d(bin_idx, grid_info)
     % bin_idx = id_x * N_y_bins * N_z_bins + id_y * N_z_bins + id_z;
 
 
-    dx = grid_info.dx;
-    Lbd = grid_info.Lbd;
     ngrid = grid_info.ngrid;
 
     N_y_bins = grid_info.nbin(2);
@@ -27,10 +25,12 @@ function [row_idxes] = grid_ids_for_box_3d(bin_idx, grid_info)
     id_z = mod(bin_idx, N_z_bins);
     id_y = mod(floor(bin_idx / N_z_bins), N_y_bins);
     id_x = floor(bin_idx / (N_y_bins * N_z_bins));
-    % Compute the row indices. 
-    % First, we know that the xpts are in position 
+
+
+    % Compute the row indices.
+    % First, we know that the xpts are in position
     % (id_x - 1) * nbinpts + 1: id_x * nbinpts
-    % and the ypts are in position 
+    % and the ypts are in position
     % (id_y - 1) * nbinpts + 1: id_y * nbinpts
     % and the zpts are in position
     % (id_z - 1) * nbinpts + 1: id_z * nbinpts

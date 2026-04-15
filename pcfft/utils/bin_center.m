@@ -15,16 +15,26 @@ function center = bin_center(bin_idx, grid_info)
     nbinpts = grid_info.nbinpts;
     offset = grid_info.offset;
 
-    % Compute integer bin ids (consistent with grid_pts_for_box_2d)
-    id_y = mod(bin_idx, N_y_bins);
-    id_x = floor((bin_idx - id_y) / N_y_bins);
+    if grid_info.dim == 2
+        id_y = mod(bin_idx, N_y_bins);
+        id_x = floor((bin_idx - id_y) / N_y_bins);
+    else
+        N_z_bins = grid_info.nbin(3);
+        id_z = mod(bin_idx, N_z_bins);
+        id_y = mod(floor(bin_idx / N_z_bins), N_y_bins);
+        id_x = floor(bin_idx / (N_y_bins * N_z_bins));
+    end
 
     % Compute the first and last gridpoints and find their average
-    x_first = Lbd(1) - offset + id_x * dx * nbinpts + 0 * dx;
-    x_last  = Lbd(1) - offset + id_x * dx * nbinpts + (nspread-1) * dx;
 
-    y_first = Lbd(2) - offset + id_y * dx * nbinpts + 0 * dx;
-    y_last  = Lbd(2) - offset + id_y * dx * nbinpts + (nspread-1) * dx;
+    x_center = Lbd(1) - offset + id_x * dx * nbinpts + (nspread-1)/2 * dx;
+    y_center = Lbd(2) - offset + id_y * dx * nbinpts + (nspread-1)/2 * dx;
 
-    center = [(x_first + x_last) / 2; (y_first + y_last) / 2];
+    if grid_info.dim == 2
+        center = [x_center; y_center];
+    else
+        z_center = Lbd(3) - offset + id_z * dx * nbinpts + (nspread-1)/2 * dx;
+
+        center = [x_center; y_center; z_center];
+    end
 end

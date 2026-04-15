@@ -89,9 +89,10 @@ dummy_idxes = n_gridpts + 1: n_gridpts + n_dummy;
 % For each bin, get the neighbor bin idxes and assert that 
 % indexing the rows of A_spread_s with the nbr_grididxes gets all of the relevant entries for a given bin_idx.
 
+[~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
 for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2)-1
-    [nbr_binids, nbr_gridpts, nbr_grididxes, ~] = neighbor_template_2d(grid_info, proxy_info, bin_idx);
-    
+    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx, tmpl_pts, tmpl_idxes);
+
     % Get the source points in the neighbor bins
     source_idx = [];
     for j = 1:length(nbr_binids)
@@ -113,8 +114,116 @@ for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2)-1
 
     a_1 = A_spread_s(:, source_idx);
     a_2 = A_spread_s(nbr_grididxes, source_idx);
-    disp("test_neighbor_template_2d: For bin_idx " + int2str(bin_idx) + ", norm of A_spread_s(:, source_idx): " + num2str(norm(a_1, "fro")) + ", norm of A_spread_s(nbr_grididxes, source_idx): " + num2str(norm(a_2, "fro")));
+    % disp("test_neighbor_template_2d: For bin_idx " + int2str(bin_idx) + ", norm of A_spread_s(:, source_idx): " + num2str(norm(a_1, "fro")) + ", norm of A_spread_s(nbr_grididxes, source_idx): " + num2str(norm(a_2, "fro")));
 
     % Assert norms are close.
     assert(norm(a_1, "fro") - norm(a_2, "fro") < 1e-12);
 end
+
+%% Part 2: many pts
+
+n_src = 10000;
+n_targ = 5017;
+dim = 2;
+
+kern_0 = @(s,t) log_kernel(s,t);
+src_info = struct;
+% Source and target points are random in [-0.5, 0.5] x [-0.5, 0.5]
+src_info.r = (rand(dim, n_src) - 0.5);
+targ_info = struct;
+targ_info.r = (rand(dim, n_targ) - 0.5);
+
+tol = 1e-10;
+n_nbr = 100;
+[grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
+
+% Loop through all of the boxes
+[~, tmpl_pts, tmpl_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
+for bin_idx = 0 : grid_info.nbin(1)*grid_info.nbin(2)-1
+    [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx, tmpl_pts, tmpl_idxes);
+
+    valid_idxes = nbr_grididxes <= grid_info.ngrid(1) * grid_info.ngrid(2);
+    valid_nbr_gridpts = nbr_gridpts(:, valid_idxes);
+    valid_nbr_grididxes = nbr_grididxes(valid_idxes);
+
+    % Assert that the valid grid points match the expected grid points
+    for i = 1:size(valid_nbr_grididxes, 2)
+        idx = valid_nbr_grididxes(i);
+        pt = valid_nbr_gridpts(:, i);
+        grid_pt = grid_info.r(:, idx);
+        dist = norm(pt - grid_pt);
+        assert(dist < 1e-12);
+    end
+
+    % Assert that # binids returned = # grid pts returned = # grid idxes returned
+    assert(length(nbr_grididxes) == size(nbr_gridpts, 2));
+
+    % Assert that the grid points are within the valid range unless marked
+    % with a dummy idx.
+
+end
+
+%% Part 3: Plot neighbor template and proxy circle for a particular bin
+
+n_src_3 = 10000;
+n_targ_3 = 5017;
+dim_3 = 2;
+
+kern_3 = @(s,t) log_kernel(s,t);
+src_info_3 = struct;
+src_info_3.r = (rand(dim_3, n_src_3) - 0.5);
+targ_info_3 = struct;
+targ_info_3.r = (rand(dim_3, n_targ_3) - 0.5);
+
+tol_3 = 1e-8;
+n_nbr_3 = 100;
+[grid_info_3, proxy_info_3] = get_grid(kern_3, src_info_3, targ_info_3, tol_3, n_nbr_3);
+
+% Use the center bin as the bin to plot
+plot_bin_idx = grid_info_3.center_bin;
+
+% Compute the neighbor template for the chosen bin
+[~, tmpl_pts_3, tmpl_idxes_3] = abstract_neighbor_spreading_2D(grid_info_3, proxy_info_3);
+[~, nbr_gridpts_3, nbr_grididxes_3] = neighbor_template_2d(grid_info_3, proxy_info_3, plot_bin_idx, tmpl_pts_3, tmpl_idxes_3);
+
+% Discard out-of-bounds dummy points
+valid_mask_3 = nbr_grididxes_3 <= grid_info_3.ngrid(1) * grid_info_3.ngrid(2);
+valid_nbr_gridpts_3 = nbr_gridpts_3(:, valid_mask_3);
+
+% Center of the chosen bin and proxy radius
+bin_ctr_3 = bin_center(plot_bin_idx, grid_info_3);
+proxy_rad_3 = proxy_info_3.radius;
+
+% Collect all bin centers
+n_bins_3 = grid_info_3.nbin(1) * grid_info_3.nbin(2);
+all_bin_ctrs_3 = zeros(2, n_bins_3);
+for bi = 0 : n_bins_3 - 1
+    all_bin_ctrs_3(:, bi+1) = bin_center(bi, grid_info_3);
+end
+
+% Proxy circle via get_ring_points
+proxy_circle_3 = get_ring_points(300, proxy_rad_3, bin_ctr_3);
+
+
+% Second proxy circle inflated by the amount used in interaction_radius
+inflation_3 = sqrt(grid_info_3.dim) * grid_info_3.rpad * grid_info_3.dx;
+proxy_circle_inflated_3 = get_ring_points(300, proxy_rad_3 + inflation_3, bin_ctr_3);
+
+figure;
+% Regular grid points first, in black
+plot(grid_info_3.r(1,:), grid_info_3.r(2,:), 'k.', 'MarkerSize', 3);
+hold on;
+% Neighbor template grid points in red
+plot(valid_nbr_gridpts_3(1,:), valid_nbr_gridpts_3(2,:), 'ro', 'MarkerSize', 6, 'LineWidth', 1.5);
+% All bin centers as stars
+plot(all_bin_ctrs_3(1,:), all_bin_ctrs_3(2,:), 'g*', 'MarkerSize', 6, 'LineWidth', 1);
+% Chosen bin center highlighted
+plot(bin_ctr_3(1), bin_ctr_3(2), 'b*', 'MarkerSize', 12, 'LineWidth', 2);
+% Proxy circle
+plot([proxy_circle_3(1,:), proxy_circle_3(1,1)], [proxy_circle_3(2,:), proxy_circle_3(2,1)], 'b-', 'LineWidth', 2);
+plot([proxy_circle_inflated_3(1,:), proxy_circle_inflated_3(1,1)], [proxy_circle_inflated_3(2,:), proxy_circle_inflated_3(2,1)], 'b--', 'LineWidth', 2);
+hold off;
+axis equal;
+title(sprintf('Neighbor template for bin %d', plot_bin_idx));
+legend('Regular grid pts', 'Neighbor template pts', 'All bin centers', 'Chosen bin center', 'Proxy circle', 'Location', 'best');
+close all;

@@ -36,6 +36,18 @@ classdef GridInfo
     %   minimum coordinate value of the padded grid.
     % n_nbr : int
     %   average number of near-field neighbours.
+    % zero_bin : array [dim, nbinpts^dim]
+    %   Grid points of a spreading bin centered at the origin.
+    % zero_box : array [dim, nspread^dim]
+    %   Grid points of a spreading box centered at the origin.
+    % center_bin : int
+    %   Linear index of a bin approximately at the center of the grid.
+    %   Computed as floor(nbin(1)/2) * nbin(2) + floor(nbin(2)/2).
+    %  nbr_offsets : array [n_nbr, 1]
+    %   Used for indexing neighboring bins. n_nbr is the number of spreading bins
+    %   which are treated directly.
+    % idx_cutoff : int
+    %   The number of bins in each direction which are treated directly.
 
     properties
         ngrid
@@ -51,11 +63,14 @@ classdef GridInfo
         rmax
         rmin
         n_nbr
+        zero_bin
+        zero_box
+        center_bin
+        nbr_offsets
+        idx_cutoff
     end
     methods
-        function obj = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr)
-
-
+        function obj = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr, proxy_rad)
     
             bin_sidelen = dx * nbinpts;
 
@@ -71,7 +86,7 @@ classdef GridInfo
 
             if dim == 2
                 % Create a regular grid with spacing dx starting at the xmin, ymin point
-                % specified by Lbd. 
+                % specified by Lbd.
                 xx = Lbd(1, 1) - offset + (0: ngrid(1) - 1) * dx;
                 yy = Lbd(2, 1) - offset + (0: ngrid(2) - 1) * dx;
                 [X, Y] = meshgrid(xx, yy);
@@ -90,6 +105,38 @@ classdef GridInfo
             rmax = max(rgrid, [], 2);
             rmin = min(rgrid, [], 2);
 
+            if dim == 2
+                zero_pts = dx * (0:nbinpts-1) - (nbinpts-1)/2 * dx;
+                [X, Y] = meshgrid(zero_pts, zero_pts);
+                zero_bin = [X(:).'; Y(:).'];
+
+                zero_pts_box = dx * (0:nspread-1) - (nspread-1)/2 * dx;
+                [X, Y] = meshgrid(zero_pts_box, zero_pts_box);
+                zero_box = [X(:).'; Y(:).'];
+            elseif dim == 3
+                zero_pts = dx * (0:nbinpts-1) - (nbinpts-1)/2 * dx;
+                [X, Y, Z] = meshgrid(zero_pts, zero_pts, zero_pts);
+                X = permute(X,[3,1,2]);
+                Y = permute(Y,[3,1,2]);
+                Z = permute(Z,[3,1,2]);
+                zero_bin = [X(:).'; Y(:).'; Z(:).'];
+
+                zero_pts_box = dx * (0:nspread-1) - (nspread-1)/2 * dx;
+                [X, Y, Z] = meshgrid(zero_pts_box, zero_pts_box, zero_pts_box);
+                X = permute(X,[3,1,2]);
+                Y = permute(Y,[3,1,2]);
+                Z = permute(Z,[3,1,2]);
+                zero_box = [X(:).'; Y(:).'; Z(:).'];
+            end
+
+            % Precompute a few things which depend on the proxy radius.
+            idx_cutoff = interaction_radius(struct('radius', proxy_rad), struct('nbinpts', nbinpts, 'dx', dx, 'rpad', pad, 'dim', dim));
+            if dim == 2
+                nbr_offsets = neighbor_offsets_2d(idx_cutoff);
+            elseif dim == 3
+                nbr_offsets = neighbor_offsets_3d(idx_cutoff);
+            end
+
             obj.ngrid = ngrid;
             obj.Lbd = Lbd;
             obj.dx = dx;
@@ -103,6 +150,11 @@ classdef GridInfo
             obj.rmax = rmax;
             obj.rmin = rmin;
             obj.n_nbr = n_nbr;
+            obj.zero_bin = zero_bin;
+            obj.zero_box = zero_box;
+            obj.center_bin = floor(n_bin(1)/2) * n_bin(2) + floor(n_bin(2)/2);
+            obj.nbr_offsets = nbr_offsets;
+            obj.idx_cutoff = idx_cutoff;
         end
     end
 end
