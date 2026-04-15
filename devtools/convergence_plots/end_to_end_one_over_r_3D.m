@@ -21,7 +21,7 @@ mu = rand(n_src, 1);
 K_exact = kern_0(src_info, targ_info);
 target_vals = K_exact * mu;
 
-n_nbr = 10;
+n_nbr = 50;
 
 % Loop through different tolerances and record errors and timings
 tol_vals = [1e-02 1e-03 1e-04 1e-05 1e-06 1e-07 1e-08];
@@ -41,7 +41,7 @@ for i = 1:n_tol_vals
     [A_spread_t, sort_info_t ]= get_spread(kern_0, [], targ_info, ...
         grid_info, proxy_info);
 
-    A_addsub = get_addsub(kern_0, [], src_info, targ_info, ...
+    A_addsub = get_addsub(kern_0, [], ...
         grid_info, proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 
     k0hat = get_kernhat(kern_0,grid_info);

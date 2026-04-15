@@ -38,6 +38,7 @@ dummy_idx = grid_info.ngrid(1) * grid_info.ngrid(2) + 1;
 assert(all(nbr_grididxes >= 1 & nbr_grididxes <= dummy_idx));
 
 % Make a figure with the grid points labeled by their index.
+figure(1);
 scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
 hold on;
 text(grid_info.r(1,:), grid_info.r(2,:), string(1:size(grid_info.r, 2)), 'Color', 'k');
@@ -68,26 +69,14 @@ for i = 1:size(valid_grididxes, 2)
     assert(dist < 1e-12);
 end
 
-% OJM: deleting this assert statement because it was written when we computed 
-% the neighbor template as a rectangle, now we use a circle.
 
-
-% n_x = sqrt(length(nbr_binids));
-% expected_n_pts = n_x * grid_info.nbinpts + 2 * grid_info.rpad;
-% disp("test_neighbor_template_2d: expected_n_pts: ");
-% disp(expected_n_pts^2);
-% disp("test_neighbor_template_2d: nbr_gridpts size: ");
-% disp(size(nbr_gridpts));
-% disp("test_neighbor_template_2d: nbr_grididxes size: ");
-% disp(size(nbr_grididxes));
-% assert(size(nbr_gridpts, 2) == expected_n_pts^2);
-% assert(size(nbr_grididxes, 2) == expected_n_pts^2);
 
 
 
 %% test_0b
 % Larger test case with visualization. Same setup as test_SortInfo_2d_1
 
+figure(2);
 
 n_pts = 100000;
 L = 2.0;
@@ -232,12 +221,14 @@ for i = 1:size(valid_temp_pts, 2)
 end
 
 
-close all;
+% close all;
 %% test_0c
 
 % Check that for a given A_spread_s matrix, indexing it with the 
 % nbr_grididxes gets all of the relevant entries for a given bin_idx.
 rad = 2.0;
+
+figure(3);
 
 % Set up two source points
 rng(4);
@@ -296,9 +287,9 @@ for bin_idx = 0:(n_bins - 1)
     % scatter(grid_info.r(1,:), grid_info.r(2,:), 10, 'b');
     % hold on;
     % scatter(valid_nbr_gridpts(1,:), valid_nbr_gridpts(2,:), 20, 'rx');
-    title("Bin idx " + int2str(bin_idx));
-    xlabel("x");
-    ylabel("y");
+    % title("Bin idx " + int2str(bin_idx));
+    % xlabel("x");
+    % ylabel("y");
 end
 
 close all;

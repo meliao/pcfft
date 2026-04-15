@@ -21,9 +21,10 @@ N_bin = grid_info.nbin(1) * grid_info.nbin(2) * grid_info.nbin(3);
 
 for bin_idx = 0:(N_bin - 1)
     [~, ~, ~, binids] = intersecting_bins_3d(bin_idx, grid_info);
-    assert(length(binids) <= N_bin, ...
+
+    valid_binids = binids(binids >= 0);
+    assert(length(valid_binids) <= N_bin, ...
         sprintf('bin_idx %d: neighborhood size %d exceeds N_bin %d', ...
-                bin_idx, length(binids), N_bin));
+                bin_idx, length(valid_binids), N_bin));
 end
 
-disp('test_intersecting_bins_3d: PASSED');
