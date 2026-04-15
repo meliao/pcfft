@@ -22,7 +22,7 @@ K_exact = kern_0(src_info, targ_info);
 target_vals = K_exact * mu;
 
 tol = 1e-10;
-n_nbr = 100;
+n_nbr = 500;
 [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
 disp("test_log_2D: grid_info:");
 disp(grid_info);
