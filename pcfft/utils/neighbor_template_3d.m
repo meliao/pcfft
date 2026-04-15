@@ -2,7 +2,7 @@ function [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_3d(grid_in
 
 
 
-    [~, ~, ~,nbr_binids] = intersecting_bins_3d(bin_idx, grid_info, proxy_info);
+    [~, ~, ~,nbr_binids] = intersecting_bins_3d(bin_idx, grid_info);
     % Compute the grid-index shift from center_bin to bin_idx.
     % cx, cy, cz are the 3D bin coordinates of center_bin
     cz = mod(grid_info.center_bin, grid_info.nbin(3));

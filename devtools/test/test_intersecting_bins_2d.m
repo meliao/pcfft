@@ -30,7 +30,7 @@ N_bin = grid_info.nbin(1) * grid_info.nbin(2);
 
 % valid bin_idxes should be between 0 and N_bin - 1
 for bin_idx = 0:(N_bin - 1)
-    [idx_x, idx_y, binids] = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
+    [idx_x, idx_y, binids] = intersecting_bins_2d(bin_idx, grid_info);
 
     % Once we remove invalid binids, there should be no repeats.
     valid_binids = binids(binids >= 0);
@@ -151,7 +151,7 @@ all_bins = 0:(N_bin_0c - 1);
 tol_dist = 1e-10;
 
 for bin_idx = 0:(N_bin_0c - 1)
-    [~, ~, binids] = intersecting_bins_2d(bin_idx, grid_info_0c, proxy_info_0c);
+    [~, ~, binids] = intersecting_bins_2d(bin_idx, grid_info_0c);
     c1 = bin_center(bin_idx, grid_info_0c);
     valid_returned = binids(binids >= 0);
     assert(length(valid_returned) == length(unique(valid_returned)), ...

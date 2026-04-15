@@ -12,5 +12,8 @@ function rad = interaction_radius(proxy_info, grid_info)
     %   dx : scalar
     %     The grid spacing in physical units.
     
-    rad = ceil( proxy_info.radius / (grid_info.nbinpts * grid_info.dx));
+    % inflation = sqrt(grid_info.dim) * grid_info.rpad * grid_info.dx;
+    inflation = 0;
+
+    rad = ceil( (proxy_info.radius + inflation)/(grid_info.nbinpts * grid_info.dx));
 end

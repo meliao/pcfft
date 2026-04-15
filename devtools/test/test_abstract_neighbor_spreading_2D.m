@@ -11,10 +11,12 @@ Lbd = [-1 1; -1 1];
 dx = 0.5;
 nbinpts = 2;
 nspread = 4;
-grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, -1);
 
 proxy_info = struct;
 proxy_info.radius = 0.5;
+grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, -1, proxy_info.radius);
+
+
 
 [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
 
@@ -153,6 +155,8 @@ for i = 1:length(nbr_binids)
     % Plot the center of the neighboring bin as text on the figure, with the bin id as the text.
     text(center(1), center(2), int2str(nbr_binids(i)), 'FontSize', 8);
 end
+
+close all;
 
 % scatter(nbr_gridpts(1, :), nbr_gridpts(2, :), 'm.');
 

@@ -43,6 +43,11 @@ classdef GridInfo
     % center_bin : int
     %   Linear index of a bin approximately at the center of the grid.
     %   Computed as floor(nbin(1)/2) * nbin(2) + floor(nbin(2)/2).
+    %  nbr_offsets : array [n_nbr, 1]
+    %   Used for indexing neighboring bins. n_nbr is the number of spreading bins
+    %   which are treated directly.
+    % idx_cutoff : int
+    %   The number of bins in each direction which are treated directly.
 
     properties
         ngrid
@@ -61,11 +66,11 @@ classdef GridInfo
         zero_bin
         zero_box
         center_bin
+        nbr_offsets
+        idx_cutoff
     end
     methods
-        function obj = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr)
-
-
+        function obj = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr, proxy_rad)
     
             bin_sidelen = dx * nbinpts;
 
@@ -124,6 +129,14 @@ classdef GridInfo
                 zero_box = [X(:).'; Y(:).'; Z(:).'];
             end
 
+            % Precompute a few things which depend on the proxy radius.
+            idx_cutoff = interaction_radius(struct('radius', proxy_rad), struct('nbinpts', nbinpts, 'dx', dx, 'rpad', pad, 'dim', dim));
+            if dim == 2
+                nbr_offsets = neighbor_offsets_2d(idx_cutoff);
+            elseif dim == 3
+                nbr_offsets = neighbor_offsets_3d(idx_cutoff);
+            end
+
             obj.ngrid = ngrid;
             obj.Lbd = Lbd;
             obj.dx = dx;
@@ -140,6 +153,8 @@ classdef GridInfo
             obj.zero_bin = zero_bin;
             obj.zero_box = zero_box;
             obj.center_bin = floor(n_bin(1)/2) * n_bin(2) + floor(n_bin(2)/2);
+            obj.nbr_offsets = nbr_offsets;
+            obj.idx_cutoff = idx_cutoff;
         end
     end
 end

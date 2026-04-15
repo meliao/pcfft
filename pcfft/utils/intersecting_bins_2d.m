@@ -1,5 +1,4 @@
-function [id_xs, id_ys, binids] = intersecting_bins_2d(bin_idx, grid_info, ...
-    proxy_info)
+function [id_xs, id_ys, binids] = intersecting_bins_2d(bin_idx, grid_info)
     % Given a set of bins which are described by grid_info, and a set of proxy
     % surfaces which are described by proxy_info, return id_xs and id_ys. The 
     % product of these two sets of bins is the set of intersecting bin idxes.
@@ -16,9 +15,10 @@ function [id_xs, id_ys, binids] = intersecting_bins_2d(bin_idx, grid_info, ...
     %     ", id_x: " + int2str(id_x) + ", id_y: " + int2str(id_y));
 
     % Radius in index space 
-    rad = interaction_radius(proxy_info, grid_info);
+    % rad = interaction_radius(proxy_info, grid_info);
 
-    offsets = neighbor_offsets_2d(rad);
+    % offsets = neighbor_offsets_2d(rad);
+    offsets = grid_info.nbr_offsets;
     id_xs = id_x + offsets(1, :);
     id_ys = id_y + offsets(2, :);
 

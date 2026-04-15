@@ -27,11 +27,11 @@ function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_
     [box_pts, box_center] = grid_pts_for_box_2d(grid_info.center_bin, grid_info);
 
     % Neighborhood radius in bin-index units
-    rad = interaction_radius(proxy_info, grid_info);
+    % rad = interaction_radius(proxy_info, grid_info);
 
     % Collect spreading box points for every neighboring bin offset.
     all_pts = zeros(2, 0);
-    offsets = neighbor_offsets_2d(rad);
+    offsets = grid_info.nbr_offsets;
     for k = 1 : size(offsets, 2)
         shift = offsets(:, k) * grid_info.nbinpts * grid_info.dx;
         all_pts = [all_pts, box_pts + shift];

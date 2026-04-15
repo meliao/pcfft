@@ -40,10 +40,12 @@ Lbd = [-1 1; -1 1; -1 1];
 dx = 0.5;
 nbinpts = 2;
 nspread = 4;
-grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, -1);
-
 proxy_info = struct;
 proxy_info.radius = 0.5;
+
+grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, -1, proxy_info.radius);
+
+
 
 [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_neighbor_spreading_3D(grid_info, proxy_info);
 
@@ -89,3 +91,5 @@ assert(min_dist + 1e-12 >= dx, ...
 [~, uid] = unique(spreading_template_idxes.', 'rows');
 assert(length(uid) == size(spreading_template_idxes, 2), ...
     'spreading_template_idxes must have no duplicate indices');
+
+close all;

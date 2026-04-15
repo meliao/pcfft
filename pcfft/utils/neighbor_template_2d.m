@@ -31,7 +31,7 @@ function [nbr_binids, nbr_gridpts, nbr_grididxes] = neighbor_template_2d(grid_in
     tmpl_pts = template_pts;
     tmpl_idxes = template_idxes;
 
-    [~, ~, nbr_binids] = intersecting_bins_2d(bin_idx, grid_info, proxy_info);
+    [~, ~, nbr_binids] = intersecting_bins_2d(bin_idx, grid_info);
 
     % Compute the grid-index shift from center_bin to bin_idx.
     % cx, xy are the 2D bin coordinates of center_bin

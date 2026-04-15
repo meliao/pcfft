@@ -5,8 +5,8 @@ clear;
 
 % Set up random source and target points
 rng(1);
-n_src = 5000;
-n_targ = 5017;
+n_src = 1000;
+n_targ = 1017;
 dim = 3;
 
 kern_0 = @(s,t) one_over_r_kernel(s,t);

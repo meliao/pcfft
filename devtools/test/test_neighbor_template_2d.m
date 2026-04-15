@@ -111,13 +111,15 @@ nbinpts = 3;
 nbin = [3 3];
 nspread = 2 * nbinpts ;
 
-% Create a GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx, ngrid
-grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, -1);
-
-
 % spoof the ProxyInfo object. Need radius
 proxy_info = struct;
 proxy_info.radius = 0.5;
+
+% Create a GridInfo object. Need nbin, dx, Lbd, nspread, nbinpts, offset, dx, ngrid
+grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, -1, proxy_info.radius);
+
+
+
 
 [sort_info] = SortInfo(struct('r', r), dx, Lbd, nbin, nbinpts);
 r_srt = sort_info.r_srt;
@@ -299,4 +301,4 @@ for bin_idx = 0:(n_bins - 1)
     ylabel("y");
 end
 
-% close all;
+close all;
