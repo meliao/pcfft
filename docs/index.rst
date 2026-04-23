@@ -57,8 +57,7 @@ Related work
 
 The precorrected FFT algorithm was introduces in :cite:t:`phillips2002precorrected` and further developed to solve Laplace's, Helmholtz's, and Maxwell's equations in :cite:t:`Bruno_2001_Fast,Nie_2002_Fast,yan2011efficient,li2017precorrected`.
 
-The original version of the precorrected FFT method was only applicable to kernels that are a Green's function in the ambient space. 
-To overcome this difficulty the authors of :cite:t:`Askham_2025_Surface` used the proxy shell method to compute the equivalent grid charges, enabling this application of the precorrected FFT method to a much more generical class of kernels. A proof that the proxy shell method gives accurate results for kernels that are derivatives of logarithm in three dimensions is given in :cite:t:`gdwl2026`. 
+Recently, the authors of :cite:t:`Askham_2025_Surface` used the proxy shell method to compute the equivalent grid charges, enabling this application of the precorrected FFT method to kernels that are not a Green's function in the ambient space. A proof that the proxy shell method gives accurate results for kernels that are derivatives of logarithm in three dimensions is given in :cite:t:`gdwl2026`. 
 
 
 .. bibliography::
