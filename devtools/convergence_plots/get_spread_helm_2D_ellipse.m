@@ -1,20 +1,17 @@
 addpath(genpath("../../pcfft"));
 
-target_rad = 3.5;
+target_rad = 4.01;
 ntarg = 200;
 target_pts = get_ring_points(ntarg, target_rad);
-% Add a second ring of target points at radius 10
-target_rad_2 = 10;
-ntarg_2 = 200;
-target_pts_2 = get_ring_points(ntarg_2, target_rad_2);
-target_pts = [target_pts, target_pts_2];
+
 
 
 % Set up two source points
-rng(4);
 n_src = 200;
 rng(0);
-source_pts = (rand(2, n_src) - 0.5) * 2;
+src_pts = get_ring_points(n_src, 1.0);
+% Scale it so it's aspect ratio 2:1
+src_pts(2,:) = 2*src_pts(2,:);
 
 
 src_weights = randn(n_src,1);
@@ -24,21 +21,11 @@ src_weights = src_weights(:);
 zk = 10;
 k = @(s,t) helm2d_kernel(zk, s,t);
 
-K_src_to_target = k(struct('r',source_pts), struct('r',target_pts));
+K_src_to_target = k(struct('r',src_pts), struct('r',target_pts));
 
 target_vals = K_src_to_target * src_weights;
 n_nbr = 500; % 10000 points / 500 is approximately 20 boxes
 
-
-% Plot the source and target points
-% figure(1);
-% clf;
-% scatter(source_pts(1,:), source_pts(2,:), 'x');
-% hold on;
-% scatter(target_pts(1,:), target_pts(2,:), 'o');
-% legend("Source points", "Target points");
-% xlabel("x");
-% ylabel("y");
 
 %% Part 2: Re-do the above but loop over tol values and plot tol vs error
 
@@ -52,11 +39,11 @@ nproxy_vals = zeros(n_tol_vals, 1);
 for i = 1:n_tol_vals
     tol = tol_vals(i);
     src_info = struct;
-    src_info.r = source_pts;
+    src_info.r = src_pts;
 
     % Make the "target points" the same as the source points.
     targ_info = struct;
-    targ_info.r = source_pts;
+    targ_info.r = src_pts;
     [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
 
 

@@ -11,4 +11,6 @@ ry = src_pts.r(2, :) - target_pts.r(2, :).';
 dist = sqrt(rx.^2 + ry.^2);
 
 k_evals = besselh(0, 1, zk * dist);
+% zero out the diagonal entries
+% k_evals(dist < 1e-14) = 0;
 end
