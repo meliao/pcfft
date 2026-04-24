@@ -205,6 +205,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
         A_spread_s_j = A_spread_s(nbr_grididxes, source_idx_dof);
 
         AKA_chunk = A_spread_t_i.' * (K_nbr2bin * A_spread_s_j);
+        % AKA_chunk = (A_spread_t_i.' * K_nbr2bin) * A_spread_s_j;
 
         Aloc =  K_src_to_targ - AKA_chunk;
 
