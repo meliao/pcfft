@@ -7,17 +7,14 @@ rng(4);
 n_src = 10*200;
 n_targ = 10*300;
 n_nbr = 100;
-kern_0 = @(s,t) log_kernel(s,t);
+zk = 10;
+kern_0 = @(s,t) helm2d_kernel(zk, s,t);
 src_info = struct;
 % Source and target points are random in [-0.5, 0.5] x [-0.5, 0.5]
 src_info.r = (rand(2, n_src) - 0.5);
 
 targ_info = struct;
-targ_info.r = (rand(2, n_targ) - 0.5);
-
-src_info.r(1, :) = 0.5 * src_info.r(1, :);
-targ_info.r(1, :) = 0.5 * targ_info.r(1, :);
-
+targ_info.r = [1;2].*(rand(2, n_targ) - 0.5);
 
 src_weights = rand(n_src, 1);
 K_exact = kern_0(src_info, targ_info);
@@ -56,7 +53,7 @@ for i = 1:n_tol_vals
     % kern_0hat = get_kernhat(kern_0,grid_info);
     % evals_approx2= pcfft_apply(src_weights,A_spread_s,A_spread_t,A_addsub,kern_0hat);
 
-    K_grid2grid = log_kernel(grid_info, grid_info);
+    K_grid2grid = kern_0(grid_info, grid_info);
     K_grid2grid(1:size(K_grid2grid,1)+1:end) = 0;
     term1 = A_addsub * src_weights;
     term3 = A_spread_t.' * K_grid2grid * A_spread_s * src_weights;

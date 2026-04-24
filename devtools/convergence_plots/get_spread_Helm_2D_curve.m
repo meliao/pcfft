@@ -10,7 +10,7 @@ target_pts = get_ring_points(ntarg, target_rad);
 n_src = 200;
 rng(0);
 xx = linspace(-1, 1, n_src);
-yy = xx.^2;
+yy = xx.^4;
 source_pts = [xx; yy];
 
 scatter(source_pts(1,:), source_pts(2,:));
@@ -22,7 +22,7 @@ src_weights = src_weights(:);
 zk = 10;
 k = @(s,t) helm2d_kernel(zk, s,t);
 
-K_src_to_target = log_kernel(struct('r',source_pts), struct('r',target_pts));
+K_src_to_target = k(struct('r',source_pts), struct('r',target_pts));
 
 target_vals = K_src_to_target * src_weights;
 n_nbr = 500; % 10000 points / 500 is approximately 20 boxes
@@ -63,7 +63,7 @@ for i = 1:n_tol_vals
     reg_weights = A_spread * src_weights;
     reg_weights = full(reg_weights);
 
-    K_reg_to_target = log_kernel(grid_info, struct('r',target_pts));
+    K_reg_to_target = k(grid_info, struct('r',target_pts));
     % disp("K_reg_to_target shape: ")
     % disp(size(K_reg_to_target))
     % disp("reg_weights shape:")

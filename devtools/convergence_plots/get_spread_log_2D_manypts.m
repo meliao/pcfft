@@ -11,6 +11,7 @@ rng(4);
 n_src = 200;
 rng(0);
 source_pts = (rand(2, n_src) - 0.5) * 2;
+source_pts(1, :) = 0.5 * source_pts(1, :);
 
 
 src_weights = randn(n_src,1);

@@ -1,5 +1,4 @@
 addpath(genpath("../../pcfft"));
-close all;
 clear;
 
 
@@ -9,17 +8,20 @@ n_src = 500;
 n_targ = 517;
 dim = 2;
 
-kern_0 = @(s,t) log_kernel(s,t);
+zk = 10;
+kern_0 = @(s,t) helm2d_kernel(zk, s,t);
 src_info = struct;
 % Source and target points are random in [-0.5, 0.5] x [-0.5, 0.5]
 src_info.r = (rand(dim, n_src) - 0.5);
-
-
 targ_info = struct;
 targ_info.r = (rand(dim, n_targ) - 0.5);
 
-src_info.r(1, :) = 0.5 * src_info.r(1, :);
-targ_info.r(1, :) = 0.5 * targ_info.r(1, :);
+% src_info.r(1, :) = 0.5 * src_info.r(1, :);
+% targ_info.r(1, :) = 0.5 * targ_info.r(1, :);
+
+figure(2);
+scatter(src_info.r(1, :), src_info.r(2, :), 'o');
+scatter(targ_info.r(1, :), targ_info.r(2, :), 'x');
 
 % Source weights are random uniform in [0, 1]
 mu = rand(n_src, 1);
@@ -28,7 +30,9 @@ target_vals = K_exact * mu;
 
 n_nbr = 10;
 
-% Loop through different tolerances and record errors and timings
+
+
+%% Loop through different tolerances and record errors and timings
 tol_vals = [1e-02 1e-03 1e-04 1e-05 1e-06 1e-07 1e-08 1e-09];
 n_tol_vals = size(tol_vals, 2);
 error_vals = zeros(n_tol_vals, 1);

@@ -1,5 +1,4 @@
 addpath(genpath("../../pcfft"));
-close all;
 clear;
 
 % Set up an ellipse of sources, which will also be the targets.
@@ -32,13 +31,12 @@ K_exact = kern_0(src_info, targ_info);
 target_vals = K_exact * src_weights;
 
 
-% figure(1);
-% clf;
-% scatter(src_pts(1,:), src_pts(2,:), 'x');
-% hold on;
-% scatter(targ_info.r(1,:), targ_info.r(2,:), 'o');
-% xlabel("x");
-% ylabel("y");
+figure(1);
+scatter(src_pts(1,:), src_pts(2,:), 'x');
+hold on;
+scatter(targ_info.r(1,:), targ_info.r(2,:), 'o');
+xlabel("x");
+ylabel("y");
 
 %% 
 
@@ -59,6 +57,7 @@ for i = 1:n_tol_vals
     disp("Running with tol = " + num2str(tol));
 
     [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
+    disp(grid_info.ngrid);
 
 
     [A_spread_s, sort_info_s ]= get_spread(kern_0, kern_0, src_info, ...
@@ -71,14 +70,14 @@ for i = 1:n_tol_vals
         sort_info_s, sort_info_t, A_spread_s, A_spread_t);
 
     %%% TODO: Why does this give the wrong answer?
-    % kern_0hat = get_kernhat(kern_0,grid_info);
-    % evals_approx = pcfft_apply(src_weights,A_spread_s,A_spread_t,A_addsub,kern_0hat);
+    kern_0hat = get_kernhat(kern_0,grid_info);
+    evals_approx = pcfft_apply(src_weights,A_spread_s,A_spread_t,A_addsub,kern_0hat);
 
-    K_grid2grid = kern_0(grid_info, grid_info);
-    K_grid2grid(1:size(K_grid2grid,1)+1:end) = 0;
-    term1 = A_addsub * src_weights;
-    term3 = A_spread_t.' * K_grid2grid * A_spread_s * src_weights;
-    evals_approx = term1  + term3;
+    % K_grid2grid = kern_0(grid_info, grid_info);
+    % K_grid2grid(1:size(K_grid2grid,1)+1:end) = 0;
+    % term1 = A_addsub * src_weights;
+    % term3 = A_spread_t.' * K_grid2grid * A_spread_s * src_weights;
+    % evals_approx = term1  + term3;
     % disp("tol: " + num2str(tol) + ", evals_approx: ");
     % disp(evals_approx);
     % disp("target_vals: ");
