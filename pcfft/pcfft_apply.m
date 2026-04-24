@@ -25,7 +25,7 @@ sigma_hat = fftn(reshape(sigma_grid,size(kern_0hat)/2),size(kern_0hat));
 u_hat = kern_0hat .* sigma_hat;
 ugrid = ifftn(u_hat);
 if length(size(kern_0hat)) == 2
-    ugrid = ugrid(1:size(kern_0hat,2)/2,1:size(kern_0hat,1)/2);
+    ugrid = ugrid(1:size(kern_0hat,1)/2,1:size(kern_0hat,2)/2);
 else
     ugrid = ugrid(1:size(kern_0hat,1)/2,1:size(kern_0hat,2)/2,1:size(kern_0hat,3)/2);
 end

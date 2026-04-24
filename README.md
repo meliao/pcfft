@@ -39,9 +39,8 @@ This routine determines the size of the equispaced grid, the number of proxy poi
 This routine returns the matrix that maps charge strengths at `src_info.r` to charge strengths on the equispaced grid, it also returns some point binning info used in `get_addsub()`
 
 ```
-A_addsub = get_addsub(kern_0, kern_st, src_info, ...
-    targ_info, grid_info, proxy_info, sort_info_s, sort_info_t, ...
-    A_spread_s, A_spread_t)
+A_addsub = get_addsub(kern_0, kern_st, grid_info, proxy_info, sort_info_s, ...
+ sort_info_t, A_spread_s, A_spread_t)
 ```
 This routine returns the matrix that fixes the near-field interactions that are done incorrectly by the spreading.
 
