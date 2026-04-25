@@ -123,7 +123,7 @@ function [A_spread, sort_info, K_src_to_reg] = get_spread(kern_0, kern_der, ...
     % K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
 
     % Solve the problem via pseudoinverse
-    K_reg_to_proxy_pinv = pinv(K_reg_to_proxy, proxy_info.tol);
+    K_reg_to_proxy_pinv = pinv(K_reg_to_proxy, proxy_info.tol );
     K_src_to_reg = K_reg_to_proxy_pinv * K_src_to_proxy;
 
     % determine dimension of the kernel
