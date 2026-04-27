@@ -127,7 +127,8 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
             % Solve the least squares problem to find weights
             evals_at_proxy = K_source_to_proxy * src_weights;
 
-            spread_weights = K_reg_to_proxy \ evals_at_proxy;
+            % spread_weights = K_reg_to_proxy \ evals_at_proxy;
+            spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
 
             % Eval the approximation at the eval point
             approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;
@@ -214,7 +215,8 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
         % Solve the least squares problem to find weights
         evals_at_proxy = K_source_to_proxy * src_weights;
 
-        spread_weights = K_reg_to_proxy \ evals_at_proxy;
+        % spread_weights = K_reg_to_proxy \ evals_at_proxy;
+        spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
 
         % Eval the approximation at the eval point
         approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;
@@ -283,7 +285,8 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
         % Solve the least squares problem to find weights
         evals_at_proxy = K_source_to_proxy * src_weights;
 
-        spread_weights = K_reg_to_proxy \ evals_at_proxy;
+        % spread_weights = K_reg_to_proxy \ evals_at_proxy;
+        spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
 
         % Eval the approximation at the eval point
         approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;

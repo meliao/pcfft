@@ -120,8 +120,8 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     % Compute one whole big K_src_to_proxy, and later we'll 
     % index its rows. K_src_to_proxy has shape (n_proxy, n_src)
     K_src_to_proxy = kern_der_pxy(src_local, proxy_info);
-    K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
-
+    % K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
+    K_src_to_reg = lsqminnorm(K_reg_to_proxy, K_src_to_proxy, proxy_info.tol / 10);
     % determine dimension of the kernel
     opdim = size(K_src_to_proxy,2)/size(src_info.r(:,:), 2);
 
