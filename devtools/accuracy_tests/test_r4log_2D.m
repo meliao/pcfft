@@ -25,7 +25,7 @@ n_nbr = 100;
 % Green's function for a sixth order PDE requires us to proxy against
 % several derivatives
 opts = [];
-opts.proxy_der = 1;
+opts.proxy_der = 2;
 opts.multi_shell = 0;
 [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr,opts);
 
@@ -52,7 +52,8 @@ assert(rel_linf_error < tol);
 function k_evals = r4log_kernel(src_pts,target_pts)
 % src_pts has shape (2, M)
 % target_pts has shape (2, N)
-% Computes log{|| src - target||}
+% Computes ||src - target||^4 * log(||src - target||),
+% the fundamental solution of Delta^3 G = delta in 2D (triharmonic)
 % Output shape is (N, M)
 
 % Shape (N, M)
@@ -61,6 +62,6 @@ ry = src_pts.r(2, :) - target_pts.r(2, :).';
 
 dist = sqrt(rx.^2 + ry.^2);
 
-k_evals = dist.^2.*log(dist);
+k_evals = dist.^4.*log(dist);
 
 end
