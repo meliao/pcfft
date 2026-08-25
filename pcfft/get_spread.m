@@ -1,4 +1,4 @@
-function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
+function [A_spread, sort_info, spread_blk] = get_spread(kern_0, kern_der, ...
                                             src_info, grid_info, proxy_info, der_fields)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
@@ -29,6 +29,14 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     %   Maps source strengths to equivalent strengths on the regular grid.
     % sort_info : SortInfo
     %   Object describing the sorting of source points into bins
+    % spread_blk : matrix [nspread^dim, opdim*nsrc]
+    %   Dense spreading weights, before they are scattered into A_spread.
+    %   Column blocks are ordered by *sorted* point index (the ordering
+    %   described by sort_info), not by input point index. Row p holds the
+    %   weight for point p of the owning bin's spreading box, ordered as
+    %   grid_pts_for_box_2d / grid_pts_for_box_3d order them. The weights for
+    %   the points of bin i are therefore a contiguous column slice, which is
+    %   how get_addsub consumes them.
 
     if nargin < 6; der_fields = {}; end
     dim = proxy_info.dim;
@@ -192,10 +200,15 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     jid = jid(1:id_id);
     vals = vals(1:id_id);
 
+    % Undo the sorting. Permuting the COO column indices is equivalent to the
+    % column assignment A_spread(:, sorted_idxes) = A_spread, but avoids
+    % building and then permuting a sparse matrix.
+    sorted_idxes = opdim*(sorted_idxes-1) + (1:opdim).';
+    sorted_idxes = sorted_idxes(:);
+    jid = reshape(sorted_idxes(jid), 1, []);
+
     A_spread = sparse(iid, jid, vals, n_grid_pts, opdim*size(src_info.r(:,:), 2));
 
-    sorted_idxes = opdim*(sorted_idxes-1) + (1:opdim).';
-    % Undo the sorting
-    A_spread(:, sorted_idxes(:)) = A_spread;
+    spread_blk = K_src_to_reg;
 
 end
