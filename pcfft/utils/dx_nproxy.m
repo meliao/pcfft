@@ -41,16 +41,28 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
     radius = crad * R;
 
 
-    % Initialize a set of eval points that are 1.1 * radius away from center 
-    % of src points
-    ntarget = 100;
-    if dim == 2
-        target_pts = get_ring_points(ntarget, 1.1 * radius);
-        target_pts = (1+rand(1,ntarget)).*get_ring_points(ntarget, 1.01 * radius);
+    % Initialize a set of eval points on ntarget_shell shells, all farther
+    % from the origin than radius (the innermost shell sits at 1.1 * radius,
+    % with the rest spaced further out), so we test the proxy/spreading
+    % accuracy strictly in the far field.
+    ntarget_per_shell = 100;
+    ntarget_shell = 3;
+    if ntarget_shell > 1
+        target_shell_rad = cos((1:ntarget_shell-1)/(ntarget_shell)*pi);
+        target_shell_rad = (target_shell_rad(:) + 1)/2 *(1/(1.1*radius));
+        target_shell_rad = [1.1*radius, 1./target_shell_rad(:).'];
     else
-        % ntarget_eff = floor((ntarget / 6)^(1/3));
-        target_pts = get_sphere_points(ntarget, 1.1 * radius);
+        target_shell_rad = 1.1 * radius;
     end
+    if dim == 2
+        target_shell = get_ring_points(ntarget_per_shell, 1);
+    else
+        target_shell = get_sphere_points(ntarget_per_shell, 1);
+    end
+
+    % multiply radii by target_shell to get the target points.
+    target_pts = reshape(target_shell_rad(:).' .* reshape(target_shell,dim,1,[]), dim, []);
+
     K_src_to_target = kernel(struct('r',src_pts), struct('r',target_pts));
     target_evals = K_src_to_target * src_weights(:);
 
