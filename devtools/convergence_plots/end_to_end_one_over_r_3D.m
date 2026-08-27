@@ -33,7 +33,7 @@ nproxy_vals = zeros(n_tol_vals, 1);
 
 for i = 1:n_tol_vals
     tol = tol_vals(i);
-    opts = struct('multi_shells', false);
+    opts = struct('multi_shells', true);
     [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr, opts);
     % disp(grid_info);
     [A_spread_s, sort_info_s ]= get_spread(kern_0, [], src_info, ...

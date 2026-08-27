@@ -16,7 +16,7 @@ side_len = 1.0;
 k = @(s,t) log_kernel3D(s,t);
 
 halfside = 0.5 * side_len;
-crad = 2.5;
+crad = 2;
 
 R = sqrt(3.0) * halfside;
 rad = crad * R;
@@ -30,16 +30,15 @@ n_tol_vals = size(tol_vals, 2);
 error_vals = ones(n_tol_vals, 1);
 n_reg_vals = ones(n_tol_vals, 1);
 n_proxy_vals = ones(n_tol_vals, 1);
+n_shell_vals = ones(n_tol_vals, 1);
 nbinpts_vals = ones(n_tol_vals, 1);
 nspread_vals = ones(n_tol_vals, 1);
 for i = 1:n_tol_vals
     tol = tol_vals(i);
     disp("Main: Working on tol " + num2str(tol));
 
-    [grid_info, proxy_info] = dx_nproxy(k, 3, tol, halfside);
+    [dx, nspread, nbinpts, proxy_info] = dx_nproxy(k, 3, tol, halfside);
     
-    nspread = grid_info.nspread;
-    dx = grid_info.dx;
 
     xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
     yy = xx;
@@ -55,8 +54,6 @@ for i = 1:n_tol_vals
     
     % Get source points sampled from the bin, which is 
     % [-nbinpts*dx/2, nbinpts*dx/2]^2
-    nbinpts = grid_info.nbinpts;
-    dx = grid_info.dx;
     bin_sidelen = nbinpts * dx;
     disp("Main: Final bin size: " + num2str(bin_sidelen));
 
@@ -88,7 +85,7 @@ for i = 1:n_tol_vals
     % Solve the least squares problem
     rhs = proxy_vals;
     lhs = log_kernel3D(struct('r',box_pts), struct('r',proxy_pts));
-    weights_reg = lsqminnorm(lhs, rhs, tol / 10);
+    weights_reg = lsqminnorm(lhs, rhs, 1e-14 * norm(lhs, 'fro'));
     
     % Evaluate the approximation
     K_reg_to_target = log_kernel3D(struct('r',box_pts), struct('r',target_pts));
@@ -97,9 +94,10 @@ for i = 1:n_tol_vals
     errors_at_target = max(abs(target_vals_approx(:) - target_vals(:))) / max(abs(target_vals));
     disp("Main: For tol " + num2str(tol) + ", observed error: " + num2str(errors_at_target));
     error_vals(i) = errors_at_target;
-    n_proxy_vals(i) = proxy_info.n_points_total;
-    nbinpts_vals(i) = grid_info.nbinpts;
-    nspread_vals(i) = grid_info.nspread;
+    n_proxy_vals(i) = proxy_info.nproxy;
+    n_shell_vals(i) = proxy_info.nshell;
+    nbinpts_vals(i) = nbinpts;
+    nspread_vals(i) = nspread;
 
 end
 figure(1);
@@ -116,9 +114,10 @@ grid on;
 subplot(2,1,2);
 plot(tol_vals(:), n_proxy_vals(:), '.-');
 hold on;
+plot(tol_vals(:), n_shell_vals(:), '.-');
 plot(tol_vals(:), nbinpts_vals(:), '.-');
 plot(tol_vals(:), nspread_vals(:), '.-');
-legend("nproxy", "nbinpts", "nspread");
+legend("nproxy",'nshell', "nbinpts", "nspread");
 grid on;
 xscale('log');
 yscale('log');

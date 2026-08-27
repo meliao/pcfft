@@ -26,7 +26,7 @@ n_nbr = 100;
 % several derivatives
 opts = [];
 opts.proxy_der = 2;
-opts.multi_shell = 0;
+opts.multi_shells = false;
 [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr,opts);
 
 [A_spread_s, sort_info_s ]= get_spread(kern_0, [], src_info, ...
