@@ -96,11 +96,12 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
     src_pts     = (rand(dim, nsrc) - 0.5) * bwidth;
     src_weights = rand(nsrc, 1) - 0.5;
 
-    ntarget = 100;
+    % Spread the targets over an annulus
+    ntarget = 500;
     if dim == 2
         target_pts = (1 + rand(1, ntarget)) .* get_ring_points(ntarget, 1.01 * radius);
     else
-        target_pts = get_sphere_points(ntarget, 1.1 * radius);
+        target_pts = (1 + rand(1, ntarget)) .* get_sphere_points(ntarget, 1.01 * radius);
     end
 
     target_evals = kernel_ev(src_pts, target_pts) * src_weights;
