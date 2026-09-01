@@ -37,13 +37,13 @@ proxy_opts.multi_shells = true;
 % setup grid
 [grid_info, proxy_info] = get_grid(kern_0, srcs, targs, eps, [],proxy_opts);
 % get spreading operators
-[A_spread_s, sort_info_s]= get_spread(kern_0, [], srcs, ...
+[A_spread_s, sort_info_s, spread_blk_s] = get_spread(kern_0, [], srcs, ...
     grid_info, proxy_info);
-[A_spread_t, sort_info_t]= get_spread(kern_0, [], targs, ...
+[A_spread_t, sort_info_t, spread_blk_t] = get_spread(kern_0, [], targs, ...
     grid_info, proxy_info);
 % build corrections
 A_addsub = get_addsub(kern_0, [], grid_info, proxy_info, ...
-    sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+    sort_info_s, sort_info_t, spread_blk_s, spread_blk_t);
 % get DFT of kernel
 kern_0hat = get_kernhat(kern_0,grid_info);
 

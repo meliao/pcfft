@@ -72,9 +72,9 @@ Because we are taking derivatives with respect to the source points, we need to 
 
 .. code:: matlab
 
-   [A_spread_src, srt_info_src] = get_spread(@kern, @kern_s, src_info, ...
+   [A_spread_src, srt_info_src, spread_blk_src] = get_spread(@kern, @kern_s, src_info, ...
                                              grid_info, proxy_info, {'r','n'});
-   [A_spread_targ, srt_info_targ] = get_spread(@kern, [], targ_info, ...
+   [A_spread_targ, srt_info_targ, spread_blk_targ] = get_spread(@kern, [], targ_info, ...
                                                 grid_info, proxy_info);
 
 The precorrected FFT algorithm approximates the field due to the dipoles in ``src_info`` by a collection of point charges on the regular grid. The field due to these point charges can be quickly computed using an FFT. We now precompute the Fourier transform of the free-space kernel:
@@ -86,13 +86,13 @@ The precorrected FFT algorithm approximates the field due to the dipoles in ``sr
 The approximation of each dipole in ``src_info`` by grid charges is only valid away from that dipole. 
 However, the spreading matrices spread all dipoles to the grid, so immediately using the spreading matrices will approximate nearby interactions with large errors.
 As the final precomputation step, we use :func:`get_addsub` to compute the corrections to fix the errors caused by ignoring this. 
-When we call this function, we need to provide the free-space kernel and the kernel containing the true interaction between the all source and target (including any derivatives):
+When we call this function, we need to provide the free-space kernel, the kernel containing the true interaction between the all source and target (including any derivatives), and the dense spreading weights returned as the third output of :func:`get_spread`:
 
 .. code:: matlab
 
    A_addsub = get_addsub(@kern, @kern_s, grid_info, proxy_info, ...
                          srt_info_src, srt_info_targ, ...
-                         A_spread_src, A_spread_targ);
+                         spread_blk_src, spread_blk_targ);
 
 Now that we have finished our precomputations, we can evaluate the sum by calling :func:`pcfft_apply`:
 

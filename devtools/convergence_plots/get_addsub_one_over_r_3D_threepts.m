@@ -59,15 +59,15 @@ tol = 1e-06;
 
 [grid_info, proxy_info] = get_grid(k, src_info, targ_info, tol, n_nbr);
 
-[A_spread_s, sort_info_s] = get_spread(k, k, src_info, ...
+[A_spread_s, sort_info_s, spread_blk_s] = get_spread(k, k, src_info, ...
     grid_info, proxy_info);
 
-[A_spread_t, sort_info_t] = get_spread(k, k, targ_info, ...
+[A_spread_t, sort_info_t, spread_blk_t] = get_spread(k, k, targ_info, ...
     grid_info, proxy_info);
 
 
 A_addsub = get_addsub(k, k, grid_info, proxy_info, sort_info_s, ...
-    sort_info_t, A_spread_s, A_spread_t);
+    sort_info_t, spread_blk_s, spread_blk_t);
 
 % A_addsub = A_add - A_sub;
 
