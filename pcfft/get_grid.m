@@ -32,6 +32,8 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %           Only recommended for expert users. (See
     %           pcff_fmm3dbie_demo.m) Useful for plotting BIE solutions
     %           where halfside should be set by the boundary.
+    %   - opts.unif_halfside
+    %           Choose halfside assuming points are uniform in their bounding box.
     %   - opts.nproxy_max
     %           Maximum number of proxy points per shell (default 6000)
     %   - opts.nshell_max
@@ -80,6 +82,12 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     [Lbd, ~] = bounding_box([src_info.r(:,:), targ_info.r(:,:)]);
     if isfield(opts,'halfside')
         halfside = opts.halfside;
+    elseif isfield(opts,'unif_halfside') && opts.unif_halfside
+        npts = size(src_info.r(:,:),2) + size(targ_info.r(:,:),2);
+        density = npts/prod(Lbd(:,2)-Lbd(:,1));
+        s = (n_nbr/density)^(1/dim);
+        C = gamma(dim/2 + 1)^(1/dim) / (2*sqrt(pi));
+        halfside = C*s/crad;
     else
         halfside = spread_halfside([src_info.r(:,:), targ_info.r(:,:)], n_nbr, crad);
     end

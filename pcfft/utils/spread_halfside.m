@@ -1,7 +1,5 @@
 function half_side = spread_halfside(rs, n_nbr, crad)
-% hacky way of getting a good radius for the spreading grids
-% tries to guarantee that there there is not more than n_nbr*npt
-% interactions between points within radius 2*crad*half_side
+% chooses spreading-bin half_side so each point has ~n_nbr points within radius 2*crad*half_side
 
 dim = size(rs,1);
 try
@@ -19,8 +17,9 @@ for i = 1:T.nlvl
         end
     end
 end
-r = r / ileaf;
-r = 2^(1/dim)*2*r;
-half_side = r/2/crad;
+r = 2*r/ileaf;
+occ_achieved = size(rs,2)/ileaf;
+C = gamma(dim/2 + 1)^(1/dim) / (2*sqrt(pi));
+half_side = C*r*(n_nbr/occ_achieved)^(1/dim)/(2*crad);
 
 end
