@@ -1,4 +1,4 @@
-function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info)
+function [box_pts, spreading_template_pts, spreading_template_idxes, template_pos] = abstract_neighbor_spreading_2D(grid_info, proxy_info)
     % Constructs a spreading box for grid_info.center_bin and a spreading
     % template covering all neighboring bins, in center_bin-relative coordinates.
     %
@@ -22,6 +22,11 @@ function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_
     %   0-indexed x-grid positions; row 2 contains 0-indexed y-grid positions.
     %   For a target bin, shift these indices by the bin offset to obtain the
     %   corresponding global grid positions.
+    % template_pos             : array [nspread^2, n_nbr]
+    %   template_pos(p, k) is the column of spreading_template_pts holding
+    %   point p of the spreading box of the k-th neighbor offset, where k
+    %   indexes grid_info.nbr_offsets. Lets a caller recover the rows of the
+    %   template that a given neighboring bin spreads to.
 
     % Step 2a: spreading box for center_bin
     [box_pts, box_center] = grid_pts_for_box_2d(grid_info.center_bin, grid_info);
@@ -50,8 +55,11 @@ function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_
     y_idxes = round((all_unique_pts(2,:) - (grid_info.rmin(2))) / grid_info.dx)+1;
     spreading_template_idxes = [x_idxes; y_idxes];
 
-    % Step 2d: De-duplicate indices
-    [~, uid] = unique(spreading_template_idxes.', 'rows');
+    % Step 2d: De-duplicate indices. The third output of unique() maps each
+    % pre-deduplication column back to its column in the deduplicated template,
+    % which is exactly the (offset, box point) -> template column map.
+    [~, uid, template_pos] = unique(spreading_template_idxes.', 'rows');
     spreading_template_pts = spreading_template_pts(:, uid);
     spreading_template_idxes = spreading_template_idxes(:, uid);
+    template_pos = reshape(template_pos, size(box_pts, 2), size(offsets, 2));
 end

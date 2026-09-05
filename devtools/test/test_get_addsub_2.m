@@ -64,10 +64,10 @@ plot(ring(1,:), ring(2,:), 'k--');
 scatter(grid_info.r(1,:), grid_info.r(2,:), 100, 'kx');
 
 
-[A_spread_s, sort_info_s] = get_spread(k, k, src_info, ...
+[A_spread_s, sort_info_s, spread_blk_s] = get_spread(k, k, src_info, ...
     grid_info, proxy_info);
 
-[A_spread_t, sort_info_t] = get_spread(k, k, targ_info, ...
+[A_spread_t, sort_info_t, spread_blk_t] = get_spread(k, k, targ_info, ...
     grid_info, proxy_info);
 
 assert(all(~isnan(A_spread_s(:))));
@@ -76,7 +76,7 @@ assert(all(~isnan(A_spread_t(:))));
 assert(all(~isinf(A_spread_t(:))));
 
 A_addsub = get_addsub(k, k, grid_info, ...
-    proxy_info, sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+    proxy_info, sort_info_s, sort_info_t, spread_blk_s, spread_blk_t);
 
 % % A_addsub = A_add - A_sub;
 

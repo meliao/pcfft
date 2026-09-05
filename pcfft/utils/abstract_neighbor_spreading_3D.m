@@ -1,4 +1,4 @@
-function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_neighbor_spreading_3D(grid_info, proxy_info)
+function [box_pts, spreading_template_pts, spreading_template_idxes, template_pos] = abstract_neighbor_spreading_3D(grid_info, proxy_info)
     % Constructs a spreading box for grid_info.center_bin and a spreading
     % template covering all neighboring bins, in center_bin-relative coordinates.
     %
@@ -23,13 +23,19 @@ function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_
     %   Row 3 contains 0-indexed z-grid positions. For a target bin, shift
     %   these indices by the bin offset to obtain the corresponding global
     %   grid positions.
+    % template_pos             : array [nspread^3, n_nbr]
+    %   template_pos(p, k) is the column of spreading_template_pts holding
+    %   point p of the spreading box of the k-th neighbor offset, where k
+    %   indexes grid_info.nbr_offsets. Lets a caller recover the rows of the
+    %   template that a given neighboring bin spreads to.
 
 
     % First, get the spreading box for the center bin.
     [box_pts, box_center] = grid_pts_for_box_3d(grid_info.center_bin, grid_info);
 
     % Neighbor radius in bin-index units
-    rad = interaction_radius(proxy_info, grid_info);
+    % rad = interaction_radius(proxy_info, grid_info);
+    % NOTE: now grid_info.offsets determines this.
 
     % Collect spreading box points for every neighboring bin offset.
     all_pts = zeros(3, 0);
@@ -49,8 +55,11 @@ function [box_pts, spreading_template_pts, spreading_template_idxes] = abstract_
     z_idxes = round((all_pts(3,:) - (grid_info.rmin(3))) / grid_info.dx)+1;
     spreading_template_idxes = [x_idxes; y_idxes; z_idxes];
 
-    % Deduplicate indices
-    [spreading_template_idxes, unique_idx] = unique(spreading_template_idxes.', 'rows');
+    % Deduplicate indices. The third output of unique() maps each
+    % pre-deduplication column back to its column in the deduplicated template,
+    % which is exactly the (offset, box point) -> template column map.
+    [spreading_template_idxes, unique_idx, template_pos] = unique(spreading_template_idxes.', 'rows');
     spreading_template_pts = spreading_template_pts(:, unique_idx);
+    template_pos = reshape(template_pos, size(box_pts, 2), size(offsets, 2));
 
 end

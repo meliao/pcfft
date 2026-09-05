@@ -1,4 +1,4 @@
-function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
+function [A_spread, sort_info, spread_blk] = get_spread(kern_0, kern_der, ...
                                             src_info, grid_info, proxy_info, der_fields)
     % This routine returns the matrix that maps charge strengths at srcinfo.r to 
     % charge strengths on the equispaced grid.
@@ -29,6 +29,19 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     %   Maps source strengths to equivalent strengths on the regular grid.
     % sort_info : SortInfo
     %   Object describing the sorting of source points into bins
+    % spread_blk : matrix [nspread^dim, opdim*nsrc]
+    %   Dense spreading weights, before they are scattered into A_spread.
+    %   This matrix should be passed to get_addsub. Column blocks are ordered 
+    %   by *sorted* point index. For more information see the developer note 
+    %   in the source code.
+
+
+    % DEVELOPER NOTE:
+    % Suppose point with sorted index p lives in bin i. Bin i has some 
+    % associated spreading box. Row p of spread_blk contains the spreading 
+    % weights to map point p onto the points of bin i's spreading box.
+    % This is meant to make it easy for get_addsub to use the spreading 
+    % weights.
 
     if nargin < 6; der_fields = {}; end
     dim = proxy_info.dim;
@@ -62,14 +75,11 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     id_start = sort_info.id_start;
 
 
-    % disp("get_spread: id_start:")
-    % disp(id_start)
-
     % We only need to compute the K_reg_to_proxy once, so we
     % will do it here.
     if dim == 2
 
-        [pts_0, center_0, row_idxes_0] = grid_pts_for_box_2d(0, grid_info);
+        [pts_0, center_0] = grid_pts_for_box_2d(0, grid_info);
     else
         [pts_0, center_0] = grid_pts_for_box_3d(0, grid_info);
     end
@@ -95,21 +105,8 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
         idx_end = id_start(i+1) - 1;
 
         % Get the regular grid points and centers of bin i
-        % if dim == 2
-        %     [pts_i, center_i, row_idxes_i] = grid_pts_for_box_2d(i-1, grid_info);
-        % else
-        %     [pts_i, center_i, row_idxes_i] = grid_pts_for_box_3d(i-1, grid_info);
-        % end
         center_i = bin_center(i-1, grid_info);
-        % disp("get_spread: In bin " + int2str(i))
-        % disp("get_spread: idx_start " + int2str(idx_start))
-        % disp("get_spread: idx_end " + int2str(idx_end))
-        % disp("get_spread: center_i:")
-        % disp(center_i)
-        % disp("get_spread: grid pts in bin:")
-        % disp(pts_i)
         src_pts_in_i = r_sorted(:, idx_start:idx_end);
-        % disp("get_spread: src_pts_in_i")
         src_pts_in_i_centered = src_pts_in_i - center_i;
 
         r_local(:, idx_start:idx_end) = src_pts_in_i_centered;
@@ -119,6 +116,7 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
 
     % Compute one whole big K_src_to_proxy, and later we'll 
     % index its rows. K_src_to_proxy has shape (n_proxy, n_src)
+    % There are a small number of proxy points so this is not too expensive.
     K_src_to_proxy = kern_der_pxy(src_local, proxy_info);
     % K_src_to_reg = K_reg_to_proxy \ K_src_to_proxy;
     K_src_to_reg = lsqminnorm(K_reg_to_proxy, K_src_to_proxy, proxy_info.tol / 10);
@@ -153,29 +151,8 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
             row_idxes_i = grid_ids_for_box_3d(i, grid_info);
         end
 
-
-
-        % Do the logging if there is a nonempty set of src point indices
-        % if idx_end >= idx_start
-        %     disp("get_spread: bin i: " + int2str(i))
-        %     disp("get_spread: row_idxes_i:")
-        %     disp(row_idxes_i)
-        %     disp("get_spread: n_grid_pts: " + int2str(n_grid_pts))
-        % else
-        %     disp("get_spread: bin i : " + int2str(i) + " empty")
-        %     disp("get_spread: idx_start: " +  num2str(idx_start))
-        %     disp("get_spread: idx_end: " +  num2str(idx_end))
-        % end
-
-
-        % K_src_to_proxy_i = K_src_to_proxy(:, idx_start:idx_end);
-
-        % block_content = K_reg_to_proxy_pinv * K_src_to_proxy_i;
-        % block_content = K_reg_to_proxy \ K_src_to_proxy_i;
         block_content = K_src_to_reg(:,idx_start:idx_end);
 
-        % A_spread(row_idxes_i, idx_start:idx_end) = A_spread(row_idxes_i, idx_start:idx_end) + block_content;
-        % A_spread(row_idxes_i, idx_start:idx_end) = block_content;
 
         % Update COO arrays.
         is = (row_idxes_i);
@@ -194,10 +171,15 @@ function [A_spread, sort_info] = get_spread(kern_0, kern_der, ...
     jid = jid(1:id_id);
     vals = vals(1:id_id);
 
+    % Undo the sorting. Permuting the COO column indices is equivalent to the
+    % column assignment A_spread(:, sorted_idxes) = A_spread, but avoids
+    % building and then permuting a sparse matrix.
+    sorted_idxes = opdim*(sorted_idxes-1) + (1:opdim).';
+    sorted_idxes = sorted_idxes(:);
+    jid = reshape(sorted_idxes(jid), 1, []);
+
     A_spread = sparse(iid, jid, vals, n_grid_pts, opdim*size(src_info.r(:,:), 2));
 
-    sorted_idxes = opdim*(sorted_idxes-1) + (1:opdim).';
-    % Undo the sorting
-    A_spread(:, sorted_idxes(:)) = A_spread;
+    spread_blk = K_src_to_reg;
 
 end

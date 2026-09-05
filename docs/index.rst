@@ -22,12 +22,12 @@ and more at a large number of source points :math:`x_j` and target points :math:
  * Analytical knowledge of the Fourier transform of the kernel is not required. 
  * After a one-time precomputation step, the apply step uses Fast Fourier Transforms and sparse linear algebra, making it very fast for large problems.
 
-The precorrected FFT method is ideal for when the sources and targets  with a quasi-uniform distribution and will slow down if points are adaptively clustered.
+The precorrected FFT method is ideal for when the sources and targets  with a quasi-uniform distribution and will slow down if points are clustered; an adaptive code is required in that setting.
 
 :doc:`usage` provides a brief introduction to using the package to evaluate sums of the form :math:`(1)`, and :doc:`usage_normal_der` shows how to evaluate sums of the form :math:`(2)`. More examples are being built at `<https://github.com/meliao/pcfft/tree/main/demos>`_.
 
 
-This package involves solving many poorly conditioned least squares problems. The warnings that this generates can be suppressed by running `warning('off','MATLAB:rankDeficientMatrix');`.
+This package involves solving many poorly conditioned least squares problems. The warnings that this generates can be suppressed by running ``warning('off','MATLAB:rankDeficientMatrix');``.
 
 Source repository
 ------------------

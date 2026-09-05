@@ -1,5 +1,5 @@
 function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
-    sort_info_s, sort_info_t, A_spread_s, A_spread_t)
+    sort_info_s, sort_info_t, spread_blk_s, spread_blk_t)
     % Compute the correction for near-field interactions.
     %
     % Parameters
@@ -19,10 +19,12 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
     %   Specifies how source points are sorted into bins.
     % sort_info_t : SortInfo
     %   Specifies how target points are sorted into bins.
-    % A_spread_s : sparse matrix [nreg, opdim(2)*nsrc]
-    %   Maps source strengths to equivalent strengths on the regular grid.
-    % A_spread_t : sparse matrix [nreg, opdim(1)*ntarg]
-    %   Maps target strengths to equivalent strengths on the regular grid. Its adjoint is used to map regular grid strengths to equivalent strengths on the target points.
+    % spread_blk_s : matrix [nspread^dim, opdim(1)*nsrc]
+    %   Dense source spreading weights in sorted-point order, the third output
+    %   of ``get_spread()`` for the sources.
+    % spread_blk_t : matrix [nspread^dim, opdim(1)*ntarg]
+    %   Dense target spreading weights in sorted-point order, the third output
+    %   of ``get_spread()`` for the targets.
     %
     % Returns
     % -------
@@ -56,15 +58,16 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Build a spreading template matrix for adjacent source points.
     % Then build a list of regular gridpoints that are in the intersecting bins
+    % template_pos(:, k) gives the columns of the spreading template covered by
+    % the spreading box of the k-th entry of grid_info.nbr_offsets, in the same
+    % point order as the rows of spread_blk_s / spread_blk_t.
     if dim == 2
-        [pts0, reg_neighbor_template_pts, template_idxes] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
-        box_center = bin_center(grid_info.center_bin, grid_info);
-        pts0 = pts0 - box_center;
+        [pts0, reg_neighbor_template_pts, ~, template_pos] = abstract_neighbor_spreading_2D(grid_info, proxy_info);
     else
-        [pts0, reg_neighbor_template_pts, template_idxes] = abstract_neighbor_spreading_3D(grid_info, proxy_info);
-        box_center = bin_center(grid_info.center_bin, grid_info);
-        pts0 = pts0 - box_center;
+        [pts0, reg_neighbor_template_pts, ~, template_pos] = abstract_neighbor_spreading_3D(grid_info, proxy_info);
     end
+    box_center = bin_center(grid_info.center_bin, grid_info);
+    pts0 = pts0 - box_center;
 
     nbr_info = struct('r', reg_neighbor_template_pts);
 
@@ -81,19 +84,13 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
     % A_addsub = sparse(N_targ, N_src);
 
     % size of pairwise interaction
-    opdim = [size(A_spread_t,2)/N_targ, size(A_spread_s,2)/N_src];
+    opdim = [size(spread_blk_t,2)/N_targ, size(spread_blk_s,2)/N_src];
 
-    % Sort the cols of A_spread_s and A_spread_t to match the sorted source points
+    % The columns of spread_blk_s and spread_blk_t are already in sorted point
+    % order, so no reordering is needed here. These index maps are only used at
+    % the end, to put the rows and cols of A_addsub back in input order.
     src_sort_ids = opdim(2)*(sort_info_s.ptid_srt-1) + (1:opdim(2)).';
-    A_spread_s = A_spread_s(:, src_sort_ids(:));
     targ_sort_ids = opdim(1)*(sort_info_t.ptid_srt-1) + (1:opdim(1)).';
-    A_spread_t = A_spread_t(:, targ_sort_ids(:));
-
-
-    % Add 1 row of zeros to A_spread_s to handle empty bins
-    A_spread_s = [A_spread_s; sparse(1, opdim(2)*N_src)];
-    % disp("get_addsub: size(A_spread_s) after adding dummy row: " + int2str(size(A_spread_s)));
-    % dummy_idx = n_gridpts + 1;
 
     % TODO: correct formula for number of corrections
     ncor = grid_info.n_nbr*ceil(mean([opdim(1)*N_targ,opdim(2)*N_src]));
@@ -113,15 +110,6 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
         bin_idx = i - 1; % Because bins are 0-indexed
         % disp("get_addsub: Processing bin " + int2str(bin_idx));
 
-        % Need the center of bin i to center the source points, and need the 
-        % indexes of the regular grid points for spreading bin i, so we can
-        % correctly index A_spread_t.
-        if dim == 2
-            [~, ~, reg_idxs_i] = grid_pts_for_box_2d(bin_idx, grid_info);
-        else
-            [reg_idxs_i] = grid_ids_for_box_3d(bin_idx, grid_info);
-        end
-
         % Target points in bin i
         idx_ti_start = sort_info_t.id_start(i);
         idx_ti_end = sort_info_t.id_start(i + 1) - 1;
@@ -133,14 +121,16 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
             targ_info_in_i.(field{1}) = sort_info_t.data_srt.(field{1})(:,idx_ti_start:idx_ti_end);
         end
 
-        % Build the spreading template
+        % Find the neighboring bins of bin i. off_ids records which entry of
+        % grid_info.nbr_offsets each surviving neighbor came from, which is
+        % what indexes template_pos.
         if dim == 2
-            [nbr_binids, ~, nbr_grididxes] = neighbor_template_2d(grid_info, proxy_info, bin_idx, reg_neighbor_template_pts, template_idxes);
-            nbr_binids(nbr_binids==-1) =[];
+            [~, ~, nbr_binids] = intersecting_bins_2d(bin_idx, grid_info);
         else
-            [nbr_binids, ~, nbr_grididxes] = neighbor_template_3d(grid_info, proxy_info, bin_idx, reg_neighbor_template_pts, template_idxes);
-            nbr_binids(nbr_binids==-1) =[];
+            [~, ~, ~, nbr_binids] = intersecting_bins_3d(bin_idx, grid_info);
         end
+        off_ids = find(nbr_binids ~= -1);
+        nbr_binids = nbr_binids(off_ids);
 
         % Loop through all of the neighbor bins and fill in the local source points. 
         % After this loop, we will update A_add and A_sub with the neigbors of bin i.
@@ -153,6 +143,7 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
         ifilled = idx_sj_ends>=idx_sj_starts;
         idx_sj_starts = idx_sj_starts(ifilled);
         idx_sj_ends = idx_sj_ends(ifilled);
+        off_ids = off_ids(ifilled);
 
         % get list of all neighbors
         source_idx = zeros(1,grid_info.n_nbr);
@@ -198,14 +189,22 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
         K_src_to_targ(r<1e-14) = 0;
 
         % Update A_sub with approximated near-field interactions. This is the 
-        % "sub" part.
-        A_spread_t_i = A_spread_t(reg_idxs_i, opdim(1)*(idx_ti_start-1)+1:opdim(1)*idx_ti_end);
-        % disp("get_addsub: nbr_grididxes min: " + int2str(min(nbr_grididxes)) + ", max: " + int2str(max(nbr_grididxes)) + ", length: " + int2str(length(nbr_grididxes)));
-        % disp(nbr_grididxes);
-        A_spread_s_j = A_spread_s(nbr_grididxes, source_idx_dof);
+        % "sub" part. Both spreading blocks are contiguous column slices of the
+        % dense weights returned by get_spread, so no sparse indexing is needed.
+        A_spread_t_i = spread_blk_t(:, opdim(1)*(idx_ti_start-1)+1:opdim(1)*idx_ti_end);
 
-        AKA_chunk = A_spread_t_i.' * (K_nbr2bin * A_spread_s_j);
-        % AKA_chunk = (A_spread_t_i.' * K_nbr2bin) * A_spread_s_j;
+        % Contract against the whole template once for this target bin, then
+        % hit each neighbor with just the template columns its box covers.
+        C_i = A_spread_t_i.' * K_nbr2bin;
+
+        AKA_chunk = zeros(size(C_i,1), numel(source_idx_dof), 'like', C_i);
+        col = 0;
+        for j = 1:length(idx_sj_starts)
+            cs = opdim(2)*(idx_sj_starts(j)-1)+1 : opdim(2)*idx_sj_ends(j);
+            AKA_chunk(:, col + (1:numel(cs))) = ...
+                C_i(:, template_pos(:, off_ids(j))) * spread_blk_s(:, cs);
+            col = col + numel(cs);
+        end
 
         Aloc =  K_src_to_targ - AKA_chunk;
 
