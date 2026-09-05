@@ -21,18 +21,25 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %   options:
     %
     %   - opts.multi_shells
-    %           Whether to default to shell-based proxies. 
-    %           Defaults to false. Accelerates the precomputation for
-    %           kernels that are known to not satisfy Green's identity
+    %           Whether to allow more than one proxy shell. Defaults to true.
     %   - opts.proxy_der
-    %           Number of radial derivatives to use in the proxy 
-    %           Can be a number between 0 and 2. Defaults to 0. This option
-    %           can avoid invoking shells for kernels that are derived from
-    %           high order PDEs. (see wrap_kern_der)
+    %           Number of radial derivatives to use in the proxy. Can be a
+    %           number between 0 and 2. Defaults to 0. This option can
+    %           reduce the total number of proxy points for higher order
+    %           PDE problems. (see wrap_kern_der)
     %   - opts.halfside
     %           Manually set box size (and implicitly n_nbr).
-    %           Only recommended for expert users. (See pcff_fmm3dbie_demo.m)
-    %           Useful for plotting BIE solutions without overly small boxes.
+    %           Only recommended for expert users. (See
+    %           pcff_fmm3dbie_demo.m) Useful for plotting BIE solutions
+    %           where halfside should be set by the boundary.
+    %   - opts.nproxy_max
+    %           Maximum number of proxy points per shell (default 6000)
+    %   - opts.nshell_max
+    %           Maximum number of shells (default 20)
+    %   - opts.nspread_max
+    %           Maximum grid points across the box (default 100 in 2D, 30 in 3D)
+    %   - opts.relax_nshell
+    %           Trade one more nspread for a smaller nshell (default false)
     %
     %
     % Returns
@@ -47,10 +54,10 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     if nargin < 5 || isempty(n_nbr)
         n_nbr = 1000;
     end
-    if nargin < 6
-        opts = false;
+    if nargin < 6 || ~isstruct(opts)
+        opts = struct();
     end
-    multi_shells = false;
+    multi_shells = true;
     if isfield(opts,'multi_shells')
         multi_shells = opts.multi_shells;
     end
@@ -77,7 +84,8 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
         halfside = spread_halfside([src_info.r(:,:), targ_info.r(:,:)], n_nbr, crad);
     end
     % get prototype grid for spreading
-    [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, crad, multi_shells, proxy_der);
+    [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, ...
+        crad, multi_shells, proxy_der, opts);
 
 
     grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr, proxy_info.radius);
