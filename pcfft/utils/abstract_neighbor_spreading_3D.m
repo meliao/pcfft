@@ -34,7 +34,8 @@ function [box_pts, spreading_template_pts, spreading_template_idxes, template_po
     [box_pts, box_center] = grid_pts_for_box_3d(grid_info.center_bin, grid_info);
 
     % Neighbor radius in bin-index units
-    rad = interaction_radius(proxy_info, grid_info);
+    % rad = interaction_radius(proxy_info, grid_info);
+    % NOTE: now grid_info.offsets determines this.
 
     % Collect spreading box points for every neighboring bin offset.
     all_pts = zeros(3, 0);

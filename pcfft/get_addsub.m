@@ -19,9 +19,9 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
     %   Specifies how source points are sorted into bins.
     % sort_info_t : SortInfo
     %   Specifies how target points are sorted into bins.
-    % spread_blk_s : matrix [nspread^dim, opdim(2)*nsrc]
+    % spread_blk_s : matrix [nspread^dim, opdim(1)*nsrc]
     %   Dense source spreading weights in sorted-point order, the third output
-    %   of ``get_spread()`` for the sources. See get_spread for the layout.
+    %   of ``get_spread()`` for the sources.
     % spread_blk_t : matrix [nspread^dim, opdim(1)*ntarg]
     %   Dense target spreading weights in sorted-point order, the third output
     %   of ``get_spread()`` for the targets.

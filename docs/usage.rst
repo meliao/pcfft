@@ -61,7 +61,7 @@ Next, we call :func:`get_spread` to compute the matrices which spread the source
 
 Note that the second argument was left empty as we do not wish to take any derivatives of `k`.
 
-The matrices ``A_spread_src`` and ``A_spread_targ`` take care of the far-field interactions, but we need to correct for near-field interactions which must be computed exactly. We do this by calling :func:`get_addsub`, which needs the third output of :func:`get_spread` -- the dense spreading weights the sparse matrices were assembled from:
+The sparse matrices ``A_spread_src`` and ``A_spread_targ`` take care of the far-field interactions, but we need to correct for near-field interactions which must be computed exactly. We do this by calling :func:`get_addsub`, which needs ``spread_blk_src`` and ``spread_blk_targ`` as inputs. These matrices contain the same spreading weights as ``A_spread_src`` and ``A_spread_targ``, but in a dense format that allows :func:`get_addsub` to index them efficiently.
 
 .. code:: matlab
 
