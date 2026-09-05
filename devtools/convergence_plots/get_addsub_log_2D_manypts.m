@@ -39,14 +39,14 @@ for i = 1:n_tol_vals
     [grid_info, proxy_info] = get_grid(kern_0, src_info, targ_info, tol, n_nbr);
 
 
-    [A_spread_s, sort_info_s ]= get_spread(kern_0, kern_0, src_info, ...
+    [A_spread_s, sort_info_s, spread_blk_s] = get_spread(kern_0, kern_0, src_info, ...
     grid_info, proxy_info);
-    [A_spread_t, sort_info_t ]= get_spread(kern_0, kern_0, targ_info, ...
+    [A_spread_t, sort_info_t, spread_blk_t] = get_spread(kern_0, kern_0, targ_info, ...
     grid_info, proxy_info);
 
 
     A_addsub = get_addsub(kern_0, kern_0, grid_info, proxy_info, ...
-        sort_info_s, sort_info_t, A_spread_s, A_spread_t);
+        sort_info_s, sort_info_t, spread_blk_s, spread_blk_t);
 
     %%% TODO: Why does this give the wrong answer?
     % kern_0hat = get_kernhat(kern_0,grid_info);

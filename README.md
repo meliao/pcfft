@@ -33,14 +33,14 @@ Detailed documentation is being built in `docs/`.
 This routine determines the size of the equispaced grid, the number of proxy points used for spreading, and the spreading parameters.
 
 ```
-[A_spread, sort_info] = get_spread(kern_0, kern_der, ...
+[A_spread, sort_info, spread_blk] = get_spread(kern_0, kern_der, ...
                                             src_info, grid_info, proxy_info, der_fields)
 ```
-This routine returns the matrix that maps charge strengths at `src_info.r` to charge strengths on the equispaced grid, it also returns some point binning info used in `get_addsub()`
+This routine returns the matrix that maps charge strengths at `src_info.r` to charge strengths on the equispaced grid. It also returns some point binning info and the dense spreading weights, both of which are used in `get_addsub()`
 
 ```
 A_addsub = get_addsub(kern_0, kern_st, grid_info, proxy_info, sort_info_s, ...
- sort_info_t, A_spread_s, A_spread_t)
+ sort_info_t, spread_blk_s, spread_blk_t)
 ```
 This routine returns the matrix that fixes the near-field interactions that are done incorrectly by the spreading.
 

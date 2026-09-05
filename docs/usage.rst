@@ -54,20 +54,20 @@ Next, we call :func:`get_spread` to compute the matrices which spread the source
 
 .. code:: matlab
 
-   [A_spread_src, srt_info_src] = get_spread(@kern, [], src_info, ...
+   [A_spread_src, srt_info_src, spread_blk_src] = get_spread(@kern, [], src_info, ...
                                                 grid_info, proxy_info);
-   [A_spread_targ, srt_info_targ] = get_spread(@kern, [], targ_info, ...
+   [A_spread_targ, srt_info_targ, spread_blk_targ] = get_spread(@kern, [], targ_info, ...
                                                 grid_info, proxy_info);
 
 Note that the second argument was left empty as we do not wish to take any derivatives of `k`.
 
-The matrices ``A_spread_src`` and ``A_spread_targ`` take care of the far-field interactions, but we need to correct for near-field interactions which must be computed exactly. We do this by calling :func:`get_addsub`:
+The sparse matrices ``A_spread_src`` and ``A_spread_targ`` take care of the far-field interactions, but we need to correct for near-field interactions which must be computed exactly. We do this by calling :func:`get_addsub`, which needs ``spread_blk_src`` and ``spread_blk_targ`` as inputs. These matrices contain the same spreading weights as ``A_spread_src`` and ``A_spread_targ``, but in a dense format that allows :func:`get_addsub` to index them efficiently.
 
 .. code:: matlab
 
    A_addsub = get_addsub(@kern, [], grid_info, proxy_info,  ...
                          srt_info_src, srt_info_targ, ...
-                         A_spread_src, A_spread_targ);
+                         spread_blk_src, spread_blk_targ);
 
 Finally, we can evaluate the sum by calling :func:`get_kernhat` and :func:`pcfft_apply`:
 
