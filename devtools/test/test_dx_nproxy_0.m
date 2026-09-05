@@ -49,6 +49,6 @@ tol_coarse = 1e-4;
 tol_fine   = 1e-8;
 
 [~, nspread_coarse] = dx_nproxy(@log_kernel, dim, tol_coarse, halfside);
-[~, nspread_fine]   = dx_nproxy(@log_kernel, dim, tol_fine,   halfside, 2, true);
+[~, nspread_fine]   = dx_nproxy(@log_kernel, dim, tol_fine,   halfside);
 
 assert(nspread_fine >= nspread_coarse);

@@ -82,5 +82,6 @@ end
 
 dist = sqrt(dist);
 
-val = (dist).^nu.*besselk(nu,dist);
+z = sqrt(2*nu) * dist;
+val = 2^(1-nu) / gamma(nu) * z.^nu .* besselk(nu, z);
 end

@@ -16,12 +16,10 @@ side_len = 1.0;
 k = @(s,t) log_kernel(s,t);
 
 halfside = 0.5 * side_len;
-crad = 2.5;
-
 R = sqrt(2.0) * halfside;
-rad = crad * R;
+rad = 2 * R;
 
-target_pts = get_ring_points(100, sqrt(2.0) * crad * halfside);
+target_pts = get_ring_points(100, sqrt(2.0) * 2 * halfside);
 
 
 tol_vals = logspace(-3, -14, 40);
@@ -30,6 +28,7 @@ n_tol_vals = size(tol_vals, 2);
 error_vals = ones(n_tol_vals, 1);
 n_reg_vals = ones(n_tol_vals, 1);
 n_proxy_vals = ones(n_tol_vals, 1);
+n_shell_vals = ones(n_tol_vals, 1);
 nbinpts_vals = ones(n_tol_vals, 1);
 nspread_vals = ones(n_tol_vals, 1);
 for i = 1:n_tol_vals
@@ -80,7 +79,7 @@ for i = 1:n_tol_vals
     % Solve the least squares problem
     rhs = proxy_vals;
     lhs = log_kernel(struct('r',box_pts), struct('r',proxy_pts));
-    weights_reg = lhs \ rhs;
+    weights_reg = lsqminnorm(lhs, rhs, 1e-14 * norm(lhs, 'fro'));
     
     % Evaluate the approximation
     K_reg_to_target = log_kernel(struct('r',box_pts), struct('r',target_pts));
@@ -89,7 +88,8 @@ for i = 1:n_tol_vals
     errors_at_target = max(abs(target_vals_approx(:) - target_vals(:))) / max(abs(target_vals));
     disp("Main: For tol " + num2str(tol) + ", observed error: " + num2str(errors_at_target));
     error_vals(i) = errors_at_target;
-    n_proxy_vals(i) = proxy_info.n_points_total;
+    n_proxy_vals(i) = proxy_info.nproxy;
+    n_shell_vals(i) = proxy_info.nshell;
     nbinpts_vals(i) = nbinpts;
     nspread_vals(i) = nspread;
 
@@ -107,9 +107,10 @@ xlabel("Tolerance")
 subplot(2,1,2);
 plot(tol_vals(:), n_proxy_vals(:), '.-');
 hold on;
+plot(tol_vals(:), n_shell_vals(:), '.-');
 plot(tol_vals(:), nbinpts_vals(:), '.-');
 plot(tol_vals(:), nspread_vals(:), '.-');
-legend("nproxy", "nbinpts", "nspread");
+legend("nproxy",'nshell', "nbinpts", "nspread");
 grid on;
 xscale('log');
 

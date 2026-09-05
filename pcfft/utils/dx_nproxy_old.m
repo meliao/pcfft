@@ -1,0 +1,413 @@
+function [dx, nspread, nbinpts, proxy_info] = dx_nproxy_old(kernel, dim, tol, halfside, crad, multi_shells, proxy_der)
+    % DX_NPROXY_OLD Legacy version of DX_NPROXY 
+    % Determines the grid spacing dx, number of spreading points 
+    % across the spreading box nspread, number of grid points across the 
+    % spreading bin nbinpts, and proxy surface information proxy_info.
+    
+    if nargin < 5
+        crad = 2;
+    end
+    if nargin < 6
+        multi_shells = false;
+    end
+    if nargin < 7
+        proxy_der = 0;
+    end
+
+    kernel_pxy = @(s,t) wrap_kern_der(kernel, s, t, proxy_der);
+    % Initialize a collection of 100 random source points and weights inside a
+    % box/cube specified by size halfside
+    nsrc = 117;
+    rng(0);
+
+    % source points belong to a bin which has size bwidth = c_bwidth * halfside
+    % along each side. So if c_bwidth = 2, the bin is the same size as the
+    % spreading box, and if c_bwidth = 1, the bin is half the size of the
+    % spreading box.
+
+    c_bwidth = 1.0;
+    bwidth = c_bwidth * halfside;
+
+    src_pts = (rand(dim, nsrc) - 0.5) * bwidth;
+    src_weights = rand(nsrc, 1) - 0.5;
+
+    % R = max distance from origin to corner of spreading box
+    R = sqrt(dim) * halfside;
+    % crad = r/R is a parameter in our hands.
+    % radius (little r) is crad * R;
+    radius = crad * R;
+
+
+    % Initialize a set of eval points that are 1.1 * radius away from center 
+    % of src points
+    ntarget = 100;
+    if dim == 2
+        target_pts = get_ring_points(ntarget, 1.1 * radius);
+        target_pts = (1+rand(1,ntarget)).*get_ring_points(ntarget, 1.01 * radius);
+    else
+        % ntarget_eff = floor((ntarget / 6)^(1/3));
+        target_pts = get_sphere_points(ntarget, 1.1 * radius);
+    end
+    K_src_to_target = kernel(struct('r',src_pts), struct('r',target_pts));
+    target_evals = K_src_to_target * src_weights(:);
+
+
+    % Start with small numbers for nspread and nproxy
+    if dim == 2
+        nspread = 10;
+    else
+        nspread = 3;
+    end
+
+    nshell = 1;
+ 
+    % disp("dx_nproxy: halfside: " + num2str(halfside))
+
+    % If multi_shells is false, we run the following while loop, which tries to 
+    % find a proxy surface with 1 shell.
+    % If multi_shells is true, we skip this while loop and start searching 
+    % over nspread and nshell together.
+
+    bool_unconverged = true;
+    if ~multi_shells
+        % First, increase nspread and nproxy until we meet the error tolerance
+        while bool_unconverged
+
+            if dim == 2
+                nspread = nspread + 2;
+                nproxy = nspread;
+                proxy_pts0 = get_ring_points(nproxy, 1);
+
+            else
+                nspread = nspread + 1;
+                nproxy = nspread^2;
+                proxy_pts0 = get_sphere_points(nproxy, 1);
+
+            end
+            if nshell > 1
+                shell_rad = cos((1:nshell-1)/(nshell)*pi);
+                shell_rad = (shell_rad(:) + 1)/2 *(1/radius);
+                shell_rad = [radius,1./shell_rad(:).'];
+            else
+                shell_rad = radius;
+            end
+            proxy_pts = reshape(shell_rad(:).'.* reshape(proxy_pts0,dim,1,[]) ,dim,[]);
+
+            % The regular grid points span [-halfside, halfside] in each dimension
+            % They are sampled so the first point is at -halfside + dx/2 and the last
+            % point is at halfside - dx/2
+            dx =  2 * halfside / nspread;
+            % The discretization points start at -halfside + dx/2
+            xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
+            % disp("dx_nproxy: xx")
+            % disp(xx)
+            yy = xx;
+
+            if dim == 2
+                [X, Y] = meshgrid(xx, yy);
+                reg_pts = [X(:).'; Y(:).'];
+            else
+                zz = xx;
+                [X, Y, Z] = meshgrid(xx, yy, zz);
+                X = permute(X,[3,1,2]);
+                Y = permute(Y,[3,1,2]);
+                Z = permute(Z,[3,1,2]);
+                reg_pts = [X(:).'; Y(:).'; Z(:).'];
+            end
+
+
+            % Compute the kernel evals from source to proxy pts
+            K_source_to_proxy = kernel_pxy(struct('r',src_pts), struct('r',proxy_pts));
+            % Kernel regular -> proxy pts
+            K_reg_to_proxy = kernel_pxy(struct('r',reg_pts), struct('r',proxy_pts));
+
+            % Solve the least squares problem to find weights
+            evals_at_proxy = K_source_to_proxy * src_weights;
+
+            % spread_weights = K_reg_to_proxy \ evals_at_proxy;
+            spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
+
+            % Eval the approximation at the eval point
+            approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;
+
+
+            % Check error between approx and exact
+            errors = abs(approx_at_target(:) - target_evals(:));
+            err = max(errors) / max(abs(target_evals));
+
+            bool_unconverged = err >= tol;
+
+            if nspread > 100
+                warning("Computing proxy size didn't converge after nspread > 100, trying multiple shells")
+                break
+            end
+
+        end
+    end
+
+    if bool_unconverged
+        if dim == 2
+            nspread = 10;
+        else
+            nspread = 3;
+        end
+    end
+    while bool_unconverged
+
+        if dim == 2
+            nspread = nspread + 2;
+            if mod(nspread,4) == 0
+            nshell = nshell + 1;
+            end
+            nproxy = nspread;
+            proxy_pts0 = get_ring_points(nproxy, 1);
+
+        else
+            nspread = nspread + 1;
+            if mod(nspread,4) == 0
+            nshell = nshell + 1;
+            % disp("dx_nproxy: Increasing nshell to " + int2str(nshell) + ", nspread is " + int2str(nspread));
+            end
+            nproxy = nspread^2;
+            proxy_pts0 = get_sphere_points(nproxy, 1);
+
+        end
+        if nshell > 1
+            shell_rad = cos((1:nshell-1)/(nshell)*pi);
+            shell_rad = (shell_rad(:) + 1)/2 *(1/radius);
+            shell_rad = [radius,1./shell_rad(:).'];
+        else
+            shell_rad = radius;
+        end
+        proxy_pts = reshape(shell_rad(:).'.* reshape(proxy_pts0,dim,1,[]) ,dim,[]);
+
+        % The regular grid points span [-halfside, halfside] in each dimension
+        % They are sampled so the first point is at -halfside + dx/2 and the last
+        % point is at halfside - dx/2
+        dx =  2 * halfside / nspread;
+        % The discretization points start at -halfside + dx/2
+        xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
+        % disp("dx_nproxy: xx")
+        % disp(xx)
+        yy = xx;
+
+        if dim == 2
+            [X, Y] = meshgrid(xx, yy);
+            reg_pts = [X(:).'; Y(:).'];
+        else
+            zz = xx;
+            [X, Y, Z] = meshgrid(xx, yy, zz);
+            X = permute(X,[3,1,2]);
+            Y = permute(Y,[3,1,2]);
+            Z = permute(Z,[3,1,2]);
+            reg_pts = [X(:).'; Y(:).'; Z(:).'];
+        end
+
+
+        % Compute the kernel evals from source to proxy pts
+        K_source_to_proxy = kernel_pxy(struct('r',src_pts), struct('r',proxy_pts));
+        % Kernel regular -> proxy pts
+        K_reg_to_proxy = kernel_pxy(struct('r',reg_pts), struct('r',proxy_pts));
+
+        % Solve the least squares problem to find weights
+        evals_at_proxy = K_source_to_proxy * src_weights;
+
+        % spread_weights = K_reg_to_proxy \ evals_at_proxy;
+        spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
+
+        % Eval the approximation at the eval point
+        approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;
+
+
+        % Check error between approx and exact
+        errors = abs(approx_at_target(:) - target_evals(:));
+        err = max(errors) / max(abs(target_evals));
+
+        bool_unconverged = err >= tol;
+
+        if nspread > 100
+            error("Computing proxy size didn't converge after nspread > 100")
+        end
+
+    end
+
+    bool_converged = true;
+
+    % Second, decrease nshell while maintaing accuracy
+    while bool_converged & (nshell > 1)
+
+        nshell = nshell - 1;
+        if dim == 2
+            proxy_pts0 = get_ring_points(nproxy, 1);
+        else
+            proxy_pts0 = get_sphere_points(nproxy, 1);
+        end
+        if nshell > 1
+            shell_rad = cos((1:nshell-1)/(nshell)*pi);
+            shell_rad = (shell_rad(:) + 1)/2 *(1/radius);
+            shell_rad = [radius,1./shell_rad(:).'];
+        else
+            shell_rad = radius;
+        end
+        proxy_pts = reshape(shell_rad(:).'.* reshape(proxy_pts0,dim,1,[]) ,dim,[]);
+
+        % The regular grid points span [-halfside, halfside] in each dimension
+        % They are sampled so the first point is at -halfside + dx/2 and the last
+        % point is at halfside - dx/2
+        dx =  2 * halfside / nspread;
+        % The discretization points start at -halfside + dx/2
+        xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
+        % disp("dx_nproxy: xx")
+        % disp(xx)
+        yy = xx;
+
+        if dim == 2
+            [X, Y] = meshgrid(xx, yy);
+            reg_pts = [X(:).'; Y(:).'];
+        else
+            zz = xx;
+            [X, Y, Z] = meshgrid(xx, yy, zz);
+            X = permute(X,[3,1,2]);
+            Y = permute(Y,[3,1,2]);
+            Z = permute(Z,[3,1,2]);
+            reg_pts = [X(:).'; Y(:).'; Z(:).'];
+        end
+
+
+        % Compute the kernel evals from source to proxy pts
+        K_source_to_proxy = kernel_pxy(struct('r',src_pts), struct('r',proxy_pts));
+        % Kernel regular -> proxy pts
+        K_reg_to_proxy = kernel_pxy(struct('r',reg_pts), struct('r',proxy_pts));
+
+        % Solve the least squares problem to find weights
+        evals_at_proxy = K_source_to_proxy * src_weights;
+
+        % spread_weights = K_reg_to_proxy \ evals_at_proxy;
+        spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
+
+        % Eval the approximation at the eval point
+        approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;
+
+
+        % Check error between approx and exact
+        errors = abs(approx_at_target(:) - target_evals(:));
+        err = max(errors) / max(abs(target_evals));
+
+        bool_converged = err < tol;
+    end
+
+    % undo removing the last shell if it broke the accuracy
+    if ~bool_converged
+        nshell = nshell + 1;
+    end
+
+
+    % disp("dx_nproxy: Intermediate nproxy " + int2str(nproxy));
+    % disp("dx_nproxy: Intermediate nspread " + int2str(nspread));
+    if dim == 2
+        proxy_pts0 = get_ring_points(nproxy, 1);
+    else
+        proxy_pts0 = get_sphere_points(nproxy, 1);
+    end
+    if nshell > 1
+        shell_rad = cos((1:nshell-1)/(nshell)*pi);
+        shell_rad = (shell_rad(:) + 1)/2 *(1/radius);
+        shell_rad = [radius,1./shell_rad(:).'];
+    else
+        shell_rad = radius;
+    end
+    proxy_pts = reshape(shell_rad(:).'.* reshape(proxy_pts0,dim,1,[]) ,dim,[]);
+
+
+    % Compute the kernel evals from source to proxy pts
+    % We don't really need this inside this loop since proxy_pts are fixed.
+    K_source_to_proxy = kernel_pxy(struct('r',src_pts), struct('r',proxy_pts));
+    % Solve the least squares problem to find weights
+    evals_at_proxy = K_source_to_proxy * src_weights;
+    % Keep nproxy fixed and reduced nspread while keeping accuracy
+    bool_converged = true;
+    while bool_converged
+
+        nspread = nspread - 1;
+
+        dx_old = dx;
+        % reg_pts_old = reg_pts;
+        dx =  2 * halfside / nspread;
+        % The discretization points start at -halfside/2 + dx/2
+        xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
+
+        yy = xx;
+
+        if dim == 2
+            [X, Y] = meshgrid(xx, yy);
+            reg_pts = [X(:).'; Y(:).'];
+        else
+            zz = xx;
+            [X, Y, Z] = meshgrid(xx, yy, zz);
+            X = permute(X,[3,1,2]);
+            Y = permute(Y,[3,1,2]);
+            Z = permute(Z,[3,1,2]);
+            reg_pts = [X(:).'; Y(:).'; Z(:).'];
+        end
+
+
+        % Kernel regular -> proxy pts
+        K_reg_to_proxy = kernel_pxy(struct('r',reg_pts), struct('r',proxy_pts));
+
+        % spread_weights = K_reg_to_proxy \ evals_at_proxy;
+        spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
+
+        % Eval the approximation at the eval point
+        approx_at_target = kernel(struct('r',reg_pts), struct('r',target_pts)) * spread_weights;
+
+        % Check error between approx and exact
+        errors = abs(approx_at_target(:) - target_evals(:));
+        err = max(errors) / max(abs(target_evals));
+        bool_converged = err < tol;
+
+        % disp("dx_nproxy: Down pass: Trying nspread " + int2str(nspread) + " with error " + num2str(err))
+
+        
+        % min nspread = 4.
+        if nspread == 3
+            break;
+        end
+
+    end
+
+
+    % Undo the last iteration which went over error tol
+    dx = dx_old;
+    % reg_pts = reg_pts_old;
+    nspread = nspread + 1;
+
+
+
+    % Avoid a square matrix
+    if nproxy == nspread^2
+        nproxy = nproxy + 1;
+        if dim == 2
+            proxy_pts0 = get_ring_points(nproxy, 1);
+        else
+            proxy_pts0 = get_sphere_points(nproxy, 1);
+        end
+        if nshell > 1
+            shell_rad = cos((1:nshell-1)/(nshell)*pi);
+            shell_rad = (shell_rad(:) + 1)/2 *(1/radius);
+            shell_rad = [radius,1./shell_rad(:).'];
+        else
+            shell_rad = radius;
+        end
+        proxy_pts = reshape(shell_rad(:).'.* reshape(proxy_pts0,dim,1,[]) ,dim,[]);
+    end
+
+    % disp("dx_nproxy: After down pass, nspread " + int2str(nspread));
+    nbinpts = floor(nspread / 2);
+    % disp("dx_nproxy: Intermediate nbinpts " + int2str(nbinpts));
+
+    % If nspread // 2 == 0, we can exit early because the bin size is 
+    % the same as half the spreading box size.
+    proxy_info = ProxyInfo(dim, nproxy*nshell, nproxy, nshell, halfside, crad, tol, radius, proxy_pts, proxy_der);
+    
+
+end
