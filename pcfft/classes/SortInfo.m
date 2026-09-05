@@ -16,7 +16,7 @@ classdef SortInfo
     %   Contains the indices of the start of each bin in ``r_srt``.
     % data_srt : struct
     %   struct of data associated with each point in ``r_srt``. Each field must
-    %   be of shape ``[l, n_src]`` for some ``l``.
+    %   be of shape ``[l, n_src]`` or ``[n_src,l]`` for some ``l``.
     %
     properties
         r_srt
@@ -31,7 +31,7 @@ classdef SortInfo
 
 
             if nargin < 6 || isempty(der_fields), der_fields = {'r'}; end
-            
+
             % Sorts points ``src_info.r`` into a number of bins. Imagine a regular grid
             % with bounds ``[xmin ymin xmax ymax] = Lbd`` and grid spacing ``dx``. There are
             % ``[nx ny] = ngrid`` points in each dimension.
@@ -61,7 +61,7 @@ classdef SortInfo
                 N_bins = N_x_bins * N_y_bins;
 
 
-                % Find the ID of the bin in the X dim that each 
+                % Find the ID of the bin in the X dim that each
                 % point occupies.
                 % NOTE THAT id_x and id_y are zero-indexed!!
                 id_x = floor((r(1,:) - Lbd(1)) / (nbinpts * dx));
@@ -96,7 +96,7 @@ classdef SortInfo
             % Sort the points
             r_srt = r(:, ptid_srt);
 
-            % Form an array where id_start(i) gives us the index in 
+            % Form an array where id_start(i) gives us the index in
             % r_sorted for the first point with bin idx i.
             % If the bin is empty, id_start(i) = id_start(i-1)
             % We want the slice (id_start(i+1) : id_start(i+2)-1) to give the
@@ -124,9 +124,19 @@ classdef SortInfo
 
             obj.data_srt = [];
             for field = der_fields
-                obj.data_srt.(field{1}) = src_info.(field{1})(:,ptid_srt);
+                obj.data_srt.(field{1}) = sortinfo_slice_field(src_info.(field{1}), ptid_srt, size(r,2));
             end
 
         end
     end
+end
+
+function v = sortinfo_slice_field(A, idx, npts)
+if size(A, 2) == npts
+    v = A(:, idx);
+elseif size(A, 1) == npts
+    v = A(idx, :).';
+else
+    error('SLICE_FIELD: no dimension of A matches npts');
+end
 end
