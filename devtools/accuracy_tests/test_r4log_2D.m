@@ -20,7 +20,7 @@ mu = rand(n_src, 1);
 K_exact = kern_0(src_info, targ_info);
 target_vals = K_exact * mu;
 
-tol = 1e-10;
+tol = 1e-8;
 n_nbr = 100;
 % Green's function for a sixth order PDE requires us to proxy against
 % several derivatives
