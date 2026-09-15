@@ -100,7 +100,7 @@ classdef SortInfo
             % r_sorted for the first point with bin idx i.
             % The slice (id_start(i+1) : id_start(i+2)-1) gives the
             % indices of points in bin i.
-            counts = accumarray(double(bin_ids(:)) + 1, 1, [N_bins, 1]);
+            counts = accumarray(bin_ids(:) + 1, 1, [N_bins, 1]);
             id_start = [1, 1 + cumsum(counts).'];
 
 
