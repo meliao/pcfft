@@ -15,7 +15,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %   surface 1.1 * radius of the innermost proxy surface.
     % n_nbr : int, optional
     %   int specifying the average number of interactions that must be done
-    %   directly. Defaults to 1000.
+    %   directly. Defaults to 1000 in 2D and 10000 in 3D.
     % opts : struct, optional
     %   options to manipulate the choice of proxy points. Available
     %   options:
@@ -54,7 +54,12 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
 
     dim = size(src_info.r(:,:), 1);
     if nargin < 5 || isempty(n_nbr)
-        n_nbr = 1000;
+        % Dimension-dependent default.
+        if dim == 2
+            n_nbr = 1000;
+        else
+            n_nbr = 10000;
+        end
     end
     if nargin < 6 || ~isstruct(opts)
         opts = struct();

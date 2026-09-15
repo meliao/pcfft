@@ -29,6 +29,7 @@ N_bin = grid_info.nbin(1) * grid_info.nbin(2);
 % disp("test_intersecting_bins_2d: N_bin = " + int2str(N_bin));
 
 % valid bin_idxes should be between 0 and N_bin - 1
+[~, ~, all_binids] = intersecting_bins_2d(0:(N_bin - 1), grid_info);
 for bin_idx = 0:(N_bin - 1)
     [idx_x, idx_y, binids] = intersecting_bins_2d(bin_idx, grid_info);
 
@@ -36,6 +37,8 @@ for bin_idx = 0:(N_bin - 1)
     valid_binids = binids(binids >= 0);
     assert(length(valid_binids) == length(unique(valid_binids)));
 
+    % A vectorized call must agree with the scalar one.
+    assert(isequal(binids(:), all_binids(:, bin_idx + 1)));
 end
 
 %% test_0b

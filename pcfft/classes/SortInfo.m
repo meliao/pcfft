@@ -98,23 +98,10 @@ classdef SortInfo
 
             % Form an array where id_start(i) gives us the index in
             % r_sorted for the first point with bin idx i.
-            % If the bin is empty, id_start(i) = id_start(i-1)
-            % We want the slice (id_start(i+1) : id_start(i+2)-1) to give the
+            % The slice (id_start(i+1) : id_start(i+2)-1) gives the
             % indices of points in bin i.
-            id_start = ones(1,N_bins+1);
-
-            % Loop through sorted_bin_ids and fill in id_start
-            current_bin = 0;
-            for i = 1:size(r,2)
-                bin_i = binid_srt(i);
-                if bin_i > current_bin
-                    % Fill in all the bins we skipped
-                    id_start(current_bin+2:bin_i+2) = i;
-                    current_bin = bin_i;
-                end
-            end
-            % Fill in the rest of the bins
-            id_start(current_bin+2:N_bins+1) = size(r, 2) + 1;
+            counts = accumarray(double(bin_ids(:)) + 1, 1, [N_bins, 1]);
+            id_start = [1, 1 + cumsum(counts).'];
 
 
             obj.r_srt = r_srt;
@@ -132,9 +119,9 @@ classdef SortInfo
 end
 
 function v = sortinfo_slice_field(A, idx, npts)
-if size(A, 2) == npts
+if size(A(:,:), 2) == npts
     v = A(:, idx);
-elseif size(A, 1) == npts
+elseif size(A(:,:), 1) == npts
     v = A(idx, :).';
 else
     error('SLICE_FIELD: no dimension of A matches npts');
