@@ -15,7 +15,7 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %   surface 1.1 * radius of the innermost proxy surface.
     % n_nbr : int, optional
     %   int specifying the average number of interactions that must be done
-    %   directly. Defaults to 1000.
+    %   directly. Defaults to 1000 in 2D and 10000 in 3D.
     % opts : struct, optional
     %   options to manipulate the choice of proxy points. Available
     %   options:
@@ -32,6 +32,8 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %           Only recommended for expert users. (See
     %           pcff_fmm3dbie_demo.m) Useful for plotting BIE solutions
     %           where halfside should be set by the boundary.
+    %   - opts.unif_halfside
+    %           Choose halfside assuming points are uniform in their bounding box.
     %   - opts.nproxy_max
     %           Maximum number of proxy points per shell (default 6000)
     %   - opts.nshell_max
@@ -52,7 +54,12 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
 
     dim = size(src_info.r(:,:), 1);
     if nargin < 5 || isempty(n_nbr)
-        n_nbr = 1000;
+        % Dimension-dependent default.
+        if dim == 2
+            n_nbr = 1000;
+        else
+            n_nbr = 10000;
+        end
     end
     if nargin < 6 || ~isstruct(opts)
         opts = struct();
@@ -80,6 +87,12 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     [Lbd, ~] = bounding_box([src_info.r(:,:), targ_info.r(:,:)]);
     if isfield(opts,'halfside')
         halfside = opts.halfside;
+    elseif isfield(opts,'unif_halfside') && opts.unif_halfside
+        npts = size(src_info.r(:,:),2) + size(targ_info.r(:,:),2);
+        density = npts/prod(Lbd(:,2)-Lbd(:,1));
+        s = (n_nbr/density)^(1/dim);
+        C = gamma(dim/2 + 1)^(1/dim) / (2*sqrt(pi));
+        halfside = C*s/crad;
     else
         halfside = spread_halfside([src_info.r(:,:), targ_info.r(:,:)], n_nbr, crad);
     end

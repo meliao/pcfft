@@ -4,7 +4,7 @@
 % Solve Dirichlet scattering problems with many inclusions
 
 % Need to load planewave function
-addpath("utils")
+addpath("demo_utils")
 
 % planewave direction
 phi = 0;

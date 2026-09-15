@@ -97,19 +97,15 @@ function [A_spread, sort_info, spread_blk] = get_spread(kern_0, kern_der, ...
 
     % disp("get_spread: id_start")
     % disp(id_start)
+    % Subtract each source point's bin center.
+    nbins = size(id_start, 2) - 1;
     r_local = zeros(dim, size(src_info.r(:,:), 2));
-    for i = 1:size(id_start, 2) -1
-        
-
-        idx_start = id_start(i);
-        idx_end = id_start(i+1) - 1;
-
-        % Get the regular grid points and centers of bin i
-        center_i = bin_center(i-1, grid_info);
-        src_pts_in_i = r_sorted(:, idx_start:idx_end);
-        src_pts_in_i_centered = src_pts_in_i - center_i;
-
-        r_local(:, idx_start:idx_end) = src_pts_in_i_centered;
+    bin_ctrs = bin_center(0:nbins-1, grid_info);
+    npts_per_bin = diff(id_start);
+    npts_sorted = id_start(end) - 1;
+    if npts_sorted > 0
+        ptbin = repelem(1:nbins, npts_per_bin);
+        r_local(:, 1:npts_sorted) = r_sorted(:, 1:npts_sorted) - bin_ctrs(:, ptbin);
     end
     src_local = sort_info.data_srt;
     src_local.r = r_local;
@@ -138,6 +134,32 @@ function [A_spread, sort_info, spread_blk] = get_spread(kern_0, kern_der, ...
     id_id = 0;
     
 
+    % Box row indices are a fixed template plus a per-bin offset; precompute both.
+    ngrid = grid_info.ngrid;
+    nspread_l = grid_info.nspread;
+    nbinpts_l = grid_info.nbinpts;
+    nbin_l = grid_info.nbin;
+    ii = (1:nspread_l).';
+    if dim == 2
+        bb = 0:nbins-1;
+        id_y_all = mod(bb, nbin_l(2));
+        id_x_all = (bb - id_y_all) / nbin_l(2);
+        row_base = id_x_all * (nbinpts_l * ngrid(2)) + id_y_all * nbinpts_l;
+        row_template = (ii - 1) * ngrid(2) + (1:nspread_l);
+        row_template = reshape(row_template.', 1, []);   % i outer, j inner
+    else
+        bb = 0:nbins-1;
+        id_z_all = mod(bb, nbin_l(3));
+        id_y_all = mod(floor(bb / nbin_l(3)), nbin_l(2));
+        id_x_all = floor(bb / (nbin_l(2) * nbin_l(3)));
+        row_base = id_z_all * nbinpts_l + ...
+                   id_y_all * (nbinpts_l * ngrid(3)) + ...
+                   id_x_all * (nbinpts_l * ngrid(2) * ngrid(3));
+        row_template = ii + ((1:nspread_l) - 1) * ngrid(3) + ...
+                       reshape((0:nspread_l-1) * ngrid(2) * ngrid(3), 1, 1, []);
+        row_template = reshape(row_template, 1, []);
+    end
+
     % Now, loop through the bins and start to fill in A
     % Remember, we 0-indexed the bin IDs
     for i = 0:size(id_start,2) - 2
@@ -145,11 +167,7 @@ function [A_spread, sort_info, spread_blk] = get_spread(kern_0, kern_der, ...
         idx_end = opdim*(id_start(i+2)-1);
         if idx_end<idx_start, continue, end
 
-        if dim == 2
-            [~, ~, row_idxes_i] = grid_pts_for_box_2d(i, grid_info);
-        else
-            row_idxes_i = grid_ids_for_box_3d(i, grid_info);
-        end
+        row_idxes_i = row_base(i+1) + row_template;
 
         block_content = K_src_to_reg(:,idx_start:idx_end);
 

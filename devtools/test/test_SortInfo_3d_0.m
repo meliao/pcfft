@@ -7,9 +7,9 @@ Lbd = [-1 1 % xmin xmax
        1 2.0]; % zmin zmax
 % r points live on [-1, 1] x [-0.5 0.5] x [1, 2.0]
 rng(0);
-r = (rand(3, n_pts) - 0.5) * L;
-r(2,:) = r(2,:) / 2;
-r(3,:) = r(3,:) / 2 + 1;
+r = (rand(3, n_pts) - 0.5) * L; % Points are uniform in [-1, 1] x [-1, 1] x [-1, 1]
+r(2,:) = r(2,:) / 2; % Points are uniform in [-1, 1] x [-0.5, 0.5] x [-1, 1]
+r(3,:) = r(3,:) / 2 + 1.5; % Points are uniform in [-1, 1] x [-0.5, 0.5] x [1, 2]
 
 % dx = 0.25, so the grid points are at
 dx = 0.25;

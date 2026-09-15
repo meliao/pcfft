@@ -36,3 +36,10 @@ disp("test_bin_center_0: center of bin 0: ");
 disp(center_0);
 expected_center_0 = [-0.625; -0.625];
 assert(all(abs(center_0 - expected_center_0) < 1e-12));
+
+% A vectorized call must agree with the scalar one.
+N_bin = grid_info.nbin(1) * grid_info.nbin(2);
+centers = bin_center(0:(N_bin - 1), grid_info);
+for b = 0:(N_bin - 1)
+    assert(isequal(centers(:, b + 1), bin_center(b, grid_info)));
+end

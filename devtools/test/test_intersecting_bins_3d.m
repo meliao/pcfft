@@ -19,8 +19,12 @@ grid_info = GridInfo(Lbd, dx, 2*nbinpts + 1, nbinpts, dim, 0, proxy_info.radius)
 
 N_bin = grid_info.nbin(1) * grid_info.nbin(2) * grid_info.nbin(3);
 
+[~, ~, ~, all_binids] = intersecting_bins_3d(0:(N_bin - 1), grid_info);
 for bin_idx = 0:(N_bin - 1)
     [~, ~, ~, binids] = intersecting_bins_3d(bin_idx, grid_info);
+
+    % A vectorized call must agree with the scalar one.
+    assert(isequal(binids(:), all_binids(:, bin_idx + 1)));
 
     valid_binids = binids(binids >= 0);
     assert(length(valid_binids) <= N_bin, ...

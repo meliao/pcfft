@@ -3,8 +3,6 @@
 %
 % Solve Dirichlet scattering problems with many inclusions
 
-% Need to load planewave function
-addpath("utils")
 warning('off','MATLAB:rankDeficientMatrix')
 warning('off','MATLAB:nearlySingularMatrix')
 eps = 1e-6;
@@ -17,10 +15,10 @@ kvec = zk*[cos(phi);sin(phi)];
 
 nscats = 5:5:30;
 % nscats = 450;
-times = zeros(3,length(nscats));
-solvetimes = zeros(3,length(nscats));
+% times = zeros(3,length(nscats));
+% solvetimes = zeros(3,length(nscats));
 npts = zeros(1,length(nscats));
-for k = 1:length(nscats)
+for k = 1:1
 
 %% Make a field of scatters
 
@@ -133,28 +131,28 @@ tic;
 sol = gmres(sys_app,rhs,[],eps,1000);
 tpcfftsolve = toc;
 
-%%
-tic;
-% build fast direct solver
-flam_opts = [];flam_opts.rank_or_tol = eps;
-F = chunkerflam(chnkr,dkern,0.5,flam_opts);
-tFLAMprecom = toc;
-
-tic;
-% solve
-sol2 = rskelf_sv(F,rhs);
-tflamsolve = toc;
-
-
-tic;
-corsfmm = chunkermat(chnkr,dkern,struct('corrections',1));
-corsfmm = corsfmm +  0.5*speye(size(cors));
-sys_app = @(dens) chunkermatapply(chnkr,dkern,dens,corsfmm);
-tfmmprecom = toc;
-tic;
-% solve
-sol = gmres(sys_app,rhs,[],eps,1000);
-tfmmsolve = toc;
+% %%
+% tic;
+% % build fast direct solver
+% flam_opts = [];flam_opts.rank_or_tol = eps;
+% F = chunkerflam(chnkr,dkern,0.5,flam_opts);
+% tFLAMprecom = toc;
+% 
+% tic;
+% % solve
+% sol2 = rskelf_sv(F,rhs);
+% tflamsolve = toc;
+% 
+% 
+% tic;
+% corsfmm = chunkermat(chnkr,dkern,struct('corrections',1));
+% corsfmm = corsfmm +  0.5*speye(size(cors));
+% sys_app = @(dens) chunkermatapply(chnkr,dkern,dens,corsfmm);
+% tfmmprecom = toc;
+% tic;
+% % solve
+% sol = gmres(sys_app,rhs,[],eps,1000);
+% tfmmsolve = toc;
 
 %%
 fprintf('PCFFT precom took %.2e s. The solve took %.2e s.\n',tpcfftprecom,tpcfftsolve)
@@ -224,3 +222,18 @@ legend('PCFFT', 'FLAM', 'FMM', '$O(n)$', '$O(n^{3/2})$','interpreter','latex','L
 set(gca,'ticklabelinterpreter','latex')
 set(gca,'fontsize',16)
 % exportgraphics(gcf,'chunkie_scatterer_solvetimings_tol1e-6.pdf')
+
+
+figure(6);
+% plot(npts,times,'o-')
+plot(log10(npts),log10(times-solvetimes),'o-','LineWidth',2)
+hold on
+plot(log10(npts),log10(npts/600),'k--','LineWidth',2)
+plot(log10(npts),log10(npts/400).^(3/2),'k:','LineWidth',2)
+hold off
+xlabel('$\log_{10} n_{pts}$','interpreter','latex')
+ylabel('$\log_{10} $ precom time (s)','interpreter','latex')
+legend('PCFFT', 'FLAM', 'FMM', '$O(n)$', '$O(n^{3/2})$','interpreter','latex','Location','northwest')
+set(gca,'ticklabelinterpreter','latex')
+set(gca,'fontsize',16)
+% exportgraphics(gcf,'chunkie_scatterer_buildtimings_tol1e-6.pdf')

@@ -86,14 +86,68 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
     % size of pairwise interaction
     opdim = [size(spread_blk_t,2)/N_targ, size(spread_blk_s,2)/N_src];
 
-    % The columns of spread_blk_s and spread_blk_t are already in sorted point
-    % order, so no reordering is needed here. These index maps are only used at
-    % the end, to put the rows and cols of A_addsub back in input order.
     src_sort_ids = opdim(2)*(sort_info_s.ptid_srt-1) + (1:opdim(2)).';
     targ_sort_ids = opdim(1)*(sort_info_t.ptid_srt-1) + (1:opdim(1)).';
 
-    % TODO: correct formula for number of corrections
-    ncor = grid_info.n_nbr*ceil(mean([opdim(1)*N_targ,opdim(2)*N_src]));
+    id_start = 0;
+
+    nbins_total = size(sort_info_s.id_start, 2) - 1;
+    nbin_l = grid_info.nbin;
+    offsets_l = grid_info.nbr_offsets;
+    bb_all = 0:nbins_total-1;
+    if dim == 2
+        Ny = nbin_l(2);
+        bin_idy = mod(bb_all, Ny);
+        bin_idx_x = (bb_all - bin_idy) / Ny;
+        lin_off = offsets_l(1, :) * Ny + offsets_l(2, :);
+        off_x = offsets_l(1, :);
+        off_y = offsets_l(2, :);
+    else
+        Ny = nbin_l(2);
+        Nz = nbin_l(3);
+        bin_idz = mod(bb_all, Nz);
+        bin_idy = mod(floor(bb_all / Nz), Ny);
+        bin_idx_x = floor(bb_all / (Ny * Nz));
+        lin_off = offsets_l(1, :) * (Ny * Nz) + offsets_l(2, :) * Nz + offsets_l(3, :);
+        off_x = offsets_l(1, :);
+        off_y = offsets_l(2, :);
+        off_z = offsets_l(3, :);
+    end
+    Nx = nbin_l(1);
+
+    % Fetch the remaining per-bin properties
+    s_id_start = sort_info_s.id_start;
+    t_id_start = sort_info_t.id_start;
+    s_data_srt = sort_info_s.data_srt;
+    t_data_srt = sort_info_t.data_srt;
+    n_nbr = grid_info.n_nbr;
+
+    % "sub" strategy: template contracts vs the whole stencil, direct per-neighbour (better when bins are mostly empty).
+    nbox_l = size(K_nbr2bin, 1);
+    ntemplate_l = size(K_nbr2bin, 2);
+
+    % Count occupied neighbour bins per occupied target bin (one pass per offset).
+    s_counts = diff(s_id_start);
+    t_counts = diff(t_id_start);
+    n_occ_nbr = 0;
+    npair = 0;
+    for kk = 1:size(offsets_l, 2)
+        okk = off_x(kk) + bin_idx_x >= 0 & off_x(kk) + bin_idx_x < Nx & ...
+              off_y(kk) + bin_idy >= 0 & off_y(kk) + bin_idy < Ny;
+        if dim == 3
+            okk = okk & off_z(kk) + bin_idz >= 0 & off_z(kk) + bin_idz < Nz;
+        end
+        idxk = find(okk);
+        ct = double(t_counts(idxk));
+        cs = double(s_counts(idxk + lin_off(kk)));
+        n_occ_nbr = n_occ_nbr + nnz(ct > 0 & cs > 0);
+        npair = npair + sum(ct .* cs);
+    end
+    mean_occ_nbr = n_occ_nbr / max(1, nnz(t_counts > 0));
+
+    use_template = (nbox_l * mean_occ_nbr >= ntemplate_l);
+
+    ncor = npair * opdim(1) * opdim(2);
 
     % These are the arrays we will use to build the sparse A_addsub
     % in COO format.
@@ -102,42 +156,51 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
     iid = zeros(1,ncor);
     jid = zeros(1,ncor);
     vals = zeros(1,ncor);
-    id_start = 0;
 
+    % Template path: C is bin-independent, so compute it for a block of bins at once.
+    max_block_bytes = 2^28;   % 256 MB
+    bytes_per_entry = 16;     % complex double
+    max_block_rows = max(1, floor(max_block_bytes / ...
+                         (size(K_nbr2bin,2) * bytes_per_entry)));
+    block_bin_end = 0;    % last bin covered by the current block
+    block_row0 = 0;       % row offset of the current block in spread_blk_t cols
+    C_block = [];
 
     % Loop through all of the bins. 
-    for i = 1:size(sort_info_s.id_start, 2) -1
+    for i = 1:nbins_total
         bin_idx = i - 1; % Because bins are 0-indexed
         % disp("get_addsub: Processing bin " + int2str(bin_idx));
 
         % Target points in bin i
-        idx_ti_start = sort_info_t.id_start(i);
-        idx_ti_end = sort_info_t.id_start(i + 1) - 1;
+        idx_ti_start = t_id_start(i);
+        idx_ti_end = t_id_start(i + 1) - 1;
         if idx_ti_start > idx_ti_end, continue, end
         
         % targ_pts_in_i = sort_info_t.r_srt(:, idx_ti_start:idx_ti_end);
         targ_info_in_i = [];
         for field = der_fields_t
-            targ_info_in_i.(field{1}) = sort_info_t.data_srt.(field{1})(:,idx_ti_start:idx_ti_end);
+            targ_info_in_i.(field{1}) = t_data_srt.(field{1})(:,idx_ti_start:idx_ti_end);
         end
 
         % Find the neighboring bins of bin i. off_ids records which entry of
         % grid_info.nbr_offsets each surviving neighbor came from, which is
         % what indexes template_pos.
-        if dim == 2
-            [~, ~, nbr_binids] = intersecting_bins_2d(bin_idx, grid_info);
-        else
-            [~, ~, ~, nbr_binids] = intersecting_bins_3d(bin_idx, grid_info);
+        ix = off_x + bin_idx_x(i);
+        iy = off_y + bin_idy(i);
+        valid = ix >= 0 & ix < Nx & iy >= 0 & iy < Ny;
+        if dim == 3
+            iz = off_z + bin_idz(i);
+            valid = valid & iz >= 0 & iz < Nz;
         end
-        off_ids = find(nbr_binids ~= -1);
-        nbr_binids = nbr_binids(off_ids);
+        off_ids = find(valid);
+        nbr_binids = bin_idx + lin_off(off_ids);
 
         % Loop through all of the neighbor bins and fill in the local source points. 
         % After this loop, we will update A_add and A_sub with the neigbors of bin i.
 
         % get index of first and last source in each neighboring bin
-        idx_sj_starts = sort_info_s.id_start(nbr_binids + 1);
-        idx_sj_ends = sort_info_s.id_start(nbr_binids + 2) - 1;
+        idx_sj_starts = s_id_start(nbr_binids + 1);
+        idx_sj_ends = s_id_start(nbr_binids + 2) - 1;
 
         % remove empty neighbors
         ifilled = idx_sj_ends>=idx_sj_starts;
@@ -146,8 +209,8 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
         off_ids = off_ids(ifilled);
 
         % get list of all neighbors
-        source_idx = zeros(1,grid_info.n_nbr);
-        source_idx_dof = zeros(1,opdim(2)*grid_info.n_nbr);
+        source_idx = zeros(1,n_nbr);
+        source_idx_dof = zeros(1,opdim(2)*n_nbr);
         istart = 1;
         for j = 1:length(idx_sj_starts)
             % This iter of the loop does interaction between target bin i and 
@@ -171,52 +234,89 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
 
         src_pts_in_j = [];
         for field = der_fields_s
-            src_pts_in_j.(field{1}) = sort_info_s.data_srt.(field{1})(:,source_idx);
+            src_pts_in_j.(field{1}) = s_data_srt.(field{1})(:,source_idx);
         end
 
         % Update A_addsub with exact near-field interactions. This is the "add"
         % part.
         K_src_to_targ = kern_st(src_pts_in_j, ...
                             targ_info_in_i);
-        % Zero out the diagonal entries.
+        % Zero out the self interactions. 
         r = 0;
         for k = 1:dim
             r = r + (src_pts_in_j.r(k,:) - targ_info_in_i.r(k,:).').^2;
         end
-        r = reshape(r, 1, size(targ_info_in_i.r,2), 1, size(src_pts_in_j.r,2));
-        r = repmat(r,opdim(1),1,opdim(2),1);
-        r = reshape(r, size(K_src_to_targ));
-        K_src_to_targ(r<1e-14) = 0;
+        if opdim(1) == 1 && opdim(2) == 1
+            K_src_to_targ(r < 1e-14) = 0;
+        else
+            [ti, sj] = find(r < 1e-14);
+            if ~isempty(ti)
+                rows = opdim(1)*(ti(:).'-1) + (1:opdim(1)).';   % [opdim1, npair]
+                cols = opdim(2)*(sj(:).'-1) + (1:opdim(2)).';   % [opdim2, npair]
+                lin = reshape(rows, opdim(1), 1, []) + ...
+                      (reshape(cols, 1, opdim(2), []) - 1) * size(K_src_to_targ,1);
+                K_src_to_targ(lin(:)) = 0;
+            end
+        end
 
-        % Update A_sub with approximated near-field interactions. This is the 
+        % Update A_sub with approximated near-field interactions. This is the
         % "sub" part. Both spreading blocks are contiguous column slices of the
         % dense weights returned by get_spread, so no sparse indexing is needed.
-        A_spread_t_i = spread_blk_t(:, opdim(1)*(idx_ti_start-1)+1:opdim(1)*idx_ti_end);
+        % Refill C_block once this bin runs past it.
+        if use_template && i > block_bin_end
+            block_row0 = opdim(1)*(t_id_start(i)-1);
+            jb = i;
+            while jb < nbins_total && ...
+                  opdim(1)*(t_id_start(jb+2)-1) - block_row0 <= max_block_rows
+                jb = jb + 1;
+            end
+            block_bin_end = jb;
+            block_cols = block_row0+1 : opdim(1)*(t_id_start(block_bin_end+1)-1);
+            C_block = spread_blk_t(:, block_cols).' * K_nbr2bin;
+        end
 
-        % Contract against the whole template once for this target bin, then
-        % hit each neighbor with just the template columns its box covers.
-        C_i = A_spread_t_i.' * K_nbr2bin;
+        % Row range of this bin; index C_block directly rather than slicing out a copy.
+        cols_ti = opdim(1)*(idx_ti_start-1)+1 : opdim(1)*idx_ti_end;
 
-        AKA_chunk = zeros(size(C_i,1), numel(source_idx_dof), 'like', C_i);
-        col = 0;
-        for j = 1:length(idx_sj_starts)
-            cs = opdim(2)*(idx_sj_starts(j)-1)+1 : opdim(2)*idx_sj_ends(j);
-            AKA_chunk(:, col + (1:numel(cs))) = ...
-                C_i(:, template_pos(:, off_ids(j))) * spread_blk_s(:, cs);
-            col = col + numel(cs);
+        % Hit each neighbor with just the template columns its box covers.
+        if use_template
+            rows_i = cols_ti - block_row0;
+            AKA_chunk = zeros(numel(rows_i), numel(source_idx_dof), 'like', C_block);
+            col = 0;
+            for j = 1:length(idx_sj_starts)
+                cs = opdim(2)*(idx_sj_starts(j)-1)+1 : opdim(2)*idx_sj_ends(j);
+                AKA_chunk(:, col + (1:numel(cs))) = ...
+                    C_block(rows_i, template_pos(:, off_ids(j))) * spread_blk_s(:, cs);
+                col = col + numel(cs);
+            end
+        else
+            A_spread_t_i = spread_blk_t(:, cols_ti);
+            AKA_chunk = zeros(numel(cols_ti), numel(source_idx_dof), 'like', K_nbr2bin);
+            col = 0;
+            for j = 1:length(idx_sj_starts)
+                cs = opdim(2)*(idx_sj_starts(j)-1)+1 : opdim(2)*idx_sj_ends(j);
+                AKA_chunk(:, col + (1:numel(cs))) = ...
+                    (A_spread_t_i.' * K_nbr2bin(:, template_pos(:, off_ids(j)))) * ...
+                    spread_blk_s(:, cs);
+                col = col + numel(cs);
+            end
         end
 
         Aloc =  K_src_to_targ - AKA_chunk;
 
         % Update COO arrays.
-        is = (opdim(1)*(idx_ti_start-1)+1:opdim(1)*idx_ti_end);
+        is = opdim(1)*(idx_ti_start-1)+1 : opdim(1)*idx_ti_end;
         js = source_idx_dof;
-        is = repmat(is(:), 1, size(js,2));
-        js = repmat(js(:).', size(is,1), 1);
+        nrow = numel(is);
         n_sparse = numel(Aloc);
 
-        iid(id_start + (1:n_sparse)) = is(:).';
-        jid(id_start + (1:n_sparse)) = js(:).';
+        if id_start + n_sparse > numel(vals)
+            % Extend vectors if necessary
+            newlen = max(2*numel(vals), id_start + n_sparse);
+            iid(newlen) = 0; jid(newlen) = 0; vals(newlen) = 0;
+        end
+        iid(id_start + (1:n_sparse)) = repmat(is, 1, numel(js));
+        jid(id_start + (1:n_sparse)) = repelem(js, nrow);
         vals(id_start + (1:n_sparse)) = Aloc(:).';
         id_start = id_start + n_sparse;
 
