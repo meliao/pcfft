@@ -30,6 +30,9 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
     % -------
     % A_addsub : sparse matrix [n_targ, n_src]
     %   A sparse matrix which corrects for the incorrect near-field interactions computed using the spreading matrices.
+    %   Rows are ordered by *sorted* target index and columns by *sorted*
+    %   source index, matching the column order of the matrices returned by
+    %   get_spread.
 
     der_fields_s = fieldnames(sort_info_s.data_srt)';
     der_fields_t = fieldnames(sort_info_t.data_srt)';
@@ -85,9 +88,6 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
 
     % size of pairwise interaction
     opdim = [size(spread_blk_t,2)/N_targ, size(spread_blk_s,2)/N_src];
-
-    src_sort_ids = opdim(2)*(sort_info_s.ptid_srt-1) + (1:opdim(2)).';
-    targ_sort_ids = opdim(1)*(sort_info_t.ptid_srt-1) + (1:opdim(1)).';
 
     id_start = 0;
 
@@ -325,28 +325,8 @@ function [A_addsub] = get_addsub(kern_0, kern_st, grid_info, proxy_info, ...
     jid = jid(1:id_start);
     vals = vals(1:id_start);
 
-    targ_sort_ids = targ_sort_ids(:);
-    src_sort_ids = src_sort_ids(:);
-    iid = targ_sort_ids(iid);
-    jid = src_sort_ids(jid);
-
-    % isort = randperm(id_start);
+    % Rows and columns are left in sorted point order. pcfft_apply permutes
+    % mu and u to match.
     A_addsub = sparse(iid, jid, vals, opdim(1)*N_targ, opdim(2)*N_src);
-    % A_addsub = sparse(iid(isort), jid(isort), vals(isort), opdim(1)*N_targ, opdim(2)*N_src);
-    % [jid,isort] = sort(jid);
-    % iid = iid(isort);
-    % vals = vals(isort);
-    % A_addsub = sparse(iid, jid, vals, opdim(1)*N_targ, opdim(2)*N_src);
-    % [iid,isort] = sort(iid);
-    % jid = jid(isort);
-    % vals = vals(isort);
-    % 
-    % 
-    % A_addsub = sparse(iid, jid, vals, opdim(1)*N_targ, opdim(2)*N_src);
 
-    % % Reorder the rows to match the original target point ordering
-    % A_addsub(targ_sort_ids, :) = A_addsub;
-    % 
-    % % % Reorder the columns to match the original source point ordering
-    % A_addsub(:, src_sort_ids) = A_addsub; 
 end
