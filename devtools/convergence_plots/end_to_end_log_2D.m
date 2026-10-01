@@ -44,7 +44,8 @@ for i = 1:n_tol_vals
         grid_info, proxy_info, sort_info_s, sort_info_t, spread_blk_s, spread_blk_t);
 
     k0hat = get_kernhat(kern_0,grid_info);
-    evals_approx = pcfft_apply(mu,A_spread_s,A_spread_t,A_addsub,k0hat);
+    evals_approx = pcfft_apply(mu,A_spread_s,A_spread_t,A_addsub,k0hat, ...
+        sort_info_s, sort_info_t);
 
     % Compute relative L infinity error
     diffs = abs(evals_approx - target_vals);

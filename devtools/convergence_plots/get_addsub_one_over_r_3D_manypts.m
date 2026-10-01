@@ -48,7 +48,8 @@ for i = 1:n_tol_vals
         sort_info_s, sort_info_t, spread_blk_s, spread_blk_t);
 
     kern_0hat = get_kernhat(kern_0,grid_info);
-    evals_approx = pcfft_apply(src_weights,A_spread_s,A_spread_t,A_addsub,kern_0hat);
+    evals_approx = pcfft_apply(src_weights,A_spread_s,A_spread_t,A_addsub,kern_0hat, ...
+        sort_info_s, sort_info_t);
     % disp("tol: " + num2str(tol) + ", evals_approx: ");
     % disp(evals_approx);
     % disp("target_vals: ");
