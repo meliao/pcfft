@@ -48,10 +48,6 @@ for i = 1:n_tol_vals
     A_addsub = get_addsub(kern_0, kern_0, grid_info, proxy_info, ...
         sort_info_s, sort_info_t, spread_blk_s, spread_blk_t);
 
-    %%% TODO: Why does this give the wrong answer?
-    % kern_0hat = get_kernhat(kern_0,grid_info);
-    % evals_approx2= pcfft_apply(src_weights,A_spread_s,A_spread_t,A_addsub,kern_0hat);
-
     K_grid2grid = log_kernel(grid_info, grid_info);
     K_grid2grid(1:size(K_grid2grid,1)+1:end) = 0;
     term1 = A_addsub * src_weights;

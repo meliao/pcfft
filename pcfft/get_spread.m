@@ -27,6 +27,8 @@ function [A_spread, sort_info, spread_blk] = get_spread(kern_0, kern_der, ...
     % -------
     % A_spread : sparse matrix [nreg, opdim*nsrc]
     %   Maps source strengths to equivalent strengths on the regular grid.
+    %   Columns are ordered by *sorted* point index: column opdim*(p-1)+k
+    %   is component k of the point sort_info.ptid_srt(p).
     % sort_info : SortInfo
     %   Object describing the sorting of source points into bins
     % spread_blk : matrix [nspread^dim, opdim*nsrc]
@@ -71,7 +73,6 @@ function [A_spread, sort_info, spread_blk] = get_spread(kern_0, kern_der, ...
     sort_info = SortInfo(src_info, grid_info.dx, grid_info.Lbd, ...
                         grid_info.nbin, grid_info.nbinpts,der_fields);
     r_sorted = sort_info.r_srt;
-    sorted_idxes = sort_info.ptid_srt;
     id_start = sort_info.id_start;
 
 
@@ -189,13 +190,8 @@ function [A_spread, sort_info, spread_blk] = get_spread(kern_0, kern_der, ...
     jid = jid(1:id_id);
     vals = vals(1:id_id);
 
-    % Undo the sorting. Permuting the COO column indices is equivalent to the
-    % column assignment A_spread(:, sorted_idxes) = A_spread, but avoids
-    % building and then permuting a sparse matrix.
-    sorted_idxes = opdim*(sorted_idxes-1) + (1:opdim).';
-    sorted_idxes = sorted_idxes(:);
-    jid = reshape(sorted_idxes(jid), 1, []);
-
+    % The columns are left in sorted point order, so that spatially nearby
+    % points have nearby columns. pcfft_apply permutes mu to match.
     A_spread = sparse(iid, jid, vals, n_grid_pts, opdim*size(src_info.r(:,:), 2));
 
     spread_blk = K_src_to_reg;

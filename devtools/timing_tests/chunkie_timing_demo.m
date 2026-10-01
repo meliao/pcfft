@@ -124,7 +124,8 @@ A_spread_s = A_spread_s.*chnkr.wts(:).';
 A_addsub_eval = A_addsub_eval.*chnkr.wts(:).';
 tpcfftprecom = toc(t1);
 
-sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_c,cors,skern_hat);
+sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_c,cors,skern_hat, ...
+    sort_info_c,sort_info_c);
 % return
 tic;
 % solve

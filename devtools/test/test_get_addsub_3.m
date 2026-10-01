@@ -61,7 +61,9 @@ assert(all(size(A_addsub) == [size(targ_info.r,2), size(src_info.r,2)]));
 K_gg = kern_0(struct('r', grid_info.r), struct('r', grid_info.r));
 K_gg(1:nreg+1:end) = 0;    % assign, do not multiply: log(0) = -Inf and 0*-Inf = NaN
 
+% A_addsub and A_spread are in sorted point order, so sort K_exact to match.
 K_exact = kern_0(src_info, targ_info);
+K_exact = K_exact(sort_info_t.ptid_srt, sort_info_s.ptid_srt);
 E   = full(A_addsub) + A_spread_t.' * (K_gg * A_spread_s) - K_exact;
 err = max(abs(E(:))) / max(abs(K_exact(:)));
 assert(err < tol, '2D interior cluster: rel err %g exceeds tol %g', err, tol);
@@ -102,6 +104,7 @@ K_gg = kern_0(struct('r', grid_info.r), struct('r', grid_info.r));
 K_gg(1:nreg+1:end) = 0;
 
 K_exact = kern_0(src_info, targ_info);
+K_exact = K_exact(sort_info_t.ptid_srt, sort_info_s.ptid_srt);
 E   = full(A_addsub) + A_spread_t.' * (K_gg * A_spread_s) - K_exact;
 err = max(abs(E(:))) / max(abs(K_exact(:)));
 assert(err < tol, '2D corner cluster: rel err %g exceeds tol %g', err, tol);
