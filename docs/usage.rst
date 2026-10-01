@@ -75,6 +75,7 @@ Finally, we can evaluate the sum by calling :func:`get_kernhat` and :func:`pcfft
 
    kern_hat = get_kernhat(@kern, grid_info);
    f = pcfft_apply(mu, A_spread_src, A_spread_targ, ...
-                   A_addsub, kern_hat);
+                   A_addsub, kern_hat, sort_info_src, ...
+                   sort_info_targ);
 
 Notice that we didn't use ``mu`` until the final line of this example. If the source points, target points, and kernel are fixed, we can think of all of the steps before the call to :func:`pcfft_apply` as a precomputation step. Once the precomputation is done, we can apply the same operator to different source strengths :math:`\mu` very quickly by calling :func:`pcfft_apply` again with the new source strengths and the same matrices.

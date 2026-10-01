@@ -99,6 +99,7 @@ Now that we have finished our precomputations, we can evaluate the sum by callin
 .. code:: matlab
 
    sigma = rand(N, 1); % source strengths
-   u = pcfft_apply(sigma, A_spread_src, A_spread_targ, A_addsub, kern_hat);
+   u = pcfft_apply(sigma, A_spread_src, A_spread_targ, A_addsub, ...
+            kern_hat, sort_info_src, sort_info_targ);
 
 And that's it! The `source repository <https://github.com/meliao/pcfft/tree/main/demos>`_ contains other examples, including differentiation of source and target points, and integration with `chunkIE <https://github.com/fastalgorithms/chunkie>`_.
