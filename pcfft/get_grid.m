@@ -42,6 +42,22 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     %           Maximum grid points across the box (default 100 in 2D, 30 in 3D)
     %   - opts.relax_nshell
     %           Trade one more nspread for a smaller nshell (default false)
+    %   - opts.kern_der_src
+    %           Derivative kernel(s) that will be spread from the sources,
+    %           i.e. the kern_der passed to get_spread with src_info. A
+    %           single kernel or a cell array of kernels. Each is called as
+    %           kern(pt, struct('r', x)), where pt carries the fields listed
+    %           in opts.der_fields_src. nproxy and the grid are chosen so
+    %           that the field of every such kernel is resolved.
+    %   - opts.der_fields_src
+    %           Cell array of the source fields kern_der_src needs, e.g.
+    %           {'r','n'} or {'r','n','kappa'}. Values for the test sources
+    %           are sampled from src_info. Defaults to every field of
+    %           src_info that stores one entry per point.
+    %   - opts.kern_der_targ, opts.der_fields_targ
+    %           Same as above for the kernels spread from the targets (e.g.
+    %           a transposed target-derivative kernel passed to get_spread
+    %           with targ_info). Fields are sampled from targ_info.
     %
     %
     % Returns
@@ -96,6 +112,15 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
     else
         halfside = spread_halfside([src_info.r(:,:), targ_info.r(:,:)], n_nbr, crad);
     end
+    % Derivative kernels that will be spread with this grid. Their fields
+    % are sampled from the points they will actually be applied to.
+    spread_cases = {};
+    spread_cases = add_spread_cases(spread_cases, opts, 'kern_der_src', ...
+        'der_fields_src', src_info);
+    spread_cases = add_spread_cases(spread_cases, opts, 'kern_der_targ', ...
+        'der_fields_targ', targ_info);
+    opts.spread_cases = spread_cases;
+
     % get prototype grid for spreading
     [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfside, ...
         crad, multi_shells, proxy_der, opts);
@@ -103,4 +128,54 @@ function [grid_info, proxy_info] = get_grid(kernel, src_info, targ_info, ...
 
     grid_info = GridInfo(Lbd, dx, nspread, nbinpts, dim, n_nbr, proxy_info.radius);
     
+end
+
+
+function cases = add_spread_cases(cases, opts, kern_name, fields_name, info)
+    % Append one spread case per kernel in opts.(kern_name), with fields
+    % sampled from INFO.
+    if ~isfield(opts, kern_name) || isempty(opts.(kern_name)), return; end
+    kerns = opts.(kern_name);
+    if ~iscell(kerns), kerns = {kerns}; end
+
+    if isfield(opts, fields_name) && ~isempty(opts.(fields_name))
+        fields = opts.(fields_name);
+        if ischar(fields), fields = {fields}; end
+    else
+        fields = per_point_fields(info);
+    end
+    missing = fields(~cellfun(@(f) has_field(info, f), fields));
+    if ~isempty(missing)
+        error('get_grid: %s requests field(s) {%s} not present on the points', ...
+            fields_name, strjoin(missing, ', '));
+    end
+
+    for k = 1:numel(kerns)
+        cases{end+1} = struct('kern', kerns{k}, 'info', info, ...
+                              'fields', {fields}); %#ok<AGROW>
+    end
+end
+
+function fields = per_point_fields(info)
+    % Every field of INFO that stores one entry (column or row) per point.
+    npts = size(info.r(:,:), 2);
+    names = fieldnames(info);
+    keep = false(size(names));
+    for k = 1:numel(names)
+        try
+            A = info.(names{k});
+            keep(k) = isnumeric(A) && (size(A(:,:), 2) == npts || ...
+                                       size(A(:,:), 1) == npts);
+        catch
+        end
+    end
+    fields = names(keep).';
+end
+
+function tf = has_field(info, f)
+    if isstruct(info)
+        tf = isfield(info, f);
+    else
+        tf = isprop(info, f) || any(strcmp(fieldnames(info), f));
+    end
 end

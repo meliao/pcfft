@@ -118,10 +118,16 @@ A_addsub_eval = get_addsub(skern, dkern, grid_info, proxy_info, ...
 % get DFT of kernel
 skern_hat = get_kernhat(skern,grid_info);
 
+% A_spread_* and A_addsub_* are in sorted point order (see get_spread)
+pc = sort_info_c.ptid_srt(:);
+pt = sort_info_t.ptid_srt(:);
+wts_srt = chnkr.wts(:);
+wts_srt = wts_srt(pc).';
+
 cors = chunkermat(chnkr,dkern,struct('corrections',1));
-cors = cors + A_addsub_c.*chnkr.wts(:).' + 0.5*speye(size(cors));
-A_spread_s = A_spread_s.*chnkr.wts(:).';
-A_addsub_eval = A_addsub_eval.*chnkr.wts(:).';
+cors = cors(pc,pc) + A_addsub_c.*wts_srt + 0.5*speye(size(cors));
+A_spread_s = A_spread_s.*wts_srt;
+A_addsub_eval = A_addsub_eval.*wts_srt;
 tpcfftprecom = toc(t1);
 
 sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_c,cors,skern_hat, ...
@@ -180,7 +186,8 @@ end
 tic;
 uscat = (NaN+NaN*1i)*zeros(size(xx));
 evalmat = chunkerkernevalmat(chnkr,dkern,targout,struct('corrections',1));
-uscat(out) = pcfft_apply(sol, A_spread_s, A_spread_t,evalmat+A_addsub_eval,skern_hat);
+uscat(out) = pcfft_apply(sol, A_spread_s, A_spread_t,evalmat(pt,pc)+A_addsub_eval,skern_hat, ...
+    sort_info_c, sort_info_t);
 tplot = toc
 
 utot = uin + uscat;

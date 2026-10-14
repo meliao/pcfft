@@ -30,6 +30,17 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
 %         Maximum grid points across the box (default 100 in 2D, 30 in 3D)
 %     opts.relax_nshell
 %         Trade one more nspread for a smaller nshell (default false)
+%     opts.spread_cases
+%         Cell array of structs describing additional (derivative) kernels
+%         that will be spread with this grid, each with fields
+%           .kern   : kernel, called as kern(pt, struct('r', x)) where pt
+%                     carries the derivative fields (same convention as
+%                     the kern_der argument of get_spread)
+%           .info   : point struct the fields are sampled from
+%           .fields : cell array of field names to sample from .info
+%         nproxy is taken as the max over all cases, and a grid is only
+%         accepted if every case meets the tolerance. The free-space
+%         kernel is always included. Usually filled in by get_grid.
 %
 % Returns
 % -------
@@ -56,8 +67,35 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
         end
     end
 
+    % Grid -> proxy / target always uses the free-space kernel.
     kernel_pxy = @(s, t) wrap_kern_der(kernel, struct('r', s), struct('r', t), proxy_der);
     kernel_ev  = @(s, t) kernel(struct('r', s), struct('r', t));
+
+    % Kernels that will actually be spread. The free-space kernel is always
+    % one of them; derivative kernels are added from opts.spread_cases.
+    cases = {struct('kern', kernel, 'info', [], 'fields', {{}})};
+    if isfield(opts, 'spread_cases') && ~isempty(opts.spread_cases)
+        extra = opts.spread_cases;
+        if isstruct(extra), extra = num2cell(extra); end
+        for k = 1:numel(extra)
+            c = extra{k};
+            if ~isa(c.kern, 'function_handle')
+                try
+                    c.kern = c.kern.eval;
+                catch
+                    error('dx_nproxy: spread_cases{%d}.kern is not a function and does not have an eval property', k)
+                end
+            end
+            if ~isfield(c, 'fields') || isempty(c.fields), c.fields = {}; end
+            if ischar(c.fields), c.fields = {c.fields}; end
+            if ~isfield(c, 'info'), c.info = []; end
+            if ~isempty(setdiff(c.fields, {'r'})) && isempty(c.info)
+                error('dx_nproxy: spread_cases{%d} requests fields but has no info to sample them from', k)
+            end
+            cases{end+1} = c; %#ok<AGROW>
+        end
+    end
+    ncase = numel(cases);
 
     rng(0);
 
@@ -94,7 +132,7 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
     % Sources and targets for the acceptance tests.
     nsrc = 117;
     src_pts     = (rand(dim, nsrc) - 0.5) * bwidth;
-    src_weights = rand(nsrc, 1) - 0.5;
+    src_weights = rand(nsrc, 1) - 0.5;   % used by the free-space case
 
     % Spread the targets over an annulus
     ntarget = 500;
@@ -104,11 +142,7 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
         target_pts = (1 + rand(1, ntarget)) .* get_sphere_points(ntarget, 1.01 * radius);
     end
 
-    target_evals = kernel_ev(src_pts, target_pts) * src_weights;
-    scale_targ   = max(abs(target_evals));
-
-    % Stage 1: Find nproxy that resolves the field
-    % Add corners before checking resolution
+    % Corners are added when checking the resolution of the field
     if dim == 2
         [A, B] = ndgrid([-1 1], [-1 1]);
         c = [A(:).'; B(:).'];
@@ -116,12 +150,45 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
         [A, B, C] = ndgrid([-1 1], [-1 1], [-1 1]);
         c = [A(:).'; B(:).'; C(:).'];
     end
-    src_res = [src_pts, c * (bwidth / 2)];
+    src_res_pts = [src_pts, c * (bwidth / 2)];
+    nres = size(src_res_pts, 2);
 
-    if dim == 2
-        nproxy = nproxy_ring(kernel_pxy, src_res, radius, tol, nproxy_max);
-    else
-        nproxy = nproxy_sphere(kernel_pxy, src_res, radius, tol, nproxy_max);
+    % Per-case test data. Fields are sampled once (after rng(0)) so every
+    % evaluation in the search sees the same synthetic sources.
+    tests = cell(1, ncase);
+    for k = 1:ncase
+        ck = cases{k};
+        if isempty(ck.info)
+            idx = ones(1, nres);
+        else
+            idx = randi(size(ck.info.r(:,:), 2), 1, nres);
+        end
+        S_res = sample_point_fields(src_res_pts, ck.info, ck.fields, idx);
+        S     = sample_point_fields(src_pts, ck.info, ck.fields, idx(1:nsrc));
+
+        T.src_pxy = @(t) wrap_kern_der(ck.kern, S, struct('r', t), proxy_der);
+        T.res_pxy = @(t) wrap_kern_der(ck.kern, S_res, struct('r', t), proxy_der);
+        K_st = ck.kern(S, struct('r', target_pts));
+        opdim = size(K_st, 2) / nsrc;
+        if k == 1 && opdim == 1
+            T.weights = src_weights;
+        else
+            T.weights = rand(opdim * nsrc, 1) - 0.5;
+        end
+        T.target_evals = K_st * T.weights;
+        T.scale_targ = max(abs(T.target_evals));
+        tests{k} = T;
+    end
+
+    % Stage 1: Find nproxy that resolves the field of every kernel
+    nproxy = 0;
+    for k = 1:ncase
+        if dim == 2
+            npk = nproxy_ring(tests{k}.res_pxy, radius, tol, nproxy_max);
+        else
+            npk = nproxy_sphere(tests{k}.res_pxy, radius, tol, nproxy_max);
+        end
+        nproxy = max(nproxy, npk);
     end
 
     % Stages 2 and 3: Find nshell and nspread
@@ -144,9 +211,8 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
         for ns = 1:nshell_max
             proxy_pts = proxy_surface(dim, nproxy, ns, radius);
 
-            err = spread_error(kernel_pxy, kernel_ev, dim, n, halfside, ...
-                               proxy_pts, src_pts, src_weights, ...
-                               target_pts, target_evals, scale_targ, tol);
+            err = spread_error(kernel_pxy, kernel_ev, tests, dim, n, halfside, ...
+                               proxy_pts, target_pts, tol);
 
             if err < tol
                 nshell  = ns;
@@ -176,9 +242,8 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
         for ns = 1:nshell - 1
             proxy_pts = proxy_surface(dim, nproxy, ns, radius);
 
-            err = spread_error(kernel_pxy, kernel_ev, dim, n, halfside, ...
-                               proxy_pts, src_pts, src_weights, ...
-                               target_pts, target_evals, scale_targ, tol);
+            err = spread_error(kernel_pxy, kernel_ev, tests, dim, n, halfside, ...
+                               proxy_pts, target_pts, tol);
 
             if err < tol && ns < nshell
                 nshell  = ns;
@@ -204,10 +269,10 @@ function [dx, nspread, nbinpts, proxy_info] = dx_nproxy(kernel, dim, tol, halfsi
 
 end
 
-function err = spread_error(kernel_pxy, kernel_ev, dim, nspread, halfside, ...
-                            proxy_pts, src_pts, src_weights, ...
-                            target_pts, target_evals, scale_targ, tol)
-    % Measure approximation error obtained with this grid
+function err = spread_error(kernel_pxy, kernel_ev, tests, dim, nspread, halfside, ...
+                            proxy_pts, target_pts, tol)
+    % Measure the worst approximation error over all spread kernels
+    % obtained with this grid
     dx = 2 * halfside / nspread;
     xx = -halfside + dx / 2 + (0:nspread - 1) * dx;
     if dim == 2
@@ -221,17 +286,24 @@ function err = spread_error(kernel_pxy, kernel_ev, dim, nspread, halfside, ...
         reg_pts = [X(:).'; Y(:).'; Z(:).'];
     end
 
-    evals_at_proxy = kernel_pxy(src_pts, proxy_pts) * src_weights;
     K_reg_to_proxy = kernel_pxy(reg_pts, proxy_pts);
+    K_reg_to_targ  = kernel_ev(reg_pts, target_pts);
 
-    spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
-
-    approx_at_target = kernel_ev(reg_pts, target_pts) * spread_weights;
-
-    err = max(abs(approx_at_target(:) - target_evals(:))) / scale_targ;
+    err = 0;
+    for k = 1:numel(tests)
+        T = tests{k};
+        evals_at_proxy = T.src_pxy(proxy_pts) * T.weights;
+        spread_weights = lsqminnorm(K_reg_to_proxy, evals_at_proxy, tol / 10);
+        approx_at_target = K_reg_to_targ * spread_weights;
+        errk = max(abs(approx_at_target(:) - T.target_evals(:))) / T.scale_targ;
+        err = max(err, errk);
+        if err >= tol, return; end
+    end
 end
 
-function nproxy = nproxy_ring(kernel_pxy, src, radius, tol, nproxy_max)
+function nproxy = nproxy_ring(field_at, radius, tol, nproxy_max)
+    % field_at(p) returns the (derivative-wrapped) kernel matrix from the
+    % test sources to the points p.
     % Find point where Fourier tails of k(.,src) fall below tol. Leaves a
     % margin of at least 3 orders and at least 25%
     nmarg_abs  = 3;
@@ -240,7 +312,7 @@ function nproxy = nproxy_ring(kernel_pxy, src, radius, tol, nproxy_max)
     % Resolve every mode the sweep can reach.
     nfine = 2 * nproxy_max;
     p     = get_ring_points(nfine, radius);
-    F     = kernel_pxy(src, p);
+    F     = field_at(p);
 
     nder  = size(F, 1) / nfine;
     nh    = floor(nfine / 2);
@@ -273,7 +345,9 @@ function nproxy = nproxy_ring(kernel_pxy, src, radius, tol, nproxy_max)
     error('dx_nproxy: nproxy did not converge below nproxy = %d', nproxy_max)
 end
 
-function nproxy = nproxy_sphere(kernel_pxy, src, radius, tol, nproxy_max)
+function nproxy = nproxy_sphere(field_at, radius, tol, nproxy_max)
+    % field_at(p) returns the (derivative-wrapped) kernel matrix from the
+    % test sources to the points p.
     % Find point where spherical harmonic tails of k(.,src) fall below tol. Leaves a
     % margin of at least 3 orders and at least 25%
     nmarg_abs  = 3;
@@ -295,7 +369,7 @@ function nproxy = nproxy_sphere(kernel_pxy, src, radius, tol, nproxy_max)
     p = [X(:).'; Y(:).'; Z(:).'];
 
     ngrid = ntheta * nphi;
-    F     = kernel_pxy(src, p);
+    F     = field_at(p);
     nder  = size(F, 1) / ngrid;
     nsrc  = size(F, 2);
 

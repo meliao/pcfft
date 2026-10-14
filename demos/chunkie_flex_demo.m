@@ -153,16 +153,25 @@ opts.corrections = 1;
 % a(2+size(a,1):2*size(a,1)+2:end) = 0;
 
 start = tic;
-cors = chunkermat(chnkr,fkern, opts);
-cors = cors - 0.5*speye(2*chnkr.npt) + A_addsub_c.*wts(:).';
-% cors = cors - 0.5*speye(2*chnkr.npt) + a;
-cors(2:2:end,1:2:end) = cors(2:2:end,1:2:end) + kappa.*speye(chnkr.npt);
+% A_spread_* and A_addsub_* are in sorted point order (see get_spread)
+pc = sort_info_c.ptid_srt(:);
+pt = sort_info_t.ptid_srt(:);
+pce = 2*(pc.'-1) + (1:2).';
+pce = pce(:);
+wts_srt = wts(:,pc);
 
-A_spread_s = A_spread_s.*wts(:).';
-A_addsub_eval = A_addsub_eval.*wts(:).';
+cors = chunkermat(chnkr,fkern, opts);
+cors = cors - 0.5*speye(2*chnkr.npt);
+cors(2:2:end,1:2:end) = cors(2:2:end,1:2:end) + kappa.*speye(chnkr.npt);
+cors = cors(pce,pce) + A_addsub_c.*wts_srt(:).';
+% cors = cors - 0.5*speye(2*chnkr.npt) + a;
+
+A_spread_s = A_spread_s.*wts_srt(:).';
+A_addsub_eval = A_addsub_eval.*wts_srt(:).';
 tprecom = toc(t1)
 
-sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_c,cors,skern_hat);
+sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_c,cors,skern_hat, ...
+    sort_info_c,sort_info_c);
 
 tic;
 % solve
@@ -182,7 +191,8 @@ tsolve2 = toc
 tic;
 uscat = zeros(size(xx));
 evalmat = chunkerkernevalmat(chnkr,ekern,targout,struct('corrections',1));
-uscat(out) = pcfft_apply(sol, A_spread_s, A_spread_t,evalmat+A_addsub_eval,skern_hat);
+uscat(out) = pcfft_apply(sol, A_spread_s, A_spread_t,evalmat(pt,pce)+A_addsub_eval,skern_hat, ...
+    sort_info_c, sort_info_t);
 tplot = toc
 
 % uscat(out) = chunkerkerneval(chnkr,ekern,sol2,targout);

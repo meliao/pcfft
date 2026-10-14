@@ -50,7 +50,8 @@ kern_hat = get_kernhat(kern_0, grid_info)
 Evaluate FFT of kern_0 on the equispaced grid.
 
 ```
-u = pcfft_apply(sigma, A_spread_s, A_spread_t, A_addsub, kern_0hat)
+u = pcfft_apply(sigma, A_spread_s, A_spread_t, A_addsub, kern_0hat, ...
+                sort_info_s, sort_info_t)
 ```
 Compute the N-body sum using a precorrected FFT.
 

@@ -143,13 +143,22 @@ skern_hat = get_kernhat(skern,grid_info);
 % Bmat(idx) = Q.spmat(idx); 
 % Bmat = Bmat + 0.5*eye(size(cors));
 
-cors = cors + (A_addsub_self.*S_over.wts(:).')*interp_mat + 0.5*speye(size(cors));
-A_spread_s = (A_spread_s.*S_over.wts(:).') * interp_mat;
-A_addsub_eval = (A_addsub_eval.*S_over.wts(:).') * interp_mat;
+% A_spread_* and A_addsub_* are in sorted point order (see get_spread)
+pS = sort_info_S.ptid_srt(:);
+pS_over = sort_info_S_over.ptid_srt(:);
+pt = sort_info_t.ptid_srt(:);
+wts_over_srt = S_over.wts(:);
+wts_over_srt = wts_over_srt(pS_over).';
+interp_srt = interp_mat(pS_over,pS);
+
+cors = cors(pS,pS) + (A_addsub_self.*wts_over_srt)*interp_srt + 0.5*speye(size(cors));
+A_spread_s = (A_spread_s.*wts_over_srt) * interp_srt;
+A_addsub_eval = (A_addsub_eval.*wts_over_srt) * interp_srt;
 tprecom = toc(t1)
 
 %%
-sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_surf,cors,skern_hat);
+sys_app = @(dens) pcfft_apply(dens,A_spread_s,A_spread_surf,cors,skern_hat, ...
+    sort_info_S,sort_info_S);
 
 tic;
 % solve
@@ -163,7 +172,8 @@ tic;
 uscat = (NaN+NaN*1i)*zeros(size(xx));
 Q = helm3d.dirichlet.get_quadrature_correction(S,eps,zk,[0,1],targout);
 corsplot = d_cor_mat(S, S_over, interp_mat, zk, Q);
-uscat(out) = pcfft_apply(sol, A_spread_s, A_spread_t,corsplot+A_addsub_eval,skern_hat);
+uscat(out) = pcfft_apply(sol, A_spread_s, A_spread_t,corsplot(pt,pS)+A_addsub_eval,skern_hat, ...
+    sort_info_S, sort_info_t);
 tplot = toc
 
 utot = uin + uscat;
